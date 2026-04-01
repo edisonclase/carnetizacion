@@ -1,5 +1,6 @@
 from app.models.attendance_daily_summary import AttendanceDailySummary
 from app.models.attendance_event import AttendanceEvent
+from app.models.authorized_exit import AuthorizedExit
 from app.models.card import Card
 from app.models.center import Center
 from app.models.center_attendance_day import CenterAttendanceDay
@@ -18,4 +19,5 @@ __all__ = [
     "Card",
     "AttendanceEvent",
     "AttendanceDailySummary",
+    "AuthorizedExit",
 ]
