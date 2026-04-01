@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from sqlalchemy import text
 
 from app.api.routes.center import router as center_router
+from app.api.routes.guardian import router as guardian_router
 from app.api.routes.school_year import router as school_year_router
 from app.api.routes.student import router as student_router
 from app.core.database import engine
@@ -12,6 +13,7 @@ app = FastAPI(title=settings.app_name)
 app.include_router(center_router)
 app.include_router(school_year_router)
 app.include_router(student_router)
+app.include_router(guardian_router)
 
 
 @app.get("/")

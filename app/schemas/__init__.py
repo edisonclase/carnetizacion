@@ -1,4 +1,5 @@
 from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
+from app.schemas.guardian import GuardianCreate, GuardianResponse, GuardianUpdate
 from app.schemas.school_year import SchoolYearCreate, SchoolYearResponse, SchoolYearUpdate
 from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
 
@@ -12,4 +13,7 @@ __all__ = [
     "StudentCreate",
     "StudentUpdate",
     "StudentResponse",
+    "GuardianCreate",
+    "GuardianUpdate",
+    "GuardianResponse",
 ]
