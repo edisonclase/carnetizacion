@@ -1,5 +1,5 @@
 from sqlalchemy import Boolean, DateTime, Integer, String, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
 
@@ -18,3 +18,5 @@ class Center(Base):
         server_default=func.now(),
         nullable=False,
     )
+
+    school_years = relationship("SchoolYear", back_populates="center")
