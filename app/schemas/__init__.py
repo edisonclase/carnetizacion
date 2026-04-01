@@ -1,3 +1,8 @@
+from app.schemas.attendance_event import (
+    AttendanceEventCreate,
+    AttendanceEventResponse,
+    AttendanceEventUpdate,
+)
 from app.schemas.card import CardCreate, CardResponse, CardUpdate
 from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
 from app.schemas.center_schedule import (
@@ -28,4 +33,7 @@ __all__ = [
     "CenterScheduleCreate",
     "CenterScheduleUpdate",
     "CenterScheduleResponse",
+    "AttendanceEventCreate",
+    "AttendanceEventUpdate",
+    "AttendanceEventResponse",
 ]
