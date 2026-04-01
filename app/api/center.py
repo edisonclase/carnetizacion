@@ -27,6 +27,7 @@ def create_center(payload: CenterCreate, db: Session = Depends(get_db)):
     db.add(center)
     db.commit()
     db.refresh(center)
+
     return center
 
 
@@ -72,4 +73,5 @@ def update_center(center_id: int, payload: CenterUpdate, db: Session = Depends(g
 
     db.commit()
     db.refresh(center)
+
     return center
