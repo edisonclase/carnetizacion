@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
-from app.core.database import engine
+from app.core.database import Base, engine
 from app.core.settings import settings
+from app.models import Center
 
 app = FastAPI(title=settings.app_name)
 
@@ -25,3 +26,9 @@ def health_check():
         "status": "ok",
         "database": "connected",
     }
+
+
+@app.post("/setup/create-tables")
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+    return {"message": "Tablas creadas correctamente"}
