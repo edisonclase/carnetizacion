@@ -1,4 +1,8 @@
 from app.schemas.attendance_actions import AttendanceEntryRegister, AttendanceExitRegister
+from app.schemas.attendance_daily_summary import (
+    AttendanceDailySummaryGenerate,
+    AttendanceDailySummaryResponse,
+)
 from app.schemas.attendance_event import (
     AttendanceEventCreate,
     AttendanceEventResponse,
@@ -39,4 +43,6 @@ __all__ = [
     "AttendanceEventResponse",
     "AttendanceEntryRegister",
     "AttendanceExitRegister",
+    "AttendanceDailySummaryGenerate",
+    "AttendanceDailySummaryResponse",
 ]

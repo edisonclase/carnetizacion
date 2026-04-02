@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from sqlalchemy import text
 
+from app.api.routes.attendance_daily_summary import router as attendance_daily_summary_router
 from app.api.routes.attendance_event import router as attendance_event_router
 from app.api.routes.card import router as card_router
 from app.api.routes.center import router as center_router
@@ -20,6 +21,7 @@ app.include_router(guardian_router)
 app.include_router(card_router)
 app.include_router(center_schedule_router)
 app.include_router(attendance_event_router)
+app.include_router(attendance_daily_summary_router)
 
 
 @app.get("/")
