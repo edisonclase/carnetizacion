@@ -119,7 +119,8 @@ body {
     color: var(--text);
 }
 
-.field input {
+.field input,
+.field select {
     height: 44px;
     border: 1px solid var(--border);
     border-radius: 12px;

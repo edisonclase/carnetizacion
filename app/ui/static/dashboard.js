@@ -210,6 +210,44 @@ async function fetchJson(url) {
     return response.json();
 }
 
+async function loadCenters() {
+    const centerSelect = document.getElementById("centerId");
+    if (!centerSelect) return;
+
+    try {
+        const centers = await fetchJson("/centers/");
+        if (!centers.length) {
+            centerSelect.innerHTML = `<option value="">No hay centros registrados</option>`;
+            return;
+        }
+
+        centerSelect.innerHTML = centers.map(center => `
+            <option value="${center.id}">${center.name}</option>
+        `).join("");
+    } catch (error) {
+        centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
+    }
+}
+
+async function loadSchoolYears() {
+    const schoolYearSelect = document.getElementById("schoolYearId");
+    if (!schoolYearSelect) return;
+
+    try {
+        const schoolYears = await fetchJson("/school-years/");
+        if (!schoolYears.length) {
+            schoolYearSelect.innerHTML = `<option value="">No hay años escolares registrados</option>`;
+            return;
+        }
+
+        schoolYearSelect.innerHTML = schoolYears.map(item => `
+            <option value="${item.id}">${item.name}</option>
+        `).join("");
+    } catch (error) {
+        schoolYearSelect.innerHTML = `<option value="">Error cargando años escolares</option>`;
+    }
+}
+
 async function loadDashboard() {
     const centerId = document.getElementById("centerId").value;
     const schoolYearId = document.getElementById("schoolYearId").value;
@@ -266,8 +304,10 @@ async function loadDashboard() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     setDefaultDate();
+    await loadCenters();
+    await loadSchoolYears();
 
     const button = document.getElementById("loadDashboardBtn");
     if (button) {
