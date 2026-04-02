@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Nova ID</title>
+    <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>by Aula Nova</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard" class="active">Dashboard</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <h2>Dashboard Institucional</h2>
+                    <p>Asistencia, comportamiento y consolidado diario</p>
+                </div>
+            </header>
+
+            <section class="filters-card">
+                <div class="filters-grid">
+                    <div class="field">
+                        <label for="centerId">Centro</label>
+                        <input type="number" id="centerId" value="1" min="1" />
+                    </div>
+
+                    <div class="field">
+                        <label for="schoolYearId">Año escolar</label>
+                        <input type="number" id="schoolYearId" value="1" min="1" />
+                    </div>
+
+                    <div class="field">
+                        <label for="reportDate">Fecha</label>
+                        <input type="date" id="reportDate" />
+                    </div>
+
+                    <div class="field field-actions">
+                        <button id="loadDashboardBtn">Cargar dashboard</button>
+                    </div>
+                </div>
+            </section>
+
+            <section class="metrics-grid">
+                <article class="metric-card">
+                    <span class="metric-label">Presentes</span>
+                    <strong id="metricPresent">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Tardanzas</span>
+                    <strong id="metricLate">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Ausentes</span>
+                    <strong id="metricAbsent">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Con excusa</span>
+                    <strong id="metricExcuse">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Entradas</span>
+                    <strong id="metricEntries">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Salidas</span>
+                    <strong id="metricExits">0</strong>
+                </article>
+            </section>
+
+            <section class="status-grid">
+                <article class="status-card">
+                    <h3>Estado del día</h3>
+                    <div class="status-list">
+                        <div><span>Día laborable</span><strong id="flagWorkday">-</strong></div>
+                        <div><span>Hubo actividad</span><strong id="flagActivity">-</strong></div>
+                        <div><span>Posible no docencia</span><strong id="flagNoSchool">-</strong></div>
+                        <div><span>Posible despacho temprano</span><strong id="flagEarlyDismissal">-</strong></div>
+                    </div>
+                </article>
+
+                <article class="status-card">
+                    <h3>Resumen general</h3>
+                    <div id="generalMessage" class="general-message">
+                        Selecciona centro, año escolar y fecha para cargar los datos.
+                    </div>
+                </article>
+            </section>
+
+            <section class="tables-section">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3>Resumen por curso</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Curso</th>
+                                    <th>Sección</th>
+                                    <th>Total</th>
+                                    <th>Presentes</th>
+                                    <th>Tardes</th>
+                                    <th>Ausentes</th>
+                                    <th>Excusas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseTableBody">
+                                <tr>
+                                    <td colspan="7" class="empty-row">Sin datos cargados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3>Resumen por sexo</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Sexo</th>
+                                    <th>Total</th>
+                                    <th>Presentes</th>
+                                    <th>Tardes</th>
+                                    <th>Ausentes</th>
+                                    <th>Excusas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="genderTableBody">
+                                <tr>
+                                    <td colspan="6" class="empty-row">Sin datos cargados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tables-section">
+                <div class="table-card full-width">
+                    <div class="table-card-header">
+                        <h3>Detalle diario</h3>
+                    </div>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estado</th>
+                                    <th>Nombre</th>
+                                    <th>Código</th>
+                                    <th>MINERD</th>
+                                    <th>Sexo</th>
+                                    <th>Curso</th>
+                                    <th>Sección</th>
+                                    <th>Entrada</th>
+                                    <th>Min. tarde</th>
+                                    <th>Excusa</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody">
+                                <tr>
+                                    <td colspan="10" class="empty-row">Sin datos cargados.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/dashboard.js"></script>
+</body>
+</html>

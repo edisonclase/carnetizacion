@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.api.routes.attendance_daily_summary import router as attendance_daily_summary_router
@@ -12,10 +13,13 @@ from app.api.routes.guardian import router as guardian_router
 from app.api.routes.reports import router as reports_router
 from app.api.routes.school_year import router as school_year_router
 from app.api.routes.student import router as student_router
+from app.api.routes.ui import router as ui_router
 from app.core.database import engine
 from app.core.settings import settings
 
 app = FastAPI(title=settings.app_name)
+
+app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
 
 app.include_router(center_router)
 app.include_router(school_year_router)
@@ -28,6 +32,7 @@ app.include_router(attendance_daily_summary_router)
 app.include_router(center_attendance_day_router)
 app.include_router(authorized_exit_router)
 app.include_router(reports_router)
+app.include_router(ui_router)
 
 
 @app.get("/")
