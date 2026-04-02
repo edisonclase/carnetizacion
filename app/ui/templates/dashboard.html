@@ -83,6 +83,18 @@
                 </article>
             </section>
 
+            <section class="charts-section">
+                <div class="chart-card">
+                    <h3>Asistencia por curso</h3>
+                    <canvas id="courseChart"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <h3>Distribución por sexo</h3>
+                    <canvas id="genderChart"></canvas>
+                </div>
+            </section>
+
             <section class="status-grid">
                 <article class="status-card">
                     <h3>Estado del día</h3>
@@ -188,6 +200,7 @@
         </main>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/static/dashboard.js"></script>
 </body>
 </html>

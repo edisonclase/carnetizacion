@@ -169,6 +169,31 @@ body {
     font-size: 1.8rem;
 }
 
+.charts-section {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 22px;
+}
+
+.chart-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: var(--shadow);
+}
+
+.chart-card h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.chart-card canvas {
+    width: 100% !important;
+    min-height: 320px;
+}
+
 .status-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -295,7 +320,8 @@ tbody td {
     }
 
     .tables-section,
-    .status-grid {
+    .status-grid,
+    .charts-section {
         grid-template-columns: 1fr;
     }
 }

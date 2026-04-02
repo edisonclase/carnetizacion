@@ -1,3 +1,6 @@
+let courseChartInstance = null;
+let genderChartInstance = null;
+
 function getTodayLocalDate() {
     const now = new Date();
     const year = now.getFullYear();
@@ -120,11 +123,82 @@ function renderDetailTable(report) {
             <td>${item.gender ?? "-"}</td>
             <td>${item.grade}</td>
             <td>${item.section}</td>
-            <td>${item.first_entry_time ? new Date(item.first_entry_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "-"}</td>
+            <td>${item.first_entry_time ? new Date(item.first_entry_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}</td>
             <td>${item.minutes_late ?? 0}</td>
             <td>${item.has_excuse ? (item.excuse_note ?? "Sí") : "No"}</td>
         </tr>
     `).join("");
+}
+
+function renderCourseChart(data) {
+    const ctx = document.getElementById("courseChart");
+    if (!ctx) return;
+
+    if (courseChartInstance) {
+        courseChartInstance.destroy();
+    }
+
+    const labels = data.map(item => `${item.grade}-${item.section}`);
+    const present = data.map(item => item.total_present);
+    const absent = data.map(item => item.total_absent);
+    const late = data.map(item => item.total_late);
+
+    courseChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels,
+            datasets: [
+                {
+                    label: "Presentes",
+                    data: present,
+                    backgroundColor: "#16a34a",
+                },
+                {
+                    label: "Ausentes",
+                    data: absent,
+                    backgroundColor: "#dc2626",
+                },
+                {
+                    label: "Tardes",
+                    data: late,
+                    backgroundColor: "#d97706",
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "top",
+                },
+            },
+        },
+    });
+}
+
+function renderGenderChart(data) {
+    const ctx = document.getElementById("genderChart");
+    if (!ctx) return;
+
+    if (genderChartInstance) {
+        genderChartInstance.destroy();
+    }
+
+    const labels = data.map(item => item.gender);
+    const present = data.map(item => item.total_present);
+
+    genderChartInstance = new Chart(ctx, {
+        type: "pie",
+        data: {
+            labels,
+            datasets: [
+                {
+                    data: present,
+                    backgroundColor: ["#2563eb", "#ec4899", "#10b981", "#f59e0b"],
+                },
+            ],
+        },
+    });
 }
 
 async function fetchJson(url) {
@@ -176,6 +250,8 @@ async function loadDashboard() {
         renderCourseTable(groupedReport.by_course || []);
         renderGenderTable(groupedReport.by_gender || []);
         renderDetailTable(dailyReport);
+        renderCourseChart(groupedReport.by_course || []);
+        renderGenderChart(groupedReport.by_gender || []);
     } catch (error) {
         generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
         renderCourseTable([]);
@@ -183,8 +259,10 @@ async function loadDashboard() {
         renderDetailTable({
             present_students: [],
             late_students: [],
-            absent_students: []
+            absent_students: [],
         });
+        renderCourseChart([]);
+        renderGenderChart([]);
     }
 }
 
