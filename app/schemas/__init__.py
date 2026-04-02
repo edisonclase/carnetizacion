@@ -10,6 +10,10 @@ from app.schemas.attendance_event import (
 )
 from app.schemas.card import CardCreate, CardResponse, CardUpdate
 from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
+from app.schemas.center_attendance_day import (
+    CenterAttendanceDayGenerate,
+    CenterAttendanceDayResponse,
+)
 from app.schemas.center_schedule import (
     CenterScheduleCreate,
     CenterScheduleResponse,
@@ -45,4 +49,6 @@ __all__ = [
     "AttendanceExitRegister",
     "AttendanceDailySummaryGenerate",
     "AttendanceDailySummaryResponse",
+    "CenterAttendanceDayGenerate",
+    "CenterAttendanceDayResponse",
 ]
