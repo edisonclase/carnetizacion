@@ -6,6 +6,7 @@ from app.api.routes.attendance_daily_summary import router as attendance_daily_s
 from app.api.routes.attendance_event import router as attendance_event_router
 from app.api.routes.authorized_exit import router as authorized_exit_router
 from app.api.routes.card import router as card_router
+from app.api.routes.card_qr import router as card_qr_router
 from app.api.routes.center import router as center_router
 from app.api.routes.center_attendance_day import router as center_attendance_day_router
 from app.api.routes.center_schedule import router as center_schedule_router
@@ -26,6 +27,7 @@ app.include_router(school_year_router)
 app.include_router(student_router)
 app.include_router(guardian_router)
 app.include_router(card_router)
+app.include_router(card_qr_router)
 app.include_router(center_schedule_router)
 app.include_router(attendance_event_router)
 app.include_router(attendance_daily_summary_router)

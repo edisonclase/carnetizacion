@@ -4,19 +4,16 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.models.student import Student
+from app.models.card import Card
 from app.models.center import Center
 from app.models.school_year import SchoolYear
-from app.models.card import Card
+from app.models.student import Student
 
 router = APIRouter(tags=["UI"])
 
 templates = Jinja2Templates(directory="app/ui/templates")
 
 
-# =========================
-# DASHBOARD
-# =========================
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     return templates.TemplateResponse(
@@ -26,9 +23,6 @@ def dashboard_page(request: Request):
     )
 
 
-# =========================
-# CARNET - FRENTE
-# =========================
 @router.get("/students/{student_id}/card/front", response_class=HTMLResponse)
 def student_card_front(
     request: Request,
@@ -57,7 +51,7 @@ def student_card_front(
             "request": request,
             "center_name": center.name if center else "Centro educativo",
             "center_logo_url": center.logo_url if center else None,
-            "center_primary_color": "#2563eb",  # luego será configurable
+            "center_primary_color": "#2563eb",
             "student_full_name": f"{student.first_name} {student.last_name}",
             "student_code": student.student_code,
             "minerd_id": student.minerd_id,
@@ -65,14 +59,11 @@ def student_card_front(
             "section": student.section,
             "school_year_name": school_year.name if school_year else "-",
             "student_photo_url": student.photo_path,
-            "qr_image_url": None,  # lo implementamos en el siguiente paso
+            "qr_image_url": f"/cards/{card.id}/qr.png" if card else None,
         },
     )
 
 
-# =========================
-# CARNET - REVERSO
-# =========================
 @router.get("/students/{student_id}/card/back", response_class=HTMLResponse)
 def student_card_back(
     request: Request,
