@@ -20,14 +20,18 @@ from app.core.settings import settings
 
 app = FastAPI(title=settings.app_name)
 
+# Archivos estáticos para CSS, JS e imágenes estáticas
 app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
+
+# REGISTRO DE ROUTERS
+# Se coloca card_qr_router al inicio para evitar conflictos con rutas de ID en card_router
+app.include_router(card_qr_router) 
 
 app.include_router(center_router)
 app.include_router(school_year_router)
 app.include_router(student_router)
 app.include_router(guardian_router)
 app.include_router(card_router)
-app.include_router(card_qr_router)
 app.include_router(center_schedule_router)
 app.include_router(attendance_event_router)
 app.include_router(attendance_daily_summary_router)
