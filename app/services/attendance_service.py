@@ -1,8 +1,9 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
 from app.models.attendance_event import AttendanceEvent
+from app.models.authorized_exit import AuthorizedExit
 from app.models.card import Card
 from app.models.center_schedule import CenterSchedule
 from app.models.student import Student
@@ -56,6 +57,40 @@ class AttendanceService:
 
         return "late"
 
+    def validate_card_belongs_to_student(self, student_id: int, card_id: int | None) -> None:
+        if card_id is None:
+            return
+
+        card = self.db.query(Card).filter(Card.id == card_id).first()
+        if not card:
+            raise ValueError("El carnet indicado no existe.")
+
+        if card.student_id != student_id:
+            raise ValueError("El carnet indicado no pertenece al estudiante.")
+
+    def has_valid_authorized_exit(
+        self,
+        *,
+        student_id: int,
+        event_time: datetime,
+        tolerance_minutes: int = 60,
+    ) -> bool:
+        start_window = event_time - timedelta(minutes=tolerance_minutes)
+        end_window = event_time + timedelta(minutes=tolerance_minutes)
+
+        record = (
+            self.db.query(AuthorizedExit)
+            .filter(
+                AuthorizedExit.student_id == student_id,
+                AuthorizedExit.authorized_at >= start_window,
+                AuthorizedExit.authorized_at <= end_window,
+            )
+            .order_by(AuthorizedExit.authorized_at.desc())
+            .first()
+        )
+
+        return record is not None
+
     def create_entry_event(
         self,
         *,
@@ -69,6 +104,8 @@ class AttendanceService:
         student = self.db.query(Student).filter(Student.id == student_id).first()
         if not student:
             raise ValueError("El estudiante no existe.")
+
+        self.validate_card_belongs_to_student(student_id=student.id, card_id=card_id)
 
         schedule = self.get_schedule_for_center(student.center_id)
         if not schedule:
@@ -111,12 +148,24 @@ class AttendanceService:
         if not student:
             raise ValueError("El estudiante no existe.")
 
+        self.validate_card_belongs_to_student(student_id=student.id, card_id=card_id)
+
         schedule = self.get_schedule_for_center(student.center_id)
         if not schedule:
             raise ValueError("El centro no tiene configuración horaria registrada.")
 
         if not self.is_workday(event_time, schedule.workdays):
             raise ValueError("La fecha indicada no corresponde a un día laborable del centro.")
+
+        if status == "authorized_exit":
+            authorized = self.has_valid_authorized_exit(
+                student_id=student.id,
+                event_time=event_time,
+            )
+            if not authorized:
+                raise ValueError(
+                    "No existe una autorización válida de salida para este estudiante en un rango cercano a la hora indicada."
+                )
 
         event = AttendanceEvent(
             student_id=student.id,
