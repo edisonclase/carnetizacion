@@ -5,11 +5,13 @@ from app.api.deps import get_db
 from app.models.attendance_event import AttendanceEvent
 from app.models.card import Card
 from app.models.student import Student
+from app.schemas.attendance_actions import AttendanceEntryRegister, AttendanceExitRegister
 from app.schemas.attendance_event import (
     AttendanceEventCreate,
     AttendanceEventResponse,
     AttendanceEventUpdate,
 )
+from app.services.attendance_service import AttendanceService
 
 router = APIRouter(prefix="/attendance-events", tags=["Attendance Events"])
 
@@ -55,6 +57,59 @@ def create_attendance_event(payload: AttendanceEventCreate, db: Session = Depend
     return event
 
 
+@router.post(
+    "/register-entry",
+    response_model=AttendanceEventResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def register_entry(payload: AttendanceEntryRegister, db: Session = Depends(get_db)):
+    service = AttendanceService(db)
+
+    try:
+        event = service.create_entry_event(
+            student_id=payload.student_id,
+            card_id=payload.card_id,
+            event_time=payload.event_time,
+            source=payload.source,
+            notes=payload.notes,
+            recorded_by=payload.recorded_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return event
+
+
+@router.post(
+    "/register-exit",
+    response_model=AttendanceEventResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def register_exit(payload: AttendanceExitRegister, db: Session = Depends(get_db)):
+    service = AttendanceService(db)
+
+    try:
+        event = service.create_exit_event(
+            student_id=payload.student_id,
+            card_id=payload.card_id,
+            event_time=payload.event_time,
+            source=payload.source,
+            status=payload.status,
+            notes=payload.notes,
+            recorded_by=payload.recorded_by,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return event
+
+
 @router.get("/", response_model=list[AttendanceEventResponse])
 def list_attendance_events(db: Session = Depends(get_db)):
     events = db.query(AttendanceEvent).order_by(AttendanceEvent.id.asc()).all()
@@ -96,8 +151,7 @@ def update_attendance_event(
                 detail="El carnet indicado no existe.",
             )
 
-        student_id_to_validate = update_data.get("student_id", event.student_id)
-        if card.student_id != student_id_to_validate:
+        if card.student_id != event.student_id:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="El carnet indicado no pertenece al estudiante del evento.",
