@@ -3,16 +3,19 @@
 
 ## 📌 Descripción
 
-Nova ID es un sistema de identificación escolar, control de asistencia y análisis institucional, diseñado para centros educativos del sistema dominicano.
+Nova ID es un sistema integral de identificación, control de asistencia y análisis institucional para centros educativos.
 
-El sistema permite:
-- Registro de estudiantes
-- Emisión de carnets con QR
-- Control de entradas y salidas
-- Registro de tardanzas y ausencias
-- Gestión de salidas autorizadas
-- Generación de reportes y estadísticas
-- Dashboard institucional
+Permite gestionar tanto estudiantes como personal docente, incorporando registro de entradas, salidas, permisos y análisis de comportamiento.
+
+---
+
+## 🎯 Objetivos
+
+- Digitalizar la asistencia escolar
+- Automatizar el control de entradas y salidas
+- Generar reportes institucionales
+- Proveer analítica educativa en tiempo real
+- Integrarse conceptualmente con Aula Nova
 
 ---
 
@@ -26,17 +29,26 @@ El sistema permite:
 
 ---
 
-## 🗂️ Modelos principales
+## 🗂️ Modelos implementados
 
+### Núcleo
 - Center
+- SchoolYear
+- Student
+- Guardian
+
+### Identificación
+- Card
+
+### Asistencia
+- AttendanceEvent
+- AttendanceDailySummary
+
+### Configuración institucional
 - CenterSchedule
 - CenterAttendanceDay
-- SchoolYear
-- Student (incluye minerd_id)
-- Guardian
-- Card
-- AttendanceEvent
-- AttendanceDailySummary (usa "excusa")
+
+### Eventos especiales
 - AuthorizedExit
 
 ---
@@ -53,23 +65,32 @@ Reglas inteligentes:
 
 ---
 
-## 📊 Funcionalidades clave
+## 👨‍🏫 Módulo de personal (EN DESARROLLO)
 
-### Asistencia
-- Registro de entradas y salidas
-- Tardanzas automáticas
+El sistema incluirá soporte para docentes y personal administrativo:
+
+- Carnetización del personal
+- Registro de múltiples entradas y salidas por día
+- Identificación de salida final del día
+- Registro de salidas con permiso
+- Análisis de permanencia laboral
+
+---
+
+## 📊 Funcionalidades
+
+### Estudiantes
+- Registro de asistencia
+- Tardanzas
 - Ausencias
 - Excusas
+- Salidas autorizadas
 
-### Carnetización
-- Generación de QR
-- Código único por carnet
-
-### Salidas autorizadas
-- Registro de autorización
-- Responsable
-- Motivo
-- Persona que retira
+### Personal docente (futuro)
+- Entradas múltiples
+- Salidas intermedias
+- Permisos
+- Control de jornada
 
 ### Reportes
 - Diario
@@ -80,34 +101,40 @@ Reglas inteligentes:
 
 ### Analítica
 - Porcentaje de asistencia
-- Ranking de incidencias
-- Tendencias institucionales
+- Tendencias
+- Incidencias
+- Comportamiento institucional
 
 ---
 
 ## 🚀 Estado del proyecto
 
-En desarrollo activo.
-
 Fase actual:
-- Modelado de datos completo
-- Migraciones configuradas
-- Schemas creados
-- Próximo paso: Endpoints CRUD y lógica de negocio
+- Modelado de datos completo ✔
+- CRUDs principales ✔
+- Registro de eventos ✔
+
+Próximos pasos:
+- Lógica automática de asistencia
+- Generación de resúmenes
+- Reportes y estadísticas
+- Dashboard
+- Módulo de personal docente
 
 ---
 
 ## 🧠 Visión
 
-Convertirse en una plataforma de gestión escolar inteligente que combine:
-- identificación
-- asistencia
-- análisis de datos
-- comunicación institucional
+Convertirse en una plataforma inteligente de gestión educativa que combine:
+
+- Identidad digital
+- Control institucional
+- Analítica educativa
+- Toma de decisiones basada en datos
 
 ---
 
 ## 👨‍💻 Autor
 
 Edison Clase  
-Sistema Aula Nova
+Proyecto Aula Nova

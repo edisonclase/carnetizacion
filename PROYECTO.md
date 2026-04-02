@@ -2,21 +2,41 @@
 
 ## 1. OBJETIVO
 
-Desarrollar un sistema independiente de carnetización y control de asistencia escolar con capacidades analíticas, integrado conceptualmente a Aula Nova.
+Desarrollar un sistema de carnetización, control de asistencia y análisis institucional para centros educativos.
 
 ---
 
-## 2. ENFOQUE
+## 2. ALCANCE
 
-Sistema modular con:
-- registro de identidad
-- eventos de asistencia
-- procesamiento de datos
-- análisis institucional
+El sistema incluye:
+
+### Estudiantes
+- Identificación mediante carnet
+- Registro de asistencia
+- Excusas
+- Salidas autorizadas
+
+### Personal docente (expansión)
+- Carnetización
+- Entradas y salidas múltiples
+- Control de jornada
+- Registro de permisos
 
 ---
 
-## 3. MODELO DE DATOS
+## 3. ARQUITECTURA
+
+- FastAPI
+- PostgreSQL
+- SQLAlchemy
+- Alembic
+- Pydantic
+
+Arquitectura modular orientada a servicios.
+
+---
+
+## 4. MODELO DE DATOS
 
 ### Núcleo
 - Center
@@ -40,77 +60,90 @@ Sistema modular con:
 
 ---
 
-## 4. FILOSOFÍA DE DISEÑO
+## 5. FILOSOFÍA DE DISEÑO
 
-Separación de responsabilidades:
+Separación clara de responsabilidades:
 
 - Event → evento crudo
 - Summary → resultado diario
-- Institutional → análisis global
+- Institutional → comportamiento global
 
 ---
 
-## 5. REGLAS DE NEGOCIO
+## 6. REGLAS DE NEGOCIO
 
-### Entrada
-- Hora oficial: 7:30 AM
+### Estudiantes
 
-### Salida
-- Hora oficial: 3:30 PM
+- Entrada: 7:30 AM
+- Salida: 3:30 PM
 
-### Tardanza
-- Entrada después de la hora definida
+#### Clasificación:
+- Presente
+- Tarde
+- Ausente
+- Ausente con excusa
 
-### Ausencia
-- No registro dentro del rango esperado
-
-### Excusa
-- Ausencia justificada manualmente
-
-### No docencia
-- Día laborable sin registros
-
-### Despacho temprano
-- Alta cantidad de salidas antes de las 3:00 PM
+#### Reglas:
+- Sin registros → posible no docencia
+- Muchas salidas antes de 3:00 → posible despacho temprano
 
 ---
 
-## 6. SALIDAS AUTORIZADAS
+## 7. SALIDAS AUTORIZADAS
 
-Modelo independiente:
-- motivo
-- responsable
-- persona que retira
-- registro de autorización
+Entidad independiente:
+
+- Motivo
+- Responsable
+- Persona que retira
+- Registro institucional
 
 ---
 
-## 7. REPORTES
+## 8. MÓDULO DE PERSONAL DOCENTE (DISEÑO FUTURO)
+
+### Requisitos
+
+- Múltiples entradas y salidas por día
+- Identificación de salida final
+- Registro de permisos
+- Análisis de permanencia
+
+### Reglas
+
+- La última salida sin reentrada es la salida final
+- Puede haber salidas intermedias
+- Puede haber permisos registrados
+
+---
+
+## 9. REPORTES
 
 ### Operativos
-- asistencia diaria
+- Asistencia diaria
 
 ### Administrativos
-- mensual por curso
+- Resumen mensual
 
 ### Analíticos
-- tendencias
-- patrones
+- Tendencias
+- Comportamiento
+- Incidencias
 
 ---
 
-## 8. ESCALABILIDAD
+## 10. ESCALABILIDAD
 
-Preparado para:
-- múltiples centros
-- múltiples años escolares
-- integración futura con Aula Nova
+- Multi-centro
+- Multi-año escolar
+- Integración con Aula Nova
 
 ---
 
-## 9. SIGUIENTE FASE
+## 11. SIGUIENTE FASE
 
-- CRUD
-- lógica de asistencia
-- generación de reportes
-- dashboard interactivo
+- Generación automática de AttendanceDailySummary
+- Generación de CenterAttendanceDay
+- Endpoints de reportes
+- Dashboard interactivo
+- Módulo de personal docente
