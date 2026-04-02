@@ -75,3 +75,36 @@ class DailyGroupedReportResponse(BaseModel):
     total_with_excuse: int
     by_course: list[DailyCourseGroupItem]
     by_gender: list[DailyGenderGroupItem]
+
+
+class MonthlyDayItem(BaseModel):
+    date: date
+    is_workday: bool
+    had_attendance_activity: bool
+    possible_no_school_day: bool
+    possible_early_dismissal: bool
+    total_entries: int
+    total_exits: int
+    total_present: int
+    total_late: int
+    total_absent: int
+    total_with_excuse: int
+
+
+class MonthlyInstitutionalReportResponse(BaseModel):
+    center_id: int
+    school_year_id: int
+    year: int
+    month: int
+    total_days: int
+    total_workdays: int
+    total_days_with_activity: int
+    total_possible_no_school_days: int
+    total_possible_early_dismissals: int
+    total_entries: int
+    total_exits: int
+    total_present: int
+    total_late: int
+    total_absent: int
+    total_with_excuse: int
+    by_day: list[MonthlyDayItem]

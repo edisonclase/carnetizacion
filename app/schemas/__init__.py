@@ -26,6 +26,8 @@ from app.schemas.reports import (
     DailyGroupedReportResponse,
     DailyInstitutionalReportQuery,
     DailyInstitutionalReportResponse,
+    MonthlyDayItem,
+    MonthlyInstitutionalReportResponse,
     StudentDailyStatusItem,
 )
 from app.schemas.school_year import SchoolYearCreate, SchoolYearResponse, SchoolYearUpdate
@@ -65,4 +67,6 @@ __all__ = [
     "DailyCourseGroupItem",
     "DailyGenderGroupItem",
     "DailyGroupedReportResponse",
+    "MonthlyDayItem",
+    "MonthlyInstitutionalReportResponse",
 ]

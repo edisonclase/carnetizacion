@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import date
 
+from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
 from app.models.attendance_daily_summary import AttendanceDailySummary
@@ -195,4 +196,65 @@ class ReportingService:
             "total_with_excuse": center_day.total_with_excuse,
             "by_course": by_course,
             "by_gender": by_gender,
+        }
+
+    def get_monthly_institutional_report(
+        self,
+        *,
+        center_id: int,
+        school_year_id: int,
+        year: int,
+        month: int,
+    ) -> dict:
+        rows = (
+            self.db.query(CenterAttendanceDay)
+            .filter(
+                CenterAttendanceDay.center_id == center_id,
+                CenterAttendanceDay.school_year_id == school_year_id,
+                extract("year", CenterAttendanceDay.date) == year,
+                extract("month", CenterAttendanceDay.date) == month,
+            )
+            .order_by(CenterAttendanceDay.date.asc())
+            .all()
+        )
+
+        if not rows:
+            raise ValueError(
+                "No existen consolidados institucionales para el mes indicado."
+            )
+
+        by_day = [
+            {
+                "date": row.date,
+                "is_workday": row.is_workday,
+                "had_attendance_activity": row.had_attendance_activity,
+                "possible_no_school_day": row.possible_no_school_day,
+                "possible_early_dismissal": row.possible_early_dismissal,
+                "total_entries": row.total_entries,
+                "total_exits": row.total_exits,
+                "total_present": row.total_present,
+                "total_late": row.total_late,
+                "total_absent": row.total_absent,
+                "total_with_excuse": row.total_with_excuse,
+            }
+            for row in rows
+        ]
+
+        return {
+            "center_id": center_id,
+            "school_year_id": school_year_id,
+            "year": year,
+            "month": month,
+            "total_days": len(rows),
+            "total_workdays": sum(1 for row in rows if row.is_workday),
+            "total_days_with_activity": sum(1 for row in rows if row.had_attendance_activity),
+            "total_possible_no_school_days": sum(1 for row in rows if row.possible_no_school_day),
+            "total_possible_early_dismissals": sum(1 for row in rows if row.possible_early_dismissal),
+            "total_entries": sum(row.total_entries for row in rows),
+            "total_exits": sum(row.total_exits for row in rows),
+            "total_present": sum(row.total_present for row in rows),
+            "total_late": sum(row.total_late for row in rows),
+            "total_absent": sum(row.total_absent for row in rows),
+            "total_with_excuse": sum(row.total_with_excuse for row in rows),
+            "by_day": by_day,
         }
