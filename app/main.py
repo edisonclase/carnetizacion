@@ -8,6 +8,7 @@ from app.api.routes.center import router as center_router
 from app.api.routes.center_attendance_day import router as center_attendance_day_router
 from app.api.routes.center_schedule import router as center_schedule_router
 from app.api.routes.guardian import router as guardian_router
+from app.api.routes.reports import router as reports_router
 from app.api.routes.school_year import router as school_year_router
 from app.api.routes.student import router as student_router
 from app.core.database import engine
@@ -24,6 +25,7 @@ app.include_router(center_schedule_router)
 app.include_router(attendance_event_router)
 app.include_router(attendance_daily_summary_router)
 app.include_router(center_attendance_day_router)
+app.include_router(reports_router)
 
 
 @app.get("/")

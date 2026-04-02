@@ -20,6 +20,11 @@ from app.schemas.center_schedule import (
     CenterScheduleUpdate,
 )
 from app.schemas.guardian import GuardianCreate, GuardianResponse, GuardianUpdate
+from app.schemas.reports import (
+    DailyInstitutionalReportQuery,
+    DailyInstitutionalReportResponse,
+    StudentDailyStatusItem,
+)
 from app.schemas.school_year import SchoolYearCreate, SchoolYearResponse, SchoolYearUpdate
 from app.schemas.student import StudentCreate, StudentResponse, StudentUpdate
 
@@ -51,4 +56,7 @@ __all__ = [
     "AttendanceDailySummaryResponse",
     "CenterAttendanceDayGenerate",
     "CenterAttendanceDayResponse",
+    "DailyInstitutionalReportQuery",
+    "DailyInstitutionalReportResponse",
+    "StudentDailyStatusItem",
 ]
