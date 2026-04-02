@@ -73,8 +73,14 @@ class AttendanceService:
         *,
         student_id: int,
         event_time: datetime,
-        tolerance_minutes: int = 60,
+        center_id: int,
     ) -> bool:
+        schedule = self.get_schedule_for_center(center_id)
+        if not schedule:
+            raise ValueError("El centro no tiene configuración horaria registrada.")
+
+        tolerance_minutes = schedule.authorized_exit_tolerance_minutes
+
         start_window = event_time - timedelta(minutes=tolerance_minutes)
         end_window = event_time + timedelta(minutes=tolerance_minutes)
 
@@ -161,6 +167,7 @@ class AttendanceService:
             authorized = self.has_valid_authorized_exit(
                 student_id=student.id,
                 event_time=event_time,
+                center_id=student.center_id,
             )
             if not authorized:
                 raise ValueError(

@@ -13,25 +13,7 @@ class CenterScheduleBase(BaseModel):
     early_dismissal_threshold_time: time
     minimum_attendance_for_school_day: int = 1
     early_dismissal_percentage_threshold: int = 40
+    authorized_exit_tolerance_minutes: int = 15
 
 
-class CenterScheduleCreate(CenterScheduleBase):
-    pass
-
-
-class CenterScheduleUpdate(BaseModel):
-    entry_time: time | None = None
-    exit_time: time | None = None
-    workdays: str | None = None
-    late_tolerance_minutes: int | None = None
-    absence_cutoff_time: time | None = None
-    early_dismissal_threshold_time: time | None = None
-    minimum_attendance_for_school_day: int | None = None
-    early_dismissal_percentage_threshold: int | None = None
-
-
-class CenterScheduleResponse(CenterScheduleBase):
-    id: int
-    created_at: datetime
-
-    model_config = ConfigDict(from_attributes=True)
+class CenterSchedule

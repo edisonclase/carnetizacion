@@ -21,7 +21,6 @@ class CenterSchedule(Base):
     exit_time: Mapped[time] = mapped_column(Time, nullable=False)
 
     workdays: Mapped[str] = mapped_column(String(50), nullable=False)
-    # Ejemplo: "mon,tue,wed,thu,fri"
 
     late_tolerance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     absence_cutoff_time: Mapped[time] = mapped_column(Time, nullable=False)
@@ -29,6 +28,7 @@ class CenterSchedule(Base):
 
     minimum_attendance_for_school_day: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     early_dismissal_percentage_threshold: Mapped[int] = mapped_column(Integer, nullable=False, default=40)
+    authorized_exit_tolerance_minutes: Mapped[int] = mapped_column(Integer, nullable=False, default=15)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
