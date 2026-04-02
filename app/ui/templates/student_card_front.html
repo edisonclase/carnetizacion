@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carnet Estudiantil</title>
+    <link rel="stylesheet" href="/static/student_card.css" />
+</head>
+<body class="card-body">
+    <div class="card card-front">
+        <div class="card-header" style="background: {{ center_primary_color }};">
+            <div class="card-header-left">
+                {% if center_logo_url %}
+                    <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo" />
+                {% endif %}
+            </div>
+            <div class="card-header-center">
+                <h1>{{ center_name }}</h1>
+                <p>Carnet Estudiantil</p>
+            </div>
+            <div class="card-header-right">
+                <span class="brand-mark">Nova ID</span>
+            </div>
+        </div>
+
+        <div class="card-content">
+            <div class="photo-block">
+                {% if student_photo_url %}
+                    <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo" />
+                {% else %}
+                    <div class="photo-placeholder">Foto</div>
+                {% endif %}
+            </div>
+
+            <div class="student-info">
+                <h2>{{ student_full_name }}</h2>
+
+                <div class="info-grid">
+                    <div><strong>Código:</strong> {{ student_code }}</div>
+                    <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
+                    <div><strong>Curso:</strong> {{ grade }}</div>
+                    <div><strong>Sección:</strong> {{ section }}</div>
+                    <div><strong>Año escolar:</strong> {{ school_year_name }}</div>
+                </div>
+            </div>
+
+            <div class="qr-block">
+                {% if qr_image_url %}
+                    <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                {% else %}
+                    <div class="qr-placeholder">QR</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <span>by Aula Nova</span>
+        </div>
+    </div>
+</body>
+</html>

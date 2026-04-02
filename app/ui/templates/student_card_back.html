@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reverso del Carnet</title>
+    <link rel="stylesheet" href="/static/student_card.css" />
+</head>
+<body class="card-body">
+    <div class="card card-back">
+        <div class="card-header" style="background: {{ center_primary_color }};">
+            <h1>{{ center_name }}</h1>
+            <p>Identidad Institucional</p>
+        </div>
+
+        <div class="card-back-content">
+            <section>
+                <h3>Filosofía</h3>
+                <p>{{ philosophy or "-" }}</p>
+            </section>
+
+            <section>
+                <h3>Misión</h3>
+                <p>{{ mission or "-" }}</p>
+            </section>
+
+            <section>
+                <h3>Valores</h3>
+                <p>{{ values or "-" }}</p>
+            </section>
+        </div>
+
+        <div class="card-footer">
+            <span>{{ center_name }}</span>
+        </div>
+    </div>
+</body>
+</html>
