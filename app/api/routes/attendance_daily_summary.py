@@ -7,6 +7,7 @@ from app.schemas.attendance_daily_summary import (
     AttendanceDailySummaryGenerate,
     AttendanceDailySummaryResponse,
 )
+from app.schemas.excuse import AttendanceExcuseApply
 from app.services.daily_summary_service import DailySummaryService
 
 router = APIRouter(
@@ -30,6 +31,29 @@ def generate_daily_summary(
         summary = service.create_or_update_summary(
             student_id=payload.student_id,
             target_date=payload.date,
+        )
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(exc),
+        ) from exc
+
+    return summary
+
+
+@router.patch("/{summary_id}/excuse", response_model=AttendanceDailySummaryResponse)
+def apply_excuse_to_summary(
+    summary_id: int,
+    payload: AttendanceExcuseApply,
+    db: Session = Depends(get_db),
+):
+    service = DailySummaryService(db)
+
+    try:
+        summary = service.apply_excuse(
+            summary_id=summary_id,
+            has_excuse=payload.has_excuse,
+            excuse_note=payload.excuse_note,
         )
     except ValueError as exc:
         raise HTTPException(

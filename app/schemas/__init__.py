@@ -19,6 +19,7 @@ from app.schemas.center_schedule import (
     CenterScheduleResponse,
     CenterScheduleUpdate,
 )
+from app.schemas.excuse import AttendanceExcuseApply
 from app.schemas.guardian import GuardianCreate, GuardianResponse, GuardianUpdate
 from app.schemas.reports import (
     DailyCourseGroupItem,
@@ -69,4 +70,5 @@ __all__ = [
     "DailyGroupedReportResponse",
     "MonthlyDayItem",
     "MonthlyInstitutionalReportResponse",
+    "AttendanceExcuseApply",
 ]

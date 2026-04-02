@@ -108,3 +108,30 @@ class DailySummaryService:
         self.db.refresh(summary)
 
         return summary
+
+    def apply_excuse(
+        self,
+        *,
+        summary_id: int,
+        has_excuse: bool,
+        excuse_note: str | None,
+    ) -> AttendanceDailySummary:
+        summary = (
+            self.db.query(AttendanceDailySummary)
+            .filter(AttendanceDailySummary.id == summary_id)
+            .first()
+        )
+
+        if not summary:
+            raise ValueError("El resumen diario no existe.")
+
+        if has_excuse and not excuse_note:
+            raise ValueError("Debe indicar una nota o motivo para aplicar la excusa.")
+
+        summary.has_excuse = has_excuse
+        summary.excuse_note = excuse_note if has_excuse else None
+
+        self.db.commit()
+        self.db.refresh(summary)
+
+        return summary
