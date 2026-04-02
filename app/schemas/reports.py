@@ -42,3 +42,36 @@ class DailyInstitutionalReportResponse(BaseModel):
     late_students: list[StudentDailyStatusItem]
     absent_students: list[StudentDailyStatusItem]
     students_with_excuse: list[StudentDailyStatusItem]
+
+
+class DailyCourseGroupItem(BaseModel):
+    grade: str
+    section: str
+    total_students: int
+    total_present: int
+    total_late: int
+    total_absent: int
+    total_with_excuse: int
+
+
+class DailyGenderGroupItem(BaseModel):
+    gender: str
+    total_students: int
+    total_present: int
+    total_late: int
+    total_absent: int
+    total_with_excuse: int
+
+
+class DailyGroupedReportResponse(BaseModel):
+    center_id: int
+    school_year_id: int
+    date: date
+    total_entries: int
+    total_exits: int
+    total_present: int
+    total_late: int
+    total_absent: int
+    total_with_excuse: int
+    by_course: list[DailyCourseGroupItem]
+    by_gender: list[DailyGenderGroupItem]
