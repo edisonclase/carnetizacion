@@ -3,6 +3,7 @@ from sqlalchemy import text
 
 from app.api.routes.attendance_daily_summary import router as attendance_daily_summary_router
 from app.api.routes.attendance_event import router as attendance_event_router
+from app.api.routes.authorized_exit import router as authorized_exit_router
 from app.api.routes.card import router as card_router
 from app.api.routes.center import router as center_router
 from app.api.routes.center_attendance_day import router as center_attendance_day_router
@@ -25,6 +26,7 @@ app.include_router(center_schedule_router)
 app.include_router(attendance_event_router)
 app.include_router(attendance_daily_summary_router)
 app.include_router(center_attendance_day_router)
+app.include_router(authorized_exit_router)
 app.include_router(reports_router)
 
 

@@ -8,6 +8,7 @@ from app.schemas.attendance_event import (
     AttendanceEventResponse,
     AttendanceEventUpdate,
 )
+from app.schemas.authorized_exit import AuthorizedExitCreate, AuthorizedExitResponse
 from app.schemas.card import CardCreate, CardResponse, CardUpdate
 from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
 from app.schemas.center_attendance_day import (
@@ -71,4 +72,6 @@ __all__ = [
     "MonthlyDayItem",
     "MonthlyInstitutionalReportResponse",
     "AttendanceExcuseApply",
+    "AuthorizedExitCreate",
+    "AuthorizedExitResponse",
 ]
