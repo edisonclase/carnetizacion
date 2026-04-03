@@ -37,8 +37,16 @@ def _save_upload(file: UploadFile, target_dir: Path, prefix: str) -> str:
     filename = f"{prefix}_{uuid4().hex}{extension}"
     destination = target_dir / filename
 
-    with destination.open("wb") as buffer:
-        buffer.write(file.file.read())
+    try:
+        with destination.open("wb") as buffer:
+            buffer.write(file.file.read())
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"No se pudo guardar el archivo: {exc}",
+        ) from exc
+    finally:
+        file.file.close()
 
     relative_path = destination.relative_to(BASE_STATIC_DIR).as_posix()
     return f"/static/{relative_path}"
