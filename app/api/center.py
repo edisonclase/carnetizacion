@@ -1,45 +1,77 @@
-from sqlalchemy import Boolean, DateTime, Integer, String, Text, func
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from fastapi import APIRouter, Depends, HTTPException, status
+from sqlalchemy.orm import Session
 
-from app.core.database import Base
+from app.api.deps import get_db
+from app.models.center import Center
+from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
+
+router = APIRouter(prefix="/centers", tags=["Centers"])
 
 
-class Center(Base):
-    __tablename__ = "centers"
+@router.post("/", response_model=CenterResponse, status_code=status.HTTP_201_CREATED)
+def create_center(payload: CenterCreate, db: Session = Depends(get_db)):
+    existing_center = db.query(Center).filter(Center.code == payload.code).first()
+    if existing_center:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya existe un centro con ese código.",
+        )
 
-    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
-    name: Mapped[str] = mapped_column(String(255), nullable=False)
-    code: Mapped[str] = mapped_column(String(50), unique=True, nullable=False, index=True)
-
-    # Identidad visual
-    logo_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    letterhead_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    primary_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    secondary_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    accent_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    text_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    background_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
-
-    # Identidad institucional
-    philosophy: Mapped[str | None] = mapped_column(Text, nullable=True)
-    mission: Mapped[str | None] = mapped_column(Text, nullable=True)
-    vision: Mapped[str | None] = mapped_column(Text, nullable=True)
-    values: Mapped[str | None] = mapped_column(Text, nullable=True)
-
-    # Datos institucionales
-    motto: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    address: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    phone: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    email: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    district_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
-    management_code: Mapped[str | None] = mapped_column(String(100), nullable=True)
-
-    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
-
-    created_at: Mapped[DateTime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        nullable=False,
+    center = Center(
+        name=payload.name,
+        code=payload.code,
+        logo_url=payload.logo_url,
+        is_active=payload.is_active,
     )
 
-    school_years = relationship("SchoolYear", back_populates="center")
+    db.add(center)
+    db.commit()
+    db.refresh(center)
+
+    return center
+
+
+@router.get("/", response_model=list[CenterResponse])
+def list_centers(db: Session = Depends(get_db)):
+    centers = db.query(Center).order_by(Center.id.asc()).all()
+    return centers
+
+
+@router.get("/{center_id}", response_model=CenterResponse)
+def get_center(center_id: int, db: Session = Depends(get_db)):
+    center = db.query(Center).filter(Center.id == center_id).first()
+    if not center:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Centro no encontrado.",
+        )
+
+    return center
+
+
+@router.put("/{center_id}", response_model=CenterResponse)
+def update_center(center_id: int, payload: CenterUpdate, db: Session = Depends(get_db)):
+    center = db.query(Center).filter(Center.id == center_id).first()
+    if not center:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Centro no encontrado.",
+        )
+
+    if payload.code is not None and payload.code != center.code:
+        existing_center = db.query(Center).filter(Center.code == payload.code).first()
+        if existing_center:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ya existe otro centro con ese código.",
+            )
+
+    update_data = payload.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(center, field, value)
+
+    db.commit()
+    db.refresh(center)
+
+    return center

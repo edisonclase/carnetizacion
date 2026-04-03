@@ -7,13 +7,42 @@
     <link rel="stylesheet" href="/static/student_card.css" />
 </head>
 <body class="card-body">
-    <div class="card card-front">
-        <div class="card-header" style="background: {{ center_primary_color }};">
-            {% if center_logo_url %}
-                <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo" />
+    <div
+        class="card card-front"
+        style="
+            background: {{ center_background_color or '#ffffff' }};
+            color: {{ center_text_color or '#1e293b' }};
+            border-color: {{ center_accent_color or '#dbe4f0' }};
+        "
+    >
+        <div class="card-header">
+            {% if center_letterhead_url %}
+                <img
+                    src="{{ center_letterhead_url }}"
+                    alt="Membrete institucional"
+                    class="letterhead-image"
+                />
+            {% else %}
+                <div
+                    class="fallback-header fallback-header-front"
+                    style="
+                        background: {{ center_primary_color or '#2563eb' }};
+                        color: #ffffff;
+                    "
+                >
+                    {% if center_logo_url %}
+                        <img
+                            src="{{ center_logo_url }}"
+                            alt="Logo del centro"
+                            class="center-logo"
+                        />
+                    {% endif %}
+                    <div class="fallback-header-text">
+                        <h1>{{ center_name }}</h1>
+                        <p>Carnet Estudiantil</p>
+                    </div>
+                </div>
             {% endif %}
-            <h1>{{ center_name }}</h1>
-            <p>Carnet Estudiantil</p>
         </div>
 
         <div class="card-content">
@@ -28,7 +57,14 @@
             <div class="student-info">
                 <h2>{{ student_full_name }}</h2>
 
-                <div class="info-grid">
+                <div
+                    class="info-grid"
+                    style="
+                        background: {{ center_background_color or '#f8fafc' }};
+                        border-color: {{ center_accent_color or '#e2e8f0' }};
+                        color: {{ center_text_color or '#334155' }};
+                    "
+                >
                     <div><strong>Código:</strong> {{ student_code }}</div>
                     <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
                     <div><strong>Curso:</strong> {{ grade }}</div>
@@ -39,7 +75,10 @@
 
             <div class="qr-block">
                 {% if qr_image_url %}
-                    <div class="qr-frame">
+                    <div
+                        class="qr-frame"
+                        style="border-color: {{ center_accent_color or '#dbe4f0' }};"
+                    >
                         <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
                     </div>
                     <div class="qr-label">Escanee para validar</div>
@@ -49,7 +88,14 @@
             </div>
         </div>
 
-        <div class="card-footer">
+        <div
+            class="card-footer"
+            style="
+                background: {{ center_background_color or '#f8fafc' }};
+                border-top-color: {{ center_accent_color or '#e2e8f0' }};
+                color: {{ center_text_color or '#475569' }};
+            "
+        >
             <span>by Aula Nova</span>
         </div>
     </div>
