@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Impresión de Carnets</title>
+    <link rel="stylesheet" href="/static/student_cards_print_sheet.css" />
+</head>
+<body>
+    <!-- FRENTES -->
+    {% for page in pages %}
+    <section class="print-page">
+        <div class="sheet-grid">
+            {% for card in page %}
+            <div
+                class="print-card"
+                style="
+                    background: {{ center_background_color }};
+                    color: {{ center_text_color }};
+                    border-color: {{ center_accent_color }};
+                "
+            >
+                <div class="print-card-header" style="background: {{ center_primary_color }};">
+                    {% if center_logo_url %}
+                    <img src="{{ center_logo_url }}" alt="Logo del centro" class="print-center-logo" />
+                    {% endif %}
+
+                    <div class="print-header-text">
+                        <h3>{{ center_name }}</h3>
+                        <div class="print-header-meta">
+                            {% if phone %}<span>{{ phone }}</span>{% endif %}
+                            {% if email %}<span>{{ email }}</span>{% endif %}
+                        </div>
+                        <p>Carnet Estudiantil</p>
+                    </div>
+                </div>
+
+                <div class="print-card-body">
+                    <div class="print-photo-block">
+                        {% if card.student_photo_url %}
+                        <img src="{{ card.student_photo_url }}" alt="Foto" class="print-student-photo" />
+                        {% else %}
+                        <div class="print-photo-placeholder">Foto</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="print-student-info">
+                        <h4>{{ card.student_full_name }}</h4>
+                        <div class="print-info-grid">
+                            <div><strong>Código:</strong> {{ card.student_code }}</div>
+                            <div><strong>ID MINERD:</strong> {{ card.minerd_id or "-" }}</div>
+                            <div><strong>Curso:</strong> {{ card.grade }}</div>
+                            <div><strong>Sección:</strong> {{ card.section }}</div>
+                            <div><strong>Año escolar:</strong> {{ card.school_year_name }}</div>
+                        </div>
+                    </div>
+
+                    <div class="print-qr-block">
+                        {% if card.qr_image_url %}
+                        <div class="print-qr-frame">
+                            <img src="{{ card.qr_image_url }}" alt="QR" class="print-qr-image" />
+                        </div>
+                        <div class="print-qr-label">Validación</div>
+                        {% else %}
+                        <div class="print-qr-placeholder">QR</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="print-card-footer">
+                    by Aula Nova
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+
+    <!-- REVERSOS -->
+    {% for page in pages %}
+    <section class="print-page">
+        <div class="sheet-grid">
+            {% for card in page %}
+            <div
+                class="print-card"
+                style="
+                    background: {{ center_background_color }};
+                    color: {{ center_text_color }};
+                    border-color: {{ center_accent_color }};
+                "
+            >
+                <div class="print-card-header print-card-header-back" style="background: {{ center_primary_color }};">
+                    <h3>{{ center_name }}</h3>
+                </div>
+
+                <div class="print-card-back-body">
+                    <section>
+                        <h4>Filosofía</h4>
+                        <p>{{ philosophy or "-" }}</p>
+                    </section>
+
+                    <section>
+                        <h4>Misión</h4>
+                        <p>{{ mission or "-" }}</p>
+                    </section>
+
+                    <section>
+                        <h4>Visión</h4>
+                        <p>{{ vision or "-" }}</p>
+                    </section>
+
+                    <section>
+                        <h4>Valores</h4>
+                        <p>{{ values or "-" }}</p>
+                    </section>
+                </div>
+
+                <div class="print-card-footer">
+                    by Aula Nova
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </section>
+    {% endfor %}
+</body>
+</html>
