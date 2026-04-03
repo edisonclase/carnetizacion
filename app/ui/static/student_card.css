@@ -6,8 +6,8 @@ body.card-body {
 }
 
 .card {
-    width: 860px;
-    height: 540px;
+    width: 380px;
+    min-height: 640px;
     background: #ffffff;
     border-radius: 24px;
     overflow: hidden;
@@ -19,65 +19,60 @@ body.card-body {
 
 .card-header {
     color: white;
-    padding: 18px 24px;
-    display: grid;
-    grid-template-columns: 100px 1fr 120px;
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
+    justify-content: center;
+    gap: 8px;
+    text-align: center;
+}
+
+.center-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 5px;
+    box-sizing: border-box;
 }
 
 .card-header h1 {
     margin: 0;
-    font-size: 1.45rem;
+    font-size: 1.05rem;
+    line-height: 1.25;
 }
 
 .card-header p {
-    margin: 4px 0 0;
-    font-size: 0.95rem;
+    margin: 0;
+    font-size: 0.9rem;
     opacity: 0.95;
-}
-
-.center-logo {
-    width: 72px;
-    height: 72px;
-    object-fit: contain;
-    background: white;
-    border-radius: 12px;
-    padding: 6px;
-}
-
-.brand-mark {
-    font-weight: 700;
-    font-size: 1rem;
-    justify-self: end;
 }
 
 .card-content {
     flex: 1;
-    padding: 26px;
-    display: grid;
-    grid-template-columns: 180px 1fr 170px;
-    gap: 22px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
     align-items: center;
+    gap: 18px;
 }
 
-.student-photo,
-.qr-image {
+.photo-block {
     width: 100%;
-    border-radius: 16px;
-    object-fit: cover;
-    border: 1px solid #dbe4f0;
+    display: flex;
+    justify-content: center;
 }
 
 .student-photo {
-    height: 220px;
-}
-
-.qr-image {
-    height: 170px;
-    object-fit: contain;
-    padding: 8px;
-    background: #fff;
+    width: 170px;
+    height: 200px;
+    border-radius: 18px;
+    object-fit: cover;
+    border: 1px solid #dbe4f0;
+    display: block;
+    background: #ffffff;
 }
 
 .photo-placeholder,
@@ -92,34 +87,87 @@ body.card-body {
 }
 
 .photo-placeholder {
-    width: 100%;
-    height: 220px;
+    width: 170px;
+    height: 200px;
 }
 
-.qr-placeholder {
+.student-info {
     width: 100%;
-    height: 170px;
+    text-align: center;
 }
 
 .student-info h2 {
-    margin: 0 0 18px;
-    font-size: 1.8rem;
+    margin: 0 0 14px;
+    font-size: 1.35rem;
     color: #0f172a;
+    line-height: 1.25;
 }
 
 .info-grid {
     display: grid;
-    gap: 12px;
-    font-size: 1rem;
+    gap: 8px;
+    font-size: 0.95rem;
     color: #334155;
+    text-align: left;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 14px;
+}
+
+.info-grid div {
+    line-height: 1.35;
+    word-break: break-word;
+}
+
+.qr-block {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.qr-frame {
+    width: 150px;
+    height: 150px;
+    border: 1px solid #dbe4f0;
+    border-radius: 16px;
+    padding: 10px;
+    background: #ffffff;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.qr-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.qr-placeholder {
+    width: 150px;
+    height: 150px;
+}
+
+.qr-label {
+    font-size: 0.82rem;
+    color: #475569;
+    text-align: center;
 }
 
 .card-footer {
-    padding: 14px 24px;
+    padding: 12px 20px;
     background: #f8fafc;
     border-top: 1px solid #e2e8f0;
     color: #475569;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+    text-align: center;
 }
 
 .card-back-content {

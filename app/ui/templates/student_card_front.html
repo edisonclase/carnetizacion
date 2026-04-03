@@ -9,18 +9,11 @@
 <body class="card-body">
     <div class="card card-front">
         <div class="card-header" style="background: {{ center_primary_color }};">
-            <div class="card-header-left">
-                {% if center_logo_url %}
-                    <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo" />
-                {% endif %}
-            </div>
-            <div class="card-header-center">
-                <h1>{{ center_name }}</h1>
-                <p>Carnet Estudiantil</p>
-            </div>
-            <div class="card-header-right">
-                <span class="brand-mark">Nova ID</span>
-            </div>
+            {% if center_logo_url %}
+                <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo" />
+            {% endif %}
+            <h1>{{ center_name }}</h1>
+            <p>Carnet Estudiantil</p>
         </div>
 
         <div class="card-content">
@@ -46,7 +39,10 @@
 
             <div class="qr-block">
                 {% if qr_image_url %}
-                    <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                    <div class="qr-frame">
+                        <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                    </div>
+                    <div class="qr-label">Escanee para validar</div>
                 {% else %}
                     <div class="qr-placeholder">QR</div>
                 {% endif %}
