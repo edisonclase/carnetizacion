@@ -83,6 +83,14 @@ def student_card_front(
             "center_background_color": (
                 center.background_color if center and center.background_color else "#ffffff"
             ),
+            "address": center.address if center and center.address else None,
+            "phone": center.phone if center and center.phone else None,
+            "district_name": (
+                center.district_name if center and center.district_name else None
+            ),
+            "management_code": (
+                center.management_code if center and center.management_code else None
+            ),
             "student_full_name": f"{student.first_name} {student.last_name}",
             "student_code": student.student_code,
             "minerd_id": student.minerd_id,

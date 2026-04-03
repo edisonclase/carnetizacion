@@ -15,66 +15,14 @@
             border-color: {{ center_accent_color or '#dbe4f0' }};
         "
     >
-        <div class="card-header">
-            {% if center_letterhead_url %}
-                <img
-                    src="{{ center_letterhead_url }}"
-                    alt="Membrete institucional"
-                    class="letterhead-image"
-                />
-            {% else %}
-                <div
-                    class="fallback-header fallback-header-back"
-                    style="
-                        background: {{ center_primary_color or '#2563eb' }};
-                        color: #ffffff;
-                    "
-                >
-                    {% if center_logo_url %}
-                        <img
-                            src="{{ center_logo_url }}"
-                            alt="Logo del centro"
-                            class="center-logo"
-                        />
-                    {% endif %}
-                    <div class="fallback-header-text">
-                        <h1>{{ center_name }}</h1>
-                        <p>Identidad Institucional</p>
-                    </div>
-                </div>
-            {% endif %}
+        <div
+            class="card-header back-simple-header"
+            style="background: {{ center_primary_color or '#2563eb' }};"
+        >
+            <h1>{{ center_name }}</h1>
         </div>
 
         <div class="card-back-content">
-            {% if motto or address or phone or email or district_name or management_code %}
-            <section
-                class="institution-meta"
-                style="
-                    border-color: {{ center_accent_color or '#e2e8f0' }};
-                    background: {{ center_background_color or '#f8fafc' }};
-                "
-            >
-                {% if motto %}
-                    <p><strong>Lema:</strong> {{ motto }}</p>
-                {% endif %}
-                {% if address %}
-                    <p><strong>Dirección:</strong> {{ address }}</p>
-                {% endif %}
-                {% if phone %}
-                    <p><strong>Teléfono:</strong> {{ phone }}</p>
-                {% endif %}
-                {% if email %}
-                    <p><strong>Correo:</strong> {{ email }}</p>
-                {% endif %}
-                {% if district_name %}
-                    <p><strong>Distrito:</strong> {{ district_name }}</p>
-                {% endif %}
-                {% if management_code %}
-                    <p><strong>Código de gestión:</strong> {{ management_code }}</p>
-                {% endif %}
-            </section>
-            {% endif %}
-
             <section>
                 <h3>Filosofía</h3>
                 <p>{{ philosophy or "-" }}</p>

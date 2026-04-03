@@ -15,34 +15,29 @@
             border-color: {{ center_accent_color or '#dbe4f0' }};
         "
     >
-        <div class="card-header">
-            {% if center_letterhead_url %}
+        <div
+            class="card-header compact-header"
+            style="background: {{ center_primary_color or '#2563eb' }};"
+        >
+            {% if center_logo_url %}
                 <img
-                    src="{{ center_letterhead_url }}"
-                    alt="Membrete institucional"
-                    class="letterhead-image"
+                    src="{{ center_logo_url }}"
+                    alt="Logo del centro"
+                    class="center-logo"
                 />
-            {% else %}
-                <div
-                    class="fallback-header fallback-header-front"
-                    style="
-                        background: {{ center_primary_color or '#2563eb' }};
-                        color: #ffffff;
-                    "
-                >
-                    {% if center_logo_url %}
-                        <img
-                            src="{{ center_logo_url }}"
-                            alt="Logo del centro"
-                            class="center-logo"
-                        />
-                    {% endif %}
-                    <div class="fallback-header-text">
-                        <h1>{{ center_name }}</h1>
-                        <p>Carnet Estudiantil</p>
-                    </div>
-                </div>
             {% endif %}
+
+            <div class="compact-header-text">
+                <h1>{{ center_name }}</h1>
+                <p>Carnet Estudiantil</p>
+
+                <div class="compact-center-meta">
+                    {% if address %}<span>{{ address }}</span>{% endif %}
+                    {% if phone %}<span>{{ phone }}</span>{% endif %}
+                    {% if district_name %}<span>{{ district_name }}</span>{% endif %}
+                    {% if management_code %}<span>Cód. {{ management_code }}</span>{% endif %}
+                </div>
+            </div>
         </div>
 
         <div class="card-content">

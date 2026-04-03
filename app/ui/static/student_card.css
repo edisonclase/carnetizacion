@@ -5,12 +5,12 @@ body.card-body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Tamaño tipo credencial vertical */
+/* Tamaño real de credencial vertical */
 .card {
-    width: 340px;
-    height: 540px;
+    width: 53.98mm;
+    height: 85.60mm;
     background: #ffffff;
-    border-radius: 20px;
+    border-radius: 4mm;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
     border: 1px solid #dbe4f0;
@@ -21,80 +21,83 @@ body.card-body {
 
 /* HEADER */
 .card-header {
-    padding: 10px 10px 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 74px;
     box-sizing: border-box;
 }
 
-/* Imagen del membrete */
-.letterhead-image {
-    width: 100%;
-    max-height: 62px;
+.compact-header {
+    padding: 3mm;
+    display: flex;
+    align-items: center;
+    gap: 2.4mm;
+    color: #ffffff;
+    min-height: 18mm;
+}
+
+.center-logo {
+    width: 11mm;
+    height: 11mm;
     object-fit: contain;
-    display: block;
-}
-
-/* Header fallback */
-.fallback-header {
-    width: 100%;
-    min-height: 62px;
-    border-radius: 12px;
-    padding: 8px 10px;
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 10px;
+    background: #ffffff;
+    border-radius: 2mm;
+    padding: 1mm;
     box-sizing: border-box;
-    color: white;
-    text-align: left;
+    flex-shrink: 0;
 }
 
-.fallback-header-front,
-.fallback-header-back {
-    width: 100%;
-}
-
-.fallback-header-text {
+.compact-header-text {
     flex: 1;
     min-width: 0;
 }
 
-.fallback-header h1 {
+.compact-header-text h1 {
     margin: 0;
-    font-size: 0.92rem;
-    line-height: 1.15;
-    word-break: break-word;
-}
-
-.fallback-header p {
-    margin: 3px 0 0;
-    font-size: 0.76rem;
+    font-size: 2.6mm;
     line-height: 1.1;
-    opacity: 0.96;
+    font-weight: 700;
+    color: #ffffff;
 }
 
-.center-logo {
-    width: 46px;
-    height: 46px;
-    object-fit: contain;
-    background: #ffffff;
-    border-radius: 10px;
-    padding: 4px;
-    box-sizing: border-box;
-    flex-shrink: 0;
+.compact-header-text p {
+    margin: 0.6mm 0 0;
+    font-size: 2.1mm;
+    line-height: 1.1;
+    color: #ffffff;
+}
+
+.compact-center-meta {
+    margin-top: 1mm;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4mm;
+}
+
+.compact-center-meta span {
+    font-size: 1.6mm;
+    line-height: 1.1;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.back-simple-header {
+    padding: 3mm 3mm 2.5mm;
+    text-align: center;
+    color: #ffffff;
+}
+
+.back-simple-header h1 {
+    margin: 0;
+    font-size: 2.7mm;
+    line-height: 1.15;
+    color: #ffffff;
 }
 
 /* CONTENIDO */
 .card-content {
     flex: 1;
-    padding: 12px 16px 14px;
+    padding: 3mm 3.2mm 2.5mm;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 2.5mm;
     box-sizing: border-box;
 }
 
@@ -106,9 +109,9 @@ body.card-body {
 }
 
 .student-photo {
-    width: 145px;
-    height: 170px;
-    border-radius: 14px;
+    width: 22mm;
+    height: 28mm;
+    border-radius: 2.5mm;
     object-fit: cover;
     border: 1px solid #dbe4f0;
     display: block;
@@ -116,16 +119,16 @@ body.card-body {
 }
 
 .photo-placeholder {
-    width: 145px;
-    height: 170px;
+    width: 22mm;
+    height: 28mm;
     border: 2px dashed #c7d3e3;
-    border-radius: 14px;
+    border-radius: 2.5mm;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     background: #f8fafc;
-    font-size: 0.9rem;
+    font-size: 2.4mm;
 }
 
 /* INFO */
@@ -135,28 +138,28 @@ body.card-body {
 }
 
 .student-info h2 {
-    margin: 0 0 10px;
-    font-size: 1.08rem;
-    line-height: 1.2;
+    margin: 0 0 2mm;
+    font-size: 3.2mm;
+    line-height: 1.15;
     color: #0f172a;
     word-break: break-word;
 }
 
 .info-grid {
     display: grid;
-    gap: 6px;
-    font-size: 0.82rem;
+    gap: 1.1mm;
+    font-size: 2.3mm;
     color: #334155;
     text-align: left;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 10px;
+    border-radius: 2.5mm;
+    padding: 2.2mm;
     box-sizing: border-box;
 }
 
 .info-grid div {
-    line-height: 1.25;
+    line-height: 1.2;
     word-break: break-word;
 }
 
@@ -165,15 +168,15 @@ body.card-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
+    gap: 1.1mm;
 }
 
 .qr-frame {
-    width: 112px;
-    height: 112px;
+    width: 18mm;
+    height: 18mm;
     border: 1px solid #dbe4f0;
-    border-radius: 12px;
-    padding: 8px;
+    border-radius: 2.3mm;
+    padding: 1.2mm;
     background: #ffffff;
     display: flex;
     align-items: center;
@@ -189,20 +192,21 @@ body.card-body {
 }
 
 .qr-placeholder {
-    width: 112px;
-    height: 112px;
+    width: 18mm;
+    height: 18mm;
     border: 2px dashed #c7d3e3;
-    border-radius: 12px;
+    border-radius: 2.3mm;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     background: #f8fafc;
     box-sizing: border-box;
+    font-size: 2.2mm;
 }
 
 .qr-label {
-    font-size: 0.72rem;
+    font-size: 1.9mm;
     color: #475569;
     text-align: center;
     line-height: 1.1;
@@ -210,11 +214,11 @@ body.card-body {
 
 /* FOOTER */
 .card-footer {
-    padding: 8px 10px;
+    padding: 1.8mm 2mm;
     background: #f8fafc;
     border-top: 1px solid #e2e8f0;
     color: #475569;
-    font-size: 0.74rem;
+    font-size: 2mm;
     text-align: center;
     box-sizing: border-box;
 }
@@ -222,48 +226,31 @@ body.card-body {
 /* REVERSO */
 .card-back-content {
     flex: 1;
-    padding: 10px 14px 12px;
+    padding: 2.6mm 3mm 2.6mm;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 1.7mm;
     overflow: hidden;
     box-sizing: border-box;
-}
-
-.institution-meta {
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 8px 9px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    box-sizing: border-box;
-}
-
-.institution-meta p {
-    margin: 0;
-    font-size: 0.68rem;
-    line-height: 1.2;
-    text-align: left;
 }
 
 .card-back-content section {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 0.6mm;
 }
 
 .card-back-content h3 {
     margin: 0;
-    font-size: 0.8rem;
+    font-size: 2.4mm;
     line-height: 1.1;
     color: #0f172a;
 }
 
 .card-back-content p {
     margin: 0;
-    font-size: 0.68rem;
-    line-height: 1.22;
+    font-size: 1.95mm;
+    line-height: 1.18;
     text-align: justify;
     word-break: break-word;
 }
@@ -277,7 +264,6 @@ body.card-body {
 
     .card {
         box-shadow: none;
-        border: none;
         border-radius: 0;
     }
 }
