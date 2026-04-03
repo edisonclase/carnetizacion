@@ -1,157 +1,93 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.models.card import Card
 from app.models.center import Center
-from app.models.school_year import SchoolYear
-from app.models.student import Student
+from app.schemas.center import CenterCreate, CenterResponse, CenterUpdate
 
-router = APIRouter(tags=["UI"])
-
-templates = Jinja2Templates(directory="app/ui/templates")
+router = APIRouter(prefix="/centers", tags=["Centers"])
 
 
-@router.get("/dashboard", response_class=HTMLResponse)
-def dashboard_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="dashboard.html",
-        context={"request": request},
-    )
-
-
-from fastapi import APIRouter, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
-from sqlalchemy.orm import Session
-
-from app.api.deps import get_db
-from app.models.card import Card
-from app.models.center import Center
-from app.models.school_year import SchoolYear
-from app.models.student import Student
-
-router = APIRouter(tags=["UI"])
-
-templates = Jinja2Templates(directory="app/ui/templates")
-
-
-@router.get("/dashboard", response_class=HTMLResponse)
-def dashboard_page(request: Request):
-    return templates.TemplateResponse(
-        request=request,
-        name="dashboard.html",
-        context={"request": request},
-    )
-
-
-@router.get("/students/{student_id}/card/front", response_class=HTMLResponse)
-def student_card_front(
-    request: Request,
-    student_id: int,
-    db: Session = Depends(get_db),
-):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado.")
-
-    center = db.query(Center).filter(Center.id == student.center_id).first()
-    school_year = db.query(SchoolYear).filter(
-        SchoolYear.id == student.school_year_id
-    ).first()
-
-    # Busca primero un carnet activo
-    card = (
-        db.query(Card)
-        .filter(Card.student_id == student.id, Card.is_active == True)
-        .order_by(Card.id.desc())
-        .first()
-    )
-
-    # Si no encuentra activo, intenta tomar el último carnet existente del estudiante
-    if not card:
-        card = (
-            db.query(Card)
-            .filter(Card.student_id == student.id)
-            .order_by(Card.id.desc())
-            .first()
+@router.post("/", response_model=CenterResponse, status_code=status.HTTP_201_CREATED)
+def create_center(payload: CenterCreate, db: Session = Depends(get_db)):
+    existing_center = db.query(Center).filter(Center.code == payload.code).first()
+    if existing_center:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Ya existe un centro con ese código.",
         )
 
-    qr_image_url = None
-    if card and card.qr_token:
-        qr_image_url = str(request.url_for("get_card_qr", card_id=card.id))
-
-    return templates.TemplateResponse(
-        request=request,
-        name="student_card_front.html",
-        context={
-            "request": request,
-            "center_name": center.name if center else "Centro educativo",
-            "center_logo_url": "/static/logo.png",
-            "center_primary_color": "#2563eb",
-            "student_full_name": f"{student.first_name} {student.last_name}",
-            "student_code": student.student_code,
-            "minerd_id": student.minerd_id,
-            "grade": student.grade,
-            "section": student.section,
-            "school_year_name": school_year.name if school_year else "-",
-            "student_photo_url": student.photo_path,
-            "qr_image_url": qr_image_url,
-        },
+    center = Center(
+        name=payload.name,
+        code=payload.code,
+        logo_url=payload.logo_url,
+        letterhead_url=payload.letterhead_url,
+        primary_color=payload.primary_color,
+        secondary_color=payload.secondary_color,
+        accent_color=payload.accent_color,
+        text_color=payload.text_color,
+        background_color=payload.background_color,
+        philosophy=payload.philosophy,
+        mission=payload.mission,
+        vision=payload.vision,
+        values=payload.values,
+        motto=payload.motto,
+        address=payload.address,
+        phone=payload.phone,
+        email=payload.email,
+        district_name=payload.district_name,
+        management_code=payload.management_code,
+        is_active=payload.is_active,
     )
 
+    db.add(center)
+    db.commit()
+    db.refresh(center)
 
-@router.get("/students/{student_id}/card/back", response_class=HTMLResponse)
-def student_card_back(
-    request: Request,
-    student_id: int,
-    db: Session = Depends(get_db),
-):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado.")
-
-    center = db.query(Center).filter(Center.id == student.center_id).first()
-
-    return templates.TemplateResponse(
-        request=request,
-        name="student_card_back.html",
-        context={
-            "request": request,
-            "center_name": center.name if center else "Centro educativo",
-            "center_logo_url": "/static/logo.png",
-            "center_primary_color": "#2563eb",
-            "philosophy": "Formar ciudadanos íntegros, críticos y comprometidos con su comunidad.",
-            "mission": "Ofrecer una educación de calidad con enfoque humano, técnico y ético.",
-            "values": "Respeto, disciplina, responsabilidad, servicio y honestidad.",
-        },
-    )
+    return center
 
 
-@router.get("/students/{student_id}/card/back", response_class=HTMLResponse)
-def student_card_back(
-    request: Request,
-    student_id: int,
-    db: Session = Depends(get_db),
-):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        raise HTTPException(status_code=404, detail="Estudiante no encontrado.")
+@router.get("/", response_model=list[CenterResponse])
+def list_centers(db: Session = Depends(get_db)):
+    centers = db.query(Center).order_by(Center.id.asc()).all()
+    return centers
 
-    center = db.query(Center).filter(Center.id == student.center_id).first()
 
-    return templates.TemplateResponse(
-        request=request,
-        name="student_card_back.html",
-        context={
-            "request": request,
-            "center_name": center.name if center else "Centro educativo",
-            "center_primary_color": "#2563eb",
-            "philosophy": "Formar ciudadanos íntegros, críticos y comprometidos con su comunidad.",
-            "mission": "Ofrecer una educación de calidad con enfoque humano, técnico y ético.",
-            "values": "Respeto, disciplina, responsabilidad, servicio y honestidad.",
-        },
-    )
+@router.get("/{center_id}", response_model=CenterResponse)
+def get_center(center_id: int, db: Session = Depends(get_db)):
+    center = db.query(Center).filter(Center.id == center_id).first()
+    if not center:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Centro no encontrado.",
+        )
+
+    return center
+
+
+@router.put("/{center_id}", response_model=CenterResponse)
+def update_center(center_id: int, payload: CenterUpdate, db: Session = Depends(get_db)):
+    center = db.query(Center).filter(Center.id == center_id).first()
+    if not center:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Centro no encontrado.",
+        )
+
+    if payload.code is not None and payload.code != center.code:
+        existing_center = db.query(Center).filter(Center.code == payload.code).first()
+        if existing_center:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Ya existe otro centro con ese código.",
+            )
+
+    update_data = payload.model_dump(exclude_unset=True)
+
+    for field, value in update_data.items():
+        setattr(center, field, value)
+
+    db.commit()
+    db.refresh(center)
+
+    return center

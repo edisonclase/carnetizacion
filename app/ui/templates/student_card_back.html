@@ -8,12 +8,16 @@
 </head>
 <body class="card-body">
     <div class="card card-back">
-        <div class="card-header" style="background: {{ center_primary_color }};">
-            {% if center_logo_url %}
-                <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo" />
+
+        <div class="card-header">
+            {% if center_letterhead_url %}
+                <img src="{{ center_letterhead_url }}" class="letterhead-image" />
+            {% else %}
+                <div class="fallback-header" style="background: {{ center_primary_color }};">
+                    <h1>{{ center_name }}</h1>
+                    <p>Identidad Institucional</p>
+                </div>
             {% endif %}
-            <h1>{{ center_name }}</h1>
-            <p>Identidad Institucional</p>
         </div>
 
         <div class="card-back-content">
@@ -28,13 +32,18 @@
             </section>
 
             <section>
+                <h3>Visión</h3>
+                <p>{{ vision or "-" }}</p>
+            </section>
+
+            <section>
                 <h3>Valores</h3>
                 <p>{{ values or "-" }}</p>
             </section>
         </div>
 
         <div class="card-footer">
-            <span style="font-size: 0.78rem;">by Aula Nova</span>
+            <span>by Aula Nova</span>
         </div>
     </div>
 </body>
