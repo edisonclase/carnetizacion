@@ -5,7 +5,6 @@ body.card-body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Tamaño real de credencial vertical */
 .card {
     width: 53.98mm;
     height: 85.60mm;
@@ -19,27 +18,26 @@ body.card-body {
     box-sizing: border-box;
 }
 
-/* HEADER */
 .card-header {
     box-sizing: border-box;
 }
 
 .compact-header {
-    padding: 3mm;
+    padding: 2.4mm 2.8mm 2.2mm;
     display: flex;
-    align-items: center;
-    gap: 2.4mm;
+    align-items: flex-start;
+    gap: 2.2mm;
     color: #ffffff;
-    min-height: 18mm;
+    min-height: 17mm;
 }
 
 .center-logo {
-    width: 11mm;
-    height: 11mm;
+    width: 9.8mm;
+    height: 9.8mm;
     object-fit: contain;
     background: #ffffff;
     border-radius: 2mm;
-    padding: 1mm;
+    padding: 0.9mm;
     box-sizing: border-box;
     flex-shrink: 0;
 }
@@ -51,57 +49,57 @@ body.card-body {
 
 .compact-header-text h1 {
     margin: 0;
-    font-size: 2.6mm;
-    line-height: 1.1;
+    font-size: 2.55mm;
+    line-height: 1.05;
     font-weight: 700;
     color: #ffffff;
 }
 
-.compact-header-text p {
-    margin: 0.6mm 0 0;
-    font-size: 2.1mm;
-    line-height: 1.1;
-    color: #ffffff;
-}
-
 .compact-center-meta {
-    margin-top: 1mm;
+    margin-top: 0.8mm;
     display: flex;
     flex-direction: column;
-    gap: 0.4mm;
+    gap: 0.35mm;
 }
 
 .compact-center-meta span {
-    font-size: 1.6mm;
-    line-height: 1.1;
-    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.55mm;
+    line-height: 1.05;
+    color: rgba(255, 255, 255, 0.96);
+    word-break: break-word;
+}
+
+.header-card-title {
+    margin: 0.9mm 0 0 !important;
+    font-size: 2mm !important;
+    line-height: 1.05 !important;
+    color: #ffffff !important;
+    font-weight: 600;
 }
 
 .back-simple-header {
-    padding: 3mm 3mm 2.5mm;
+    padding: 2.7mm 3mm 2.2mm;
     text-align: center;
     color: #ffffff;
 }
 
 .back-simple-header h1 {
     margin: 0;
-    font-size: 2.7mm;
-    line-height: 1.15;
+    font-size: 2.45mm;
+    line-height: 1.1;
     color: #ffffff;
 }
 
-/* CONTENIDO */
 .card-content {
     flex: 1;
-    padding: 3mm 3.2mm 2.5mm;
+    padding: 2.4mm 3mm 1.8mm;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2.5mm;
+    gap: 2mm;
     box-sizing: border-box;
 }
 
-/* FOTO */
 .photo-block {
     width: 100%;
     display: flex;
@@ -109,9 +107,9 @@ body.card-body {
 }
 
 .student-photo {
-    width: 22mm;
-    height: 28mm;
-    border-radius: 2.5mm;
+    width: 20mm;
+    height: 24mm;
+    border-radius: 2.2mm;
     object-fit: cover;
     border: 1px solid #dbe4f0;
     display: block;
@@ -119,64 +117,63 @@ body.card-body {
 }
 
 .photo-placeholder {
-    width: 22mm;
-    height: 28mm;
+    width: 20mm;
+    height: 24mm;
     border: 2px dashed #c7d3e3;
-    border-radius: 2.5mm;
+    border-radius: 2.2mm;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     background: #f8fafc;
-    font-size: 2.4mm;
+    font-size: 2.2mm;
 }
 
-/* INFO */
 .student-info {
     width: 100%;
     text-align: center;
 }
 
 .student-info h2 {
-    margin: 0 0 2mm;
-    font-size: 3.2mm;
-    line-height: 1.15;
+    margin: 0 0 1.6mm;
+    font-size: 2.95mm;
+    line-height: 1.1;
     color: #0f172a;
     word-break: break-word;
 }
 
 .info-grid {
     display: grid;
-    gap: 1.1mm;
-    font-size: 2.3mm;
+    gap: 0.9mm;
+    font-size: 2.15mm;
     color: #334155;
     text-align: left;
     background: #f8fafc;
     border: 1px solid #e2e8f0;
-    border-radius: 2.5mm;
-    padding: 2.2mm;
+    border-radius: 2.4mm;
+    padding: 1.9mm 2.1mm;
     box-sizing: border-box;
 }
 
 .info-grid div {
-    line-height: 1.2;
+    line-height: 1.15;
     word-break: break-word;
 }
 
-/* QR */
 .qr-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1.1mm;
+    gap: 0.8mm;
+    margin-top: auto;
 }
 
 .qr-frame {
-    width: 18mm;
-    height: 18mm;
+    width: 16mm;
+    height: 16mm;
     border: 1px solid #dbe4f0;
-    border-radius: 2.3mm;
-    padding: 1.2mm;
+    border-radius: 2mm;
+    padding: 1mm;
     background: #ffffff;
     display: flex;
     align-items: center;
@@ -192,44 +189,47 @@ body.card-body {
 }
 
 .qr-placeholder {
-    width: 18mm;
-    height: 18mm;
+    width: 16mm;
+    height: 16mm;
     border: 2px dashed #c7d3e3;
-    border-radius: 2.3mm;
+    border-radius: 2mm;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     background: #f8fafc;
     box-sizing: border-box;
-    font-size: 2.2mm;
+    font-size: 2mm;
 }
 
 .qr-label {
-    font-size: 1.9mm;
+    font-size: 1.75mm;
     color: #475569;
     text-align: center;
-    line-height: 1.1;
+    line-height: 1.05;
 }
 
-/* FOOTER */
 .card-footer {
-    padding: 1.8mm 2mm;
+    padding: 1.5mm 1.8mm;
     background: #f8fafc;
     border-top: 1px solid #e2e8f0;
     color: #475569;
-    font-size: 2mm;
+    font-size: 1.8mm;
     text-align: center;
     box-sizing: border-box;
 }
 
-/* REVERSO */
+.card-footer-back {
+    padding: 1.1mm 1.8mm;
+    font-size: 1.65mm;
+}
+
 .card-back-content {
     flex: 1;
-    padding: 2.6mm 3mm 2.6mm;
+    padding: 2.1mm 2.8mm 1.2mm;
     display: flex;
     flex-direction: column;
-    gap: 1.7mm;
+    gap: 1.2mm;
     overflow: hidden;
     box-sizing: border-box;
 }
@@ -237,25 +237,24 @@ body.card-body {
 .card-back-content section {
     display: flex;
     flex-direction: column;
-    gap: 0.6mm;
+    gap: 0.35mm;
 }
 
 .card-back-content h3 {
     margin: 0;
-    font-size: 2.4mm;
-    line-height: 1.1;
+    font-size: 2.1mm;
+    line-height: 1.05;
     color: #0f172a;
 }
 
 .card-back-content p {
     margin: 0;
-    font-size: 1.95mm;
-    line-height: 1.18;
+    font-size: 1.72mm;
+    line-height: 1.08;
     text-align: justify;
     word-break: break-word;
 }
 
-/* PRINT */
 @media print {
     body.card-body {
         background: white;

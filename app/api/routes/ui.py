@@ -14,6 +14,12 @@ router = APIRouter(tags=["UI"])
 templates = Jinja2Templates(directory="app/ui/templates")
 
 
+def _normalize_school_year_name(value: str | None) -> str:
+    if not value:
+        return "-"
+    return value.replace("Año Escolar", "").strip()
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     return templates.TemplateResponse(
@@ -63,16 +69,9 @@ def student_card_front(
         context={
             "request": request,
             "center_name": center.name if center else "Centro educativo",
-            "center_code": center.code if center else None,
             "center_logo_url": center.logo_url if center and center.logo_url else None,
-            "center_letterhead_url": (
-                center.letterhead_url if center and center.letterhead_url else None
-            ),
             "center_primary_color": (
                 center.primary_color if center and center.primary_color else "#2563eb"
-            ),
-            "center_secondary_color": (
-                center.secondary_color if center and center.secondary_color else "#1d4ed8"
             ),
             "center_accent_color": (
                 center.accent_color if center and center.accent_color else "#e2e8f0"
@@ -83,20 +82,19 @@ def student_card_front(
             "center_background_color": (
                 center.background_color if center and center.background_color else "#ffffff"
             ),
-            "address": center.address if center and center.address else None,
             "phone": center.phone if center and center.phone else None,
+            "email": center.email if center and center.email else None,
             "district_name": (
                 center.district_name if center and center.district_name else None
-            ),
-            "management_code": (
-                center.management_code if center and center.management_code else None
             ),
             "student_full_name": f"{student.first_name} {student.last_name}",
             "student_code": student.student_code,
             "minerd_id": student.minerd_id,
             "grade": student.grade,
             "section": student.section,
-            "school_year_name": school_year.name if school_year else "-",
+            "school_year_name": _normalize_school_year_name(
+                school_year.name if school_year else "-"
+            ),
             "student_photo_url": student.photo_path,
             "qr_image_url": qr_image_url,
         },
@@ -121,16 +119,8 @@ def student_card_back(
         context={
             "request": request,
             "center_name": center.name if center else "Centro educativo",
-            "center_code": center.code if center else None,
-            "center_logo_url": center.logo_url if center and center.logo_url else None,
-            "center_letterhead_url": (
-                center.letterhead_url if center and center.letterhead_url else None
-            ),
             "center_primary_color": (
                 center.primary_color if center and center.primary_color else "#2563eb"
-            ),
-            "center_secondary_color": (
-                center.secondary_color if center and center.secondary_color else "#1d4ed8"
             ),
             "center_accent_color": (
                 center.accent_color if center and center.accent_color else "#e2e8f0"
@@ -160,16 +150,6 @@ def student_card_back(
                 center.values
                 if center and center.values
                 else "Respeto, disciplina, responsabilidad, servicio y honestidad."
-            ),
-            "motto": center.motto if center and center.motto else None,
-            "address": center.address if center and center.address else None,
-            "phone": center.phone if center and center.phone else None,
-            "email": center.email if center and center.email else None,
-            "district_name": (
-                center.district_name if center and center.district_name else None
-            ),
-            "management_code": (
-                center.management_code if center and center.management_code else None
             ),
         },
     )

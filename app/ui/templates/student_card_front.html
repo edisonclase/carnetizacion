@@ -29,14 +29,14 @@
 
             <div class="compact-header-text">
                 <h1>{{ center_name }}</h1>
-                <p>Carnet Estudiantil</p>
 
                 <div class="compact-center-meta">
-                    {% if address %}<span>{{ address }}</span>{% endif %}
                     {% if phone %}<span>{{ phone }}</span>{% endif %}
+                    {% if email %}<span>{{ email }}</span>{% endif %}
                     {% if district_name %}<span>{{ district_name }}</span>{% endif %}
-                    {% if management_code %}<span>Cód. {{ management_code }}</span>{% endif %}
                 </div>
+
+                <p class="header-card-title">Carnet Estudiantil</p>
             </div>
         </div>
 
