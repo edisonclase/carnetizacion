@@ -84,9 +84,6 @@ def student_card_front(
             ),
             "phone": center.phone if center and center.phone else None,
             "email": center.email if center and center.email else None,
-            "district_name": (
-                center.district_name if center and center.district_name else None
-            ),
             "student_full_name": f"{student.first_name} {student.last_name}",
             "student_code": student.student_code,
             "minerd_id": student.minerd_id,
