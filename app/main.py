@@ -15,6 +15,7 @@ from app.api.routes.reports import router as reports_router
 from app.api.routes.school_year import router as school_year_router
 from app.api.routes.student import router as student_router
 from app.api.routes.ui import router as ui_router
+from app.api.routes.uploads import router as uploads_router
 from app.core.database import engine
 from app.core.settings import settings
 
@@ -25,7 +26,7 @@ app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
 
 # REGISTRO DE ROUTERS
 # Se coloca card_qr_router al inicio para evitar conflictos con rutas de ID en card_router
-app.include_router(card_qr_router) 
+app.include_router(card_qr_router)
 
 app.include_router(center_router)
 app.include_router(school_year_router)
@@ -39,6 +40,7 @@ app.include_router(center_attendance_day_router)
 app.include_router(authorized_exit_router)
 app.include_router(reports_router)
 app.include_router(ui_router)
+app.include_router(uploads_router)
 
 
 @app.get("/")
