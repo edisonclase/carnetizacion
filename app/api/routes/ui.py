@@ -3,12 +3,15 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from math import ceil
+from fastapi.responses import Response
+
 
 from app.api.deps import get_db
 from app.models.card import Card
 from app.models.center import Center
 from app.models.school_year import SchoolYear
 from app.models.student import Student
+from app.services.pdf_service import render_pdf_from_html
 
 router = APIRouter(tags=["UI"])
 
@@ -252,5 +255,154 @@ def student_cards_print_sheet(
             "mission": center.mission or "",
             "vision": center.vision or "",
             "values": center.values or "",
+        },
+    )
+    
+def _build_student_cards_print_context(
+    request: Request,
+    center_id: int,
+    school_year_id: int | None,
+    grade: str | None,
+    section: str | None,
+    db: Session,
+) -> dict:
+    center = db.query(Center).filter(Center.id == center_id).first()
+    if not center:
+        raise HTTPException(status_code=404, detail="Centro no encontrado.")
+
+    query = db.query(Student).filter(Student.center_id == center_id)
+
+    if school_year_id is not None:
+        query = query.filter(Student.school_year_id == school_year_id)
+
+    if grade:
+        query = query.filter(Student.grade == grade)
+
+    if section:
+        query = query.filter(Student.section == section)
+
+    students = query.order_by(Student.last_name.asc(), Student.first_name.asc()).all()
+
+    if not students:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontraron estudiantes para los filtros indicados.",
+        )
+
+    student_cards = []
+    for student in students:
+        school_year = (
+            db.query(SchoolYear)
+            .filter(SchoolYear.id == student.school_year_id)
+            .first()
+        )
+
+        card = (
+            db.query(Card)
+            .filter(Card.student_id == student.id, Card.is_active == True)
+            .order_by(Card.id.desc())
+            .first()
+        )
+
+        if not card:
+            card = (
+                db.query(Card)
+                .filter(Card.student_id == student.id)
+                .order_by(Card.id.desc())
+                .first()
+            )
+
+        qr_image_url = None
+        if card and card.qr_token:
+            qr_image_url = str(request.url_for("get_card_qr", card_id=card.id))
+
+        student_cards.append(
+            {
+                "student_id": student.id,
+                "student_full_name": f"{student.first_name} {student.last_name}",
+                "student_code": student.student_code,
+                "minerd_id": student.minerd_id,
+                "grade": student.grade,
+                "section": student.section,
+                "school_year_name": _normalize_school_year_name(
+                    school_year.name if school_year else "-"
+                ),
+                "student_photo_url": student.photo_path,
+                "qr_image_url": qr_image_url,
+            }
+        )
+
+    cards_per_page = 8
+    pages = _chunk_list(student_cards, cards_per_page)
+
+    return {
+        "request": request,
+        "pages": pages,
+        "center_name": center.name,
+        "center_logo_url": center.logo_url,
+        "center_primary_color": center.primary_color or "#2563eb",
+        "center_accent_color": center.accent_color or "#e2e8f0",
+        "center_text_color": center.text_color or "#1e293b",
+        "center_background_color": center.background_color or "#ffffff",
+        "phone": center.phone,
+        "email": center.email,
+        "philosophy": center.philosophy or "",
+        "mission": center.mission or "",
+        "vision": center.vision or "",
+        "values": center.values or "",
+    }
+
+
+@router.get("/students/cards/print-sheet", response_class=HTMLResponse)
+def student_cards_print_sheet(
+    request: Request,
+    center_id: int,
+    school_year_id: int | None = None,
+    grade: str | None = None,
+    section: str | None = None,
+    db: Session = Depends(get_db),
+):
+    context = _build_student_cards_print_context(
+        request=request,
+        center_id=center_id,
+        school_year_id=school_year_id,
+        grade=grade,
+        section=section,
+        db=db,
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="student_cards_print_sheet.html",
+        context=context,
+    )
+
+
+@router.get("/students/cards/print-sheet.pdf")
+def student_cards_print_sheet_pdf(
+    request: Request,
+    center_id: int,
+    school_year_id: int | None = None,
+    grade: str | None = None,
+    section: str | None = None,
+    db: Session = Depends(get_db),
+):
+    context = _build_student_cards_print_context(
+        request=request,
+        center_id=center_id,
+        school_year_id=school_year_id,
+        grade=grade,
+        section=section,
+        db=db,
+    )
+
+    html_content = templates.get_template("student_cards_print_sheet.html").render(context)
+    pdf_bytes = render_pdf_from_html(html_content, base_url=str(request.base_url))
+
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={
+            "Content-Disposition": 'inline; filename="carnets_print_sheet.pdf"'
         },
     )
