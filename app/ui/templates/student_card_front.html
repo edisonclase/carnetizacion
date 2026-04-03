@@ -25,6 +25,8 @@
                     alt="Logo del centro"
                     class="center-logo"
                 />
+            {% else %}
+                <div class="center-logo center-logo-placeholder"></div>
             {% endif %}
 
             <div class="compact-header-text">
@@ -33,7 +35,6 @@
                 <div class="compact-center-meta">
                     {% if phone %}<span>{{ phone }}</span>{% endif %}
                     {% if email %}<span>{{ email }}</span>{% endif %}
-                    {% if district_name %}<span>{{ district_name }}</span>{% endif %}
                 </div>
 
                 <p class="header-card-title">Carnet Estudiantil</p>
