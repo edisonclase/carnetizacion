@@ -20,11 +20,18 @@ class Center(Base):
     text_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
     background_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
-    # Identidad institucional
+    # Identidad institucional general
     philosophy: Mapped[str | None] = mapped_column(Text, nullable=True)
     mission: Mapped[str | None] = mapped_column(Text, nullable=True)
     vision: Mapped[str | None] = mapped_column(Text, nullable=True)
     values: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Versión corta específica para carnet
+    card_philosophy: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_mission: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_vision: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_values: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_footer_text: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Datos institucionales
     motto: Mapped[str | None] = mapped_column(String(255), nullable=True)
