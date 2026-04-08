@@ -52,12 +52,34 @@ const defaultTheme = {
   card_footer_text: "by Aula Nova",
 };
 
+let alertTimeoutId = null;
+
 function showAlert(message, type = "success") {
+  if (alertTimeoutId) {
+    clearTimeout(alertTimeoutId);
+  }
+
   alertBox.textContent = message;
   alertBox.className = `alert-box ${type}`;
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+  if (type === "success") {
+    alertTimeoutId = window.setTimeout(() => {
+      hideAlert();
+    }, 3500);
+  }
 }
 
 function hideAlert() {
+  if (alertTimeoutId) {
+    clearTimeout(alertTimeoutId);
+    alertTimeoutId = null;
+  }
+
   alertBox.textContent = "";
   alertBox.className = "alert-box hidden";
 }
@@ -117,7 +139,9 @@ function fillForm(data) {
     if (!input || !picker) return;
 
     const value = input.value.trim() || defaultTheme[inputId] || "#ffffff";
-    picker.value = isValidHexColor(value) ? value : (defaultTheme[inputId] || "#ffffff");
+    picker.value = isValidHexColor(value)
+      ? value
+      : (defaultTheme[inputId] || "#ffffff");
   });
 
   currentCenterName.textContent = data.name || "Centro educativo";
@@ -217,8 +241,10 @@ function renderPreview() {
   backFooter.style.color = textColor;
   backFooter.textContent = footerText;
 
-  document.getElementById("previewCenterNameFront").textContent = data.name || "Centro educativo";
-  document.getElementById("previewCenterNameBack").textContent = data.name || "Centro educativo";
+  document.getElementById("previewCenterNameFront").textContent =
+    data.name || "Centro educativo";
+  document.getElementById("previewCenterNameBack").textContent =
+    data.name || "Centro educativo";
   currentCenterName.textContent = data.name || "Centro educativo";
 
   const contactParts = [data.phone, data.email].filter(Boolean);
@@ -252,6 +278,9 @@ async function loadCenterData() {
   hideAlert();
 
   try {
+    reloadBtn.disabled = true;
+    reloadBtn.textContent = "Recargando...";
+
     const response = await fetch(`/centers/${centerId}`);
 
     if (!response.ok) {
@@ -262,6 +291,9 @@ async function loadCenterData() {
     fillForm(data);
   } catch (error) {
     showAlert(error.message || "Ocurrió un error al cargar los datos.", "error");
+  } finally {
+    reloadBtn.disabled = false;
+    reloadBtn.textContent = "Recargar datos";
   }
 }
 
@@ -313,6 +345,7 @@ function bindEvents() {
   fieldIds.forEach((id) => {
     const field = getField(id);
     if (!field) return;
+
     field.addEventListener("input", renderPreview);
     field.addEventListener("change", renderPreview);
   });
@@ -326,6 +359,7 @@ function bindEvents() {
         syncPickerFromText(inputId, pickerId);
         renderPreview();
       });
+
       input.addEventListener("change", () => {
         syncPickerFromText(inputId, pickerId);
         renderPreview();

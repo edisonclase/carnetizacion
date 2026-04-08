@@ -12,6 +12,7 @@
             <div class="brand-block">
                 <h1>Nova ID</h1>
                 <p>Administración interna</p>
+                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
             </div>
 
             <nav class="sidebar-nav">
@@ -30,7 +31,7 @@
                 <div class="header-chip" id="currentCenterName">{{ center_name }}</div>
             </header>
 
-            <div id="alertBox" class="alert-box hidden"></div>
+            <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
 
             <div class="settings-layout">
                 <form id="centerSettingsForm" class="settings-form" novalidate>
@@ -223,87 +224,91 @@
                     </section>
 
                     <div class="form-actions">
-                        <button type="button" id="reloadBtn" class="btn btn-secondary">Recargar</button>
+                        <button type="button" id="reloadBtn" class="btn btn-secondary">Recargar datos</button>
                         <button type="submit" id="saveBtn" class="btn btn-primary">Guardar cambios</button>
                     </div>
                 </form>
 
                 <aside class="preview-panel">
                     <section class="settings-card preview-card">
-                        <div class="card-title-row">
+                        <div class="card-title-row preview-title-row">
                             <h3>Vista previa</h3>
                             <span>Carnet frontal y reverso</span>
                         </div>
 
                         <div class="preview-stack">
-                            <div class="preview-label">Frontal</div>
+                            <div class="preview-block">
+                                <div class="preview-label">Frontal</div>
 
-                            <div class="mini-card" id="previewFrontCard">
-                                <div class="mini-card-header" id="previewFrontHeader">
-                                    <div class="mini-logo-wrap">
-                                        <img id="previewLogo" class="mini-logo hidden" alt="Logo del centro" />
-                                        <div id="previewLogoPlaceholder" class="mini-logo mini-logo-placeholder"></div>
+                                <div class="mini-card" id="previewFrontCard">
+                                    <div class="mini-card-header" id="previewFrontHeader">
+                                        <div class="mini-logo-wrap">
+                                            <img id="previewLogo" class="mini-logo hidden" alt="Logo del centro" />
+                                            <div id="previewLogoPlaceholder" class="mini-logo mini-logo-placeholder"></div>
+                                        </div>
+
+                                        <div class="mini-header-text">
+                                            <h4 id="previewCenterNameFront">Centro educativo</h4>
+                                            <p id="previewContactLine">Teléfono · correo</p>
+                                            <span>Carnet Estudiantil</span>
+                                        </div>
                                     </div>
 
-                                    <div class="mini-header-text">
-                                        <h4 id="previewCenterNameFront">Centro educativo</h4>
-                                        <p id="previewContactLine">Teléfono · correo</p>
-                                        <span>Carnet Estudiantil</span>
+                                    <div class="mini-card-body">
+                                        <div class="mini-photo">Foto</div>
+
+                                        <div class="mini-student-name">NOMBRE DEL ESTUDIANTE</div>
+
+                                        <div class="mini-info-grid">
+                                            <div><strong>Código:</strong> 0001</div>
+                                            <div><strong>ID MINERD:</strong> 123456789</div>
+                                            <div><strong>Curso:</strong> 4to</div>
+                                            <div><strong>Sección:</strong> A</div>
+                                            <div><strong>Año:</strong> 2025-2026</div>
+                                        </div>
+
+                                        <div class="mini-qr-wrap">
+                                            <div class="mini-qr">QR</div>
+                                            <small>Validación</small>
+                                        </div>
                                     </div>
+
+                                    <div class="mini-card-footer" id="previewFrontFooter">by Aula Nova</div>
                                 </div>
-
-                                <div class="mini-card-body">
-                                    <div class="mini-photo">Foto</div>
-
-                                    <div class="mini-student-name">NOMBRE DEL ESTUDIANTE</div>
-
-                                    <div class="mini-info-grid">
-                                        <div><strong>Código:</strong> 0001</div>
-                                        <div><strong>ID MINERD:</strong> 123456789</div>
-                                        <div><strong>Curso:</strong> 4to</div>
-                                        <div><strong>Sección:</strong> A</div>
-                                        <div><strong>Año:</strong> 2025-2026</div>
-                                    </div>
-
-                                    <div class="mini-qr-wrap">
-                                        <div class="mini-qr">QR</div>
-                                        <small>Validación</small>
-                                    </div>
-                                </div>
-
-                                <div class="mini-card-footer" id="previewFrontFooter">by Aula Nova</div>
                             </div>
 
-                            <div class="preview-label">Reverso</div>
+                            <div class="preview-block">
+                                <div class="preview-label">Reverso</div>
 
-                            <div class="mini-card" id="previewBackCard">
-                                <div class="mini-card-header mini-card-header-back" id="previewBackHeader">
-                                    <h4 id="previewCenterNameBack">Centro educativo</h4>
+                                <div class="mini-card" id="previewBackCard">
+                                    <div class="mini-card-header mini-card-header-back" id="previewBackHeader">
+                                        <h4 id="previewCenterNameBack">Centro educativo</h4>
+                                    </div>
+
+                                    <div class="mini-card-back-body">
+                                        <section>
+                                            <h5>Filosofía</h5>
+                                            <p id="previewPhilosophy">Texto corto de filosofía.</p>
+                                        </section>
+
+                                        <section>
+                                            <h5>Misión</h5>
+                                            <p id="previewMission">Texto corto de misión.</p>
+                                        </section>
+
+                                        <section>
+                                            <h5>Visión</h5>
+                                            <p id="previewVision">Texto corto de visión.</p>
+                                        </section>
+
+                                        <section>
+                                            <h5>Valores</h5>
+                                            <p id="previewValues">Texto corto de valores.</p>
+                                        </section>
+                                    </div>
+
+                                    <div class="mini-card-footer" id="previewBackFooter">by Aula Nova</div>
                                 </div>
-
-                                <div class="mini-card-back-body">
-                                    <section>
-                                        <h5>Filosofía</h5>
-                                        <p id="previewPhilosophy">Texto corto de filosofía.</p>
-                                    </section>
-
-                                    <section>
-                                        <h5>Misión</h5>
-                                        <p id="previewMission">Texto corto de misión.</p>
-                                    </section>
-
-                                    <section>
-                                        <h5>Visión</h5>
-                                        <p id="previewVision">Texto corto de visión.</p>
-                                    </section>
-
-                                    <section>
-                                        <h5>Valores</h5>
-                                        <p id="previewValues">Texto corto de valores.</p>
-                                    </section>
-                                </div>
-
-                                <div class="mini-card-footer" id="previewBackFooter">by Aula Nova</div>
                             </div>
                         </div>
                     </section>
