@@ -244,7 +244,15 @@ def center_settings_page(
             "center_name": center.name,
         },
     )
-
+    
+@router.get("/admin/students/register", response_class=HTMLResponse)
+def student_register_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="student_register.html",
+        context={"request": request},
+    )
+    
 
 @router.get("/students/{student_id}/card/front", response_class=HTMLResponse)
 def student_card_front(

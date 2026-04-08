@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registro Interno de Estudiantes - Nova ID</title>
+    <link rel="stylesheet" href="/static/student_register.css" />
+</head>
+<body>
+    <div class="register-shell">
+        <aside class="register-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>Administración interna</p>
+                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin/students/register" class="active">Registro de estudiantes</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="register-main">
+            <header class="page-header">
+                <div>
+                    <h2>Registro Interno de Estudiantes</h2>
+                    <p>Creación operativa de estudiantes y tutor principal para la emisión de carnets.</p>
+                </div>
+                <div class="header-chip">Nova ID · Operaciones</div>
+            </header>
+
+            <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
+
+            <form id="studentRegisterForm" class="register-form" novalidate>
+                <section class="register-card">
+                    <div class="card-title-row">
+                        <h3>Asignación institucional</h3>
+                        <span>Centro educativo y año escolar del registro</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="center_id">Centro educativo</label>
+                            <select id="center_id" name="center_id">
+                                <option value="">Cargando centros...</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="school_year_id">Año escolar</label>
+                            <select id="school_year_id" name="school_year_id" disabled>
+                                <option value="">Seleccione primero un centro</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="register-card">
+                    <div class="card-title-row">
+                        <h3>Datos académicos</h3>
+                        <span>Identificación académica y ubicación del estudiante</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="student_code">Código interno</label>
+                            <input type="text" id="student_code" name="student_code" />
+                        </div>
+
+                        <div class="field">
+                            <label for="minerd_id">ID MINERD</label>
+                            <input type="text" id="minerd_id" name="minerd_id" />
+                        </div>
+
+                        <div class="field">
+                            <label for="grade">Curso / Grado</label>
+                            <input type="text" id="grade" name="grade" placeholder="Ej.: 4to de secundaria" />
+                        </div>
+
+                        <div class="field">
+                            <label for="section">Sección</label>
+                            <input type="text" id="section" name="section" placeholder="Ej.: A" />
+                        </div>
+
+                        <div class="field">
+                            <label for="is_active">Estado</label>
+                            <select id="is_active" name="is_active">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="register-card">
+                    <div class="card-title-row">
+                        <h3>Datos personales del estudiante</h3>
+                        <span>Información principal para carnet y control</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="first_name">Nombres</label>
+                            <input type="text" id="first_name" name="first_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="last_name">Apellidos</label>
+                            <input type="text" id="last_name" name="last_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="birth_date">Fecha de nacimiento</label>
+                            <input type="date" id="birth_date" name="birth_date" />
+                        </div>
+
+                        <div class="field">
+                            <label for="gender">Sexo</label>
+                            <select id="gender" name="gender">
+                                <option value="">Seleccione</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="field field-span-2">
+                            <label for="photo_path">Ruta o URL de foto</label>
+                            <input type="text" id="photo_path" name="photo_path" placeholder="/uploads/students/foto.png o URL pública" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="register-card">
+                    <div class="card-title-row">
+                        <h3>Tutor principal</h3>
+                        <span>Responsable principal del estudiante</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="guardian_full_name">Nombre completo</label>
+                            <input type="text" id="guardian_full_name" name="guardian_full_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="relationship_type">Parentesco</label>
+                            <input type="text" id="relationship_type" name="relationship_type" placeholder="Ej.: Madre, Padre, Tutor" />
+                        </div>
+
+                        <div class="field">
+                            <label for="guardian_phone">Teléfono</label>
+                            <input type="text" id="guardian_phone" name="guardian_phone" />
+                        </div>
+
+                        <div class="field">
+                            <label for="guardian_whatsapp">WhatsApp</label>
+                            <input type="text" id="guardian_whatsapp" name="guardian_whatsapp" />
+                        </div>
+
+                        <div class="field field-span-2">
+                            <label for="guardian_email">Correo electrónico</label>
+                            <input type="email" id="guardian_email" name="guardian_email" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="register-card info-card">
+                    <div class="card-title-row">
+                        <h3>Resumen operativo</h3>
+                        <span>Control interno del registro</span>
+                    </div>
+
+                    <div class="info-box">
+                        Este formulario crea primero el estudiante y luego registra automáticamente el tutor principal.
+                        No incluye carga de acta de nacimiento, de acuerdo con el modelo operativo definido.
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="button" id="resetBtn" class="btn btn-secondary">Limpiar formulario</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Registrar estudiante</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/student_register.js"></script>
+</body>
+</html>
