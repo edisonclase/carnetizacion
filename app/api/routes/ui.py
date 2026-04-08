@@ -383,3 +383,53 @@ def student_cards_print_sheet_pdf(
             "Content-Disposition": 'inline; filename="carnets_print_sheet.pdf"'
         },
     )
+
+@router.get("/students/cards/print-multiple", response_class=HTMLResponse)
+def student_cards_multiple_print(
+    request: Request,
+    ids: list[int],
+    db: Session = Depends(get_db),
+):
+    if not ids:
+        raise HTTPException(
+            status_code=400,
+            detail="Debes indicar al menos un estudiante.",
+        )
+
+    students = (
+        db.query(Student)
+        .filter(Student.id.in_(ids))
+        .order_by(Student.last_name.asc(), Student.first_name.asc())
+        .all()
+    )
+
+    if not students:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontraron estudiantes para imprimir.",
+        )
+
+    cards_data = []
+    for student in students:
+        center = db.query(Center).filter(Center.id == student.center_id).first()
+
+        cards_data.append(
+            {
+                "student_id": student.id,
+                "theme": _build_center_theme(center),
+                "card": _build_student_card_data(
+                    request=request,
+                    db=db,
+                    student=student,
+                ),
+            }
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="student_cards_multiple_print.html",
+        context={
+            "request": request,
+            "cards_data": cards_data,
+        },
+    )

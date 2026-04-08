@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Impresión múltiple de carnets</title>
+    <link rel="stylesheet" href="/static/student_cards_multiple_print.css" />
+</head>
+<body>
+    <div class="print-toolbar">
+        <button type="button" onclick="window.print()">Imprimir carnets seleccionados</button>
+    </div>
+
+    <main class="multiple-print-page">
+        {% for item in cards_data %}
+            <section class="student-print-block">
+                <div class="student-print-title">
+                    <strong>{{ item.card.student_full_name }}</strong>
+                    <span>Código: {{ item.card.student_code }}</span>
+                </div>
+
+                <div class="student-print-cards">
+                    <article
+                        class="print-card print-card-front"
+                        style="
+                            background: {{ item.theme.center_background_color }};
+                            color: {{ item.theme.center_text_color }};
+                            border-color: {{ item.theme.center_accent_color }};
+                        "
+                    >
+                        <div
+                            class="print-card-header"
+                            style="background: {{ item.theme.center_primary_color }};"
+                        >
+                            {% if item.theme.center_logo_url %}
+                                <img
+                                    src="{{ item.theme.center_logo_url }}"
+                                    alt="Logo del centro"
+                                    class="print-center-logo"
+                                />
+                            {% else %}
+                                <div class="print-center-logo print-center-logo-placeholder"></div>
+                            {% endif %}
+
+                            <div class="print-header-text">
+                                <h3>{{ item.theme.center_name }}</h3>
+                                <div class="print-header-meta">
+                                    {% if item.theme.phone %}<span>{{ item.theme.phone }}</span>{% endif %}
+                                    {% if item.theme.email %}<span>{{ item.theme.email }}</span>{% endif %}
+                                </div>
+                                <p>Carnet Estudiantil</p>
+                            </div>
+                        </div>
+
+                        <div class="print-card-body">
+                            <div class="print-photo-block">
+                                {% if item.card.student_photo_url %}
+                                    <img
+                                        src="{{ item.card.student_photo_url }}"
+                                        alt="Foto del estudiante"
+                                        class="print-student-photo"
+                                    />
+                                {% else %}
+                                    <div class="print-photo-placeholder">Foto</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="print-student-info">
+                                <h4>{{ item.card.student_full_name }}</h4>
+
+                                <div class="print-info-grid">
+                                    <div><strong>Código:</strong> {{ item.card.student_code }}</div>
+                                    <div><strong>ID MINERD:</strong> {{ item.card.minerd_id or "-" }}</div>
+                                    <div><strong>Curso:</strong> {{ item.card.grade }}</div>
+                                    <div><strong>Sección:</strong> {{ item.card.section }}</div>
+                                    <div><strong>Año escolar:</strong> {{ item.card.school_year_name }}</div>
+                                </div>
+                            </div>
+
+                            <div class="print-qr-block">
+                                {% if item.card.qr_image_url %}
+                                    <div class="print-qr-frame">
+                                        <img
+                                            src="{{ item.card.qr_image_url }}"
+                                            alt="QR del carnet"
+                                            class="print-qr-image"
+                                        />
+                                    </div>
+                                    <div class="print-qr-label">Escanee para validar</div>
+                                {% else %}
+                                    <div class="print-qr-placeholder">QR</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="print-card-footer">
+                            <span>{{ item.theme.card_footer_text }}</span>
+                        </div>
+                    </article>
+
+                    <article
+                        class="print-card print-card-back"
+                        style="
+                            background: {{ item.theme.center_background_color }};
+                            color: {{ item.theme.center_text_color }};
+                            border-color: {{ item.theme.center_accent_color }};
+                        "
+                    >
+                        <div
+                            class="print-card-header print-card-header-back"
+                            style="background: {{ item.theme.center_primary_color }};"
+                        >
+                            <h3>{{ item.theme.center_name }}</h3>
+                        </div>
+
+                        <div class="print-card-back-body">
+                            <section>
+                                <h4>Filosofía</h4>
+                                <p>{{ item.theme.philosophy or "-" }}</p>
+                            </section>
+
+                            <section>
+                                <h4>Misión</h4>
+                                <p>{{ item.theme.mission or "-" }}</p>
+                            </section>
+
+                            <section>
+                                <h4>Visión</h4>
+                                <p>{{ item.theme.vision or "-" }}</p>
+                            </section>
+
+                            <section>
+                                <h4>Valores</h4>
+                                <p>{{ item.theme.values or "-" }}</p>
+                            </section>
+                        </div>
+
+                        <div class="print-card-footer">
+                            <span>{{ item.theme.card_footer_text }}</span>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        {% endfor %}
+    </main>
+</body>
+</html>

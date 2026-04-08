@@ -1,191 +1,246 @@
-const alertBox = document.getElementById("alertBox");
+const tableBody = document.getElementById("studentsTable");
+
 const centerFilter = document.getElementById("centerFilter");
-const schoolYearFilter = document.getElementById("schoolYearFilter");
+const yearFilter = document.getElementById("yearFilter");
 const gradeFilter = document.getElementById("gradeFilter");
 const sectionFilter = document.getElementById("sectionFilter");
-const searchFilter = document.getElementById("searchFilter");
-const clearFiltersBtn = document.getElementById("clearFiltersBtn");
-const reloadStudentsBtn = document.getElementById("reloadStudentsBtn");
-const studentsTableBody = document.getElementById("studentsTableBody");
-const resultCount = document.getElementById("resultCount");
 
+const filterBtn = document.getElementById("filterBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+const selectAllCheckbox = document.getElementById("selectAll");
+const printSelectedBtn = document.getElementById("printSelectedBtn");
+const resultCount = document.getElementById("resultCount");
+const alertBox = document.getElementById("alertBox");
+
+let students = [];
+let filteredStudents = [];
 let centers = [];
 let schoolYears = [];
-let students = [];
 let alertTimeoutId = null;
 
 function showAlert(message, type = "success") {
-  if (alertTimeoutId) {
-    clearTimeout(alertTimeoutId);
-  }
+    if (alertTimeoutId) {
+        clearTimeout(alertTimeoutId);
+    }
 
-  alertBox.textContent = message;
-  alertBox.className = `alert-box ${type}`;
+    alertBox.textContent = message;
+    alertBox.className = `alert-box ${type}`;
 
-  if (type === "success") {
-    alertTimeoutId = window.setTimeout(() => {
-      hideAlert();
-    }, 3500);
-  }
+    if (type === "success") {
+        alertTimeoutId = window.setTimeout(() => {
+            hideAlert();
+        }, 3500);
+    }
 }
 
 function hideAlert() {
-  if (alertTimeoutId) {
-    clearTimeout(alertTimeoutId);
-    alertTimeoutId = null;
-  }
+    if (alertTimeoutId) {
+        clearTimeout(alertTimeoutId);
+        alertTimeoutId = null;
+    }
 
-  alertBox.textContent = "";
-  alertBox.className = "alert-box hidden";
+    alertBox.textContent = "";
+    alertBox.className = "alert-box hidden";
 }
 
-function getCenterName(centerId) {
-  const center = centers.find((item) => item.id === centerId);
-  return center ? center.name : "-";
+async function loadFilters() {
+    centers = await fetch("/centers/").then((r) => r.json());
+    schoolYears = await fetch("/school-years/").then((r) => r.json());
+
+    centerFilter.innerHTML = `<option value="">Todos los centros</option>`;
+    yearFilter.innerHTML = `<option value="">Todos los años</option>`;
+
+    centers.forEach((c) => {
+        centerFilter.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+    });
+
+    schoolYears.forEach((y) => {
+        yearFilter.innerHTML += `<option value="${y.id}">${y.name}</option>`;
+    });
 }
 
-function getSchoolYearName(schoolYearId) {
-  const schoolYear = schoolYears.find((item) => item.id === schoolYearId);
-  return schoolYear ? schoolYear.name : "-";
+async function loadStudents() {
+    students = await fetch("/students/").then((r) => r.json());
+    filteredStudents = [...students];
+
+    buildDynamicFilters(filteredStudents);
+    renderTable(filteredStudents);
 }
 
-function renderTable(rows) {
-  if (!rows.length) {
-    studentsTableBody.innerHTML = `
-      <tr>
-        <td colspan="10" class="empty-row">No se encontraron estudiantes con los filtros aplicados.</td>
-      </tr>
-    `;
-    resultCount.textContent = "0 resultados";
-    return;
-  }
+function buildDynamicFilters(data) {
+    const selectedGrade = gradeFilter.value;
+    const selectedSection = sectionFilter.value;
 
-  studentsTableBody.innerHTML = rows.map((student) => {
-    const fullName = `${student.first_name} ${student.last_name}`;
-    const statusClass = student.is_active ? "status-active" : "status-inactive";
-    const statusLabel = student.is_active ? "Activo" : "Inactivo";
+    const grades = [...new Set(data.map((s) => s.grade).filter(Boolean))].sort();
+    const sections = [...new Set(data.map((s) => s.section).filter(Boolean))].sort();
 
-    return `
-      <tr>
-        <td>${student.id}</td>
-        <td>${student.student_code ?? "-"}</td>
-        <td>${fullName}</td>
-        <td>${student.minerd_id ?? "-"}</td>
-        <td>${getCenterName(student.center_id)}</td>
-        <td>${getSchoolYearName(student.school_year_id)}</td>
-        <td>${student.grade ?? "-"}</td>
-        <td>${student.section ?? "-"}</td>
-        <td><span class="status-badge ${statusClass}">${statusLabel}</span></td>
-        <td>
-          <div class="action-stack">
-            <a class="btn btn-primary" target="_blank" rel="noopener noreferrer" href="/students/${student.id}/card/front">Frontal</a>
-            <a class="btn btn-secondary" target="_blank" rel="noopener noreferrer" href="/students/${student.id}/card/back">Reverso</a>
-            <a class="btn btn-success" target="_blank" rel="noopener noreferrer" href="/admin/students/${student.id}/print">Imprimir</a>
-          </div>
-        </td>
-      </tr>
-    `;
-  }).join("");
+    gradeFilter.innerHTML = `<option value="">Todos los cursos</option>`;
+    sectionFilter.innerHTML = `<option value="">Todas las secciones</option>`;
 
-  resultCount.textContent = `${rows.length} resultado(s)`;
+    grades.forEach((g) => {
+        gradeFilter.innerHTML += `<option value="${g}">${g}</option>`;
+    });
+
+    sections.forEach((s) => {
+        sectionFilter.innerHTML += `<option value="${s}">${s}</option>`;
+    });
+
+    if (grades.includes(selectedGrade)) {
+        gradeFilter.value = selectedGrade;
+    }
+
+    if (sections.includes(selectedSection)) {
+        sectionFilter.value = selectedSection;
+    }
 }
 
 function applyFilters() {
-  const centerId = centerFilter.value;
-  const schoolYearId = schoolYearFilter.value;
-  const grade = gradeFilter.value.trim().toLowerCase();
-  const section = sectionFilter.value.trim().toLowerCase();
-  const search = searchFilter.value.trim().toLowerCase();
+    const centerValue = centerFilter.value;
+    const yearValue = yearFilter.value;
+    const gradeValue = gradeFilter.value;
+    const sectionValue = sectionFilter.value;
 
-  const filtered = students.filter((student) => {
-    const matchesCenter = !centerId || String(student.center_id) === String(centerId);
-    const matchesSchoolYear = !schoolYearId || String(student.school_year_id) === String(schoolYearId);
-    const matchesGrade = !grade || (student.grade || "").toLowerCase().includes(grade);
-    const matchesSection = !section || (student.section || "").toLowerCase().includes(section);
+    filteredStudents = students.filter((s) => {
+        return (
+            (!centerValue || String(s.center_id) === String(centerValue)) &&
+            (!yearValue || String(s.school_year_id) === String(yearValue)) &&
+            (!gradeValue || s.grade === gradeValue) &&
+            (!sectionValue || s.section === sectionValue)
+        );
+    });
 
-    const fullName = `${student.first_name || ""} ${student.last_name || ""}`.toLowerCase();
-    const code = (student.student_code || "").toLowerCase();
-    const minerd = (student.minerd_id || "").toLowerCase();
-
-    const matchesSearch =
-      !search ||
-      fullName.includes(search) ||
-      code.includes(search) ||
-      minerd.includes(search);
-
-    return matchesCenter && matchesSchoolYear && matchesGrade && matchesSection && matchesSearch;
-  });
-
-  renderTable(filtered);
+    renderTable(filteredStudents);
+    resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
 }
 
-function populateFilters() {
-  centerFilter.innerHTML = '<option value="">Todos los centros</option>';
-  schoolYearFilter.innerHTML = '<option value="">Todos los años</option>';
+function renderTable(data) {
+    tableBody.innerHTML = "";
 
-  centers.forEach((center) => {
-    const option = document.createElement("option");
-    option.value = center.id;
-    option.textContent = `${center.name} (${center.code})`;
-    centerFilter.appendChild(option);
-  });
+    if (!data.length) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="empty-row">No se encontraron estudiantes con esos filtros.</td>
+            </tr>
+        `;
+        return;
+    }
 
-  schoolYears.forEach((schoolYear) => {
-    const option = document.createElement("option");
-    option.value = schoolYear.id;
-    option.textContent = schoolYear.name;
-    schoolYearFilter.appendChild(option);
-  });
+    data.forEach((student) => {
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>
+                <input type="checkbox" class="studentCheck" value="${student.id}">
+            </td>
+            <td>${student.student_code ?? "-"}</td>
+            <td>${student.first_name} ${student.last_name}</td>
+            <td>${student.grade ?? "-"}</td>
+            <td>${student.section ?? "-"}</td>
+            <td>
+                <div class="action-stack">
+                    <button class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>
+                    <button class="btn btn-neutral" onclick="editStudent(${student.id})">Editar</button>
+                    <button class="btn btn-success" onclick="printStudent(${student.id})">Imprimir</button>
+                </div>
+            </td>
+        `;
+
+        tableBody.appendChild(row);
+    });
+
+    selectAllCheckbox.checked = false;
 }
 
-async function loadData() {
-  hideAlert();
-  reloadStudentsBtn.disabled = true;
-  reloadStudentsBtn.textContent = "Recargando...";
+function getSelectedStudents() {
+    const checks = document.querySelectorAll(".studentCheck:checked");
+    return Array.from(checks).map((c) => c.value);
+}
 
-  try {
-    const [centersRes, schoolYearsRes, studentsRes] = await Promise.all([
-      fetch("/centers/"),
-      fetch("/school-years/"),
-      fetch("/students/"),
-    ]);
+selectAllCheckbox.addEventListener("change", () => {
+    document.querySelectorAll(".studentCheck").forEach((cb) => {
+        cb.checked = selectAllCheckbox.checked;
+    });
+});
 
-    if (!centersRes.ok) throw new Error("No se pudieron cargar los centros.");
-    if (!schoolYearsRes.ok) throw new Error("No se pudieron cargar los años escolares.");
-    if (!studentsRes.ok) throw new Error("No se pudieron cargar los estudiantes.");
+printSelectedBtn.addEventListener("click", () => {
+    const selected = getSelectedStudents();
 
-    centers = await centersRes.json();
-    schoolYears = await schoolYearsRes.json();
-    students = await studentsRes.json();
+    if (selected.length === 0) {
+        showAlert("Selecciona al menos un estudiante.", "error");
+        return;
+    }
 
-    populateFilters();
+    const params = new URLSearchParams();
+    selected.forEach((id) => params.append("ids", id));
+
+    window.open(`/students/cards/print-multiple?${params.toString()}`, "_blank");
+});
+
+function printStudent(id) {
+    window.open(`/admin/students/${id}/print`, "_blank");
+}
+
+function viewFront(id) {
+    window.open(`/students/${id}/card/front`, "_blank");
+}
+
+function editStudent(id) {
+    window.location.href = `/admin/students/${id}/edit`;
+}
+
+filterBtn.addEventListener("click", () => {
     applyFilters();
-  } catch (error) {
-    showAlert(error.message || "No se pudo cargar el listado.", "error");
-  } finally {
-    reloadStudentsBtn.disabled = false;
-    reloadStudentsBtn.textContent = "Recargar listado";
-  }
+});
+
+clearBtn.addEventListener("click", () => {
+    centerFilter.value = "";
+    yearFilter.value = "";
+    filteredStudents = [...students];
+    buildDynamicFilters(filteredStudents);
+    renderTable(filteredStudents);
+    resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
+    hideAlert();
+});
+
+centerFilter.addEventListener("change", () => {
+    const centerValue = centerFilter.value;
+    const yearValue = yearFilter.value;
+
+    const preFiltered = students.filter((s) => {
+        return (
+            (!centerValue || String(s.center_id) === String(centerValue)) &&
+            (!yearValue || String(s.school_year_id) === String(yearValue))
+        );
+    });
+
+    buildDynamicFilters(preFiltered);
+});
+
+yearFilter.addEventListener("change", () => {
+    const centerValue = centerFilter.value;
+    const yearValue = yearFilter.value;
+
+    const preFiltered = students.filter((s) => {
+        return (
+            (!centerValue || String(s.center_id) === String(centerValue)) &&
+            (!yearValue || String(s.school_year_id) === String(yearValue))
+        );
+    });
+
+    buildDynamicFilters(preFiltered);
+});
+
+async function init() {
+    try {
+        hideAlert();
+        await loadFilters();
+        await loadStudents();
+        resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
+    } catch (error) {
+        showAlert("No se pudieron cargar los datos del listado.", "error");
+        console.error(error);
+    }
 }
 
-function clearFilters() {
-  centerFilter.value = "";
-  schoolYearFilter.value = "";
-  gradeFilter.value = "";
-  sectionFilter.value = "";
-  searchFilter.value = "";
-  applyFilters();
-}
-
-function bindEvents() {
-  [centerFilter, schoolYearFilter, gradeFilter, sectionFilter, searchFilter].forEach((field) => {
-    field.addEventListener("input", applyFilters);
-    field.addEventListener("change", applyFilters);
-  });
-
-  clearFiltersBtn.addEventListener("click", clearFilters);
-  reloadStudentsBtn.addEventListener("click", loadData);
-}
-
-bindEvents();
-loadData();
+init();

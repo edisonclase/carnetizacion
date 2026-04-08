@@ -188,6 +188,15 @@ body {
     background: #fff;
     color: var(--text);
     font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    height: 46px;
+}
+
+.field input:focus,
+.field select:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
 }
 
 .filter-actions {
@@ -198,22 +207,29 @@ body {
 }
 
 .btn {
-    height: 46px;
+    height: 42px;
     border: none;
-    border-radius: 14px;
-    padding: 0 18px;
+    border-radius: 12px;
+    padding: 0 14px;
     font-weight: 700;
     cursor: pointer;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    transition: transform 0.12s ease, opacity 0.12s ease, box-shadow 0.12s ease;
+    white-space: nowrap;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
 }
 
 .btn-primary {
     background: var(--primary);
     color: #ffffff;
+    box-shadow: 0 10px 22px rgba(37, 99, 235, 0.18);
 }
 
 .btn-secondary {
@@ -234,12 +250,15 @@ body {
 
 .table-wrapper {
     overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 16px;
 }
 
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 1200px;
+    min-width: 1180px;
+    background: #fff;
 }
 
 thead th {
@@ -247,21 +266,26 @@ thead th {
     background: var(--primary-soft);
     color: var(--text);
     font-size: 0.92rem;
-    padding: 12px;
+    padding: 14px 12px;
     border-bottom: 1px solid var(--border);
+    white-space: nowrap;
 }
 
 tbody td {
-    padding: 12px;
+    padding: 14px 12px;
     border-bottom: 1px solid #edf2f7;
     font-size: 0.95rem;
-    vertical-align: top;
+    vertical-align: middle;
+}
+
+tbody tr:hover {
+    background: #fafcff;
 }
 
 .empty-row {
     text-align: center;
     color: var(--muted);
-    padding: 20px;
+    padding: 24px;
 }
 
 .status-badge {
@@ -286,6 +310,13 @@ tbody td {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
+}
+
+input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
 }
 
 @media (max-width: 1100px) {

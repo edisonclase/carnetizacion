@@ -27,7 +27,7 @@
             <header class="page-header">
                 <div>
                     <h2>Listado Interno de Estudiantes</h2>
-                    <p>Consulta, filtro y acceso rápido a carnets e impresión individual.</p>
+                    <p>Consulta, filtro, selección múltiple e impresión de carnets.</p>
                 </div>
                 <div class="header-chip">Nova ID · Registro</div>
             </header>
@@ -37,7 +37,7 @@
             <section class="list-card filters-card">
                 <div class="card-title-row">
                     <h3>Filtros</h3>
-                    <span>Ubica estudiantes por centro, año escolar y sección</span>
+                    <span>Ubica estudiantes por centro, año escolar, curso y sección</span>
                 </div>
 
                 <div class="filters-grid">
@@ -49,31 +49,48 @@
                     </div>
 
                     <div class="field">
-                        <label for="schoolYearFilter">Año escolar</label>
-                        <select id="schoolYearFilter">
+                        <label for="yearFilter">Año escolar</label>
+                        <select id="yearFilter">
                             <option value="">Todos los años</option>
                         </select>
                     </div>
 
                     <div class="field">
-                        <label for="gradeFilter">Curso / Grado</label>
-                        <input type="text" id="gradeFilter" placeholder="Ej.: 4to" />
+                        <label for="gradeFilter">Curso</label>
+                        <select id="gradeFilter">
+                            <option value="">Todos los cursos</option>
+                        </select>
                     </div>
 
                     <div class="field">
                         <label for="sectionFilter">Sección</label>
-                        <input type="text" id="sectionFilter" placeholder="Ej.: A" />
-                    </div>
-
-                    <div class="field field-span-2">
-                        <label for="searchFilter">Búsqueda por nombre o código</label>
-                        <input type="text" id="searchFilter" placeholder="Nombre, apellido, código interno o ID MINERD" />
+                        <select id="sectionFilter">
+                            <option value="">Todas las secciones</option>
+                        </select>
                     </div>
                 </div>
 
                 <div class="filter-actions">
-                    <button type="button" id="clearFiltersBtn" class="btn btn-secondary">Limpiar filtros</button>
-                    <button type="button" id="reloadStudentsBtn" class="btn btn-primary">Recargar listado</button>
+                    <button type="button" id="filterBtn" class="btn btn-primary">Filtrar</button>
+                    <button type="button" id="clearBtn" class="btn btn-secondary">Limpiar</button>
+                </div>
+            </section>
+
+            <section class="list-card">
+                <div class="card-title-row">
+                    <h3>Acciones masivas</h3>
+                    <span>Selecciona varios estudiantes para impresión conjunta</span>
+                </div>
+
+                <div class="filter-actions">
+                    <label class="btn btn-neutral" style="gap:8px; cursor:default;">
+                        <input type="checkbox" id="selectAll" />
+                        <span>Seleccionar todos</span>
+                    </label>
+
+                    <button type="button" id="printSelectedBtn" class="btn btn-success">
+                        Imprimir seleccionados
+                    </button>
                 </div>
             </section>
 
@@ -87,21 +104,17 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th></th>
                                 <th>Código</th>
                                 <th>Nombre</th>
-                                <th>MINERD</th>
-                                <th>Centro</th>
-                                <th>Año escolar</th>
                                 <th>Curso</th>
                                 <th>Sección</th>
-                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="studentsTableBody">
+                        <tbody id="studentsTable">
                             <tr>
-                                <td colspan="10" class="empty-row">Cargando datos...</td>
+                                <td colspan="6" class="empty-row">Cargando datos...</td>
                             </tr>
                         </tbody>
                     </table>
