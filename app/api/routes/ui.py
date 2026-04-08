@@ -227,6 +227,25 @@ def dashboard_page(request: Request):
     )
 
 
+@router.get("/admin/centers/{center_id}/settings", response_class=HTMLResponse)
+def center_settings_page(
+    request: Request,
+    center_id: int,
+    db: Session = Depends(get_db),
+):
+    center = _get_center_or_404(db, center_id)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="center_settings.html",
+        context={
+            "request": request,
+            "center_id": center.id,
+            "center_name": center.name,
+        },
+    )
+
+
 @router.get("/students/{student_id}/card/front", response_class=HTMLResponse)
 def student_card_front(
     request: Request,

@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Configuración del Centro - Nova ID</title>
+    <link rel="stylesheet" href="/static/center_settings.css" />
+</head>
+<body data-center-id="{{ center_id }}">
+    <div class="settings-shell">
+        <aside class="settings-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>Administración interna</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin/centers/{{ center_id }}/settings" class="active">Configuración del centro</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="settings-main">
+            <header class="page-header">
+                <div>
+                    <h2>Configuración del Centro</h2>
+                    <p>Gestión interna de identidad institucional, branding y textos del carnet.</p>
+                </div>
+                <div class="header-chip" id="currentCenterName">{{ center_name }}</div>
+            </header>
+
+            <div id="alertBox" class="alert-box hidden"></div>
+
+            <div class="settings-layout">
+                <form id="centerSettingsForm" class="settings-form" novalidate>
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Identidad básica</h3>
+                            <span>Datos principales del centro</span>
+                        </div>
+
+                        <div class="form-grid two-cols">
+                            <div class="field">
+                                <label for="name">Nombre del centro</label>
+                                <input type="text" id="name" name="name" />
+                            </div>
+
+                            <div class="field">
+                                <label for="code">Código</label>
+                                <input type="text" id="code" name="code" />
+                            </div>
+
+                            <div class="field">
+                                <label for="is_active">Estado</label>
+                                <select id="is_active" name="is_active">
+                                    <option value="true">Activo</option>
+                                    <option value="false">Inactivo</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="motto">Lema</label>
+                                <input type="text" id="motto" name="motto" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Branding</h3>
+                            <span>Colores e identidad visual</span>
+                        </div>
+
+                        <div class="form-grid two-cols">
+                            <div class="field field-span-2">
+                                <label for="logo_url">URL del logo</label>
+                                <input type="text" id="logo_url" name="logo_url" placeholder="/uploads/centers/logo.png o URL pública" />
+                            </div>
+
+                            <div class="field field-span-2">
+                                <label for="letterhead_url">URL del membrete</label>
+                                <input type="text" id="letterhead_url" name="letterhead_url" placeholder="/uploads/centers/membrete.png o URL pública" />
+                            </div>
+
+                            <div class="field color-field">
+                                <label for="primary_color">Color primario</label>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="primary_color_picker" />
+                                    <input type="text" id="primary_color" name="primary_color" placeholder="#1f8f4a" />
+                                </div>
+                            </div>
+
+                            <div class="field color-field">
+                                <label for="secondary_color">Color secundario</label>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="secondary_color_picker" />
+                                    <input type="text" id="secondary_color" name="secondary_color" placeholder="#0b3d24" />
+                                </div>
+                            </div>
+
+                            <div class="field color-field">
+                                <label for="accent_color">Color de acento</label>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="accent_color_picker" />
+                                    <input type="text" id="accent_color" name="accent_color" placeholder="#f4c95d" />
+                                </div>
+                            </div>
+
+                            <div class="field color-field">
+                                <label for="text_color">Color de texto</label>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="text_color_picker" />
+                                    <input type="text" id="text_color" name="text_color" placeholder="#1e1e1e" />
+                                </div>
+                            </div>
+
+                            <div class="field color-field">
+                                <label for="background_color">Color de fondo</label>
+                                <div class="color-input-wrap">
+                                    <input type="color" id="background_color_picker" />
+                                    <input type="text" id="background_color" name="background_color" placeholder="#ffffff" />
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Contacto institucional</h3>
+                            <span>Datos visibles y administrativos</span>
+                        </div>
+
+                        <div class="form-grid two-cols">
+                            <div class="field">
+                                <label for="phone">Teléfono</label>
+                                <input type="text" id="phone" name="phone" />
+                            </div>
+
+                            <div class="field">
+                                <label for="email">Correo</label>
+                                <input type="email" id="email" name="email" />
+                            </div>
+
+                            <div class="field field-span-2">
+                                <label for="address">Dirección</label>
+                                <input type="text" id="address" name="address" />
+                            </div>
+
+                            <div class="field">
+                                <label for="district_name">Distrito</label>
+                                <input type="text" id="district_name" name="district_name" />
+                            </div>
+
+                            <div class="field">
+                                <label for="management_code">Código de gestión</label>
+                                <input type="text" id="management_code" name="management_code" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Textos institucionales generales</h3>
+                            <span>Base institucional del centro</span>
+                        </div>
+
+                        <div class="form-grid one-col">
+                            <div class="field">
+                                <label for="philosophy">Filosofía</label>
+                                <textarea id="philosophy" name="philosophy" rows="3"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="mission">Misión</label>
+                                <textarea id="mission" name="mission" rows="3"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="vision">Visión</label>
+                                <textarea id="vision" name="vision" rows="3"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="values">Valores</label>
+                                <textarea id="values" name="values" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Textos cortos para carnet</h3>
+                            <span>Versión breve para el reverso del carnet</span>
+                        </div>
+
+                        <div class="form-grid one-col">
+                            <div class="field">
+                                <label for="card_philosophy">Filosofía corta</label>
+                                <textarea id="card_philosophy" name="card_philosophy" rows="2"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_mission">Misión corta</label>
+                                <textarea id="card_mission" name="card_mission" rows="2"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_vision">Visión corta</label>
+                                <textarea id="card_vision" name="card_vision" rows="2"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_values">Valores cortos</label>
+                                <textarea id="card_values" name="card_values" rows="2"></textarea>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_footer_text">Pie del carnet</label>
+                                <input type="text" id="card_footer_text" name="card_footer_text" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <div class="form-actions">
+                        <button type="button" id="reloadBtn" class="btn btn-secondary">Recargar</button>
+                        <button type="submit" id="saveBtn" class="btn btn-primary">Guardar cambios</button>
+                    </div>
+                </form>
+
+                <aside class="preview-panel">
+                    <section class="settings-card preview-card">
+                        <div class="card-title-row">
+                            <h3>Vista previa</h3>
+                            <span>Carnet frontal y reverso</span>
+                        </div>
+
+                        <div class="preview-stack">
+                            <div class="preview-label">Frontal</div>
+
+                            <div class="mini-card" id="previewFrontCard">
+                                <div class="mini-card-header" id="previewFrontHeader">
+                                    <div class="mini-logo-wrap">
+                                        <img id="previewLogo" class="mini-logo hidden" alt="Logo del centro" />
+                                        <div id="previewLogoPlaceholder" class="mini-logo mini-logo-placeholder"></div>
+                                    </div>
+
+                                    <div class="mini-header-text">
+                                        <h4 id="previewCenterNameFront">Centro educativo</h4>
+                                        <p id="previewContactLine">Teléfono · correo</p>
+                                        <span>Carnet Estudiantil</span>
+                                    </div>
+                                </div>
+
+                                <div class="mini-card-body">
+                                    <div class="mini-photo">Foto</div>
+
+                                    <div class="mini-student-name">NOMBRE DEL ESTUDIANTE</div>
+
+                                    <div class="mini-info-grid">
+                                        <div><strong>Código:</strong> 0001</div>
+                                        <div><strong>ID MINERD:</strong> 123456789</div>
+                                        <div><strong>Curso:</strong> 4to</div>
+                                        <div><strong>Sección:</strong> A</div>
+                                        <div><strong>Año:</strong> 2025-2026</div>
+                                    </div>
+
+                                    <div class="mini-qr-wrap">
+                                        <div class="mini-qr">QR</div>
+                                        <small>Validación</small>
+                                    </div>
+                                </div>
+
+                                <div class="mini-card-footer" id="previewFrontFooter">by Aula Nova</div>
+                            </div>
+
+                            <div class="preview-label">Reverso</div>
+
+                            <div class="mini-card" id="previewBackCard">
+                                <div class="mini-card-header mini-card-header-back" id="previewBackHeader">
+                                    <h4 id="previewCenterNameBack">Centro educativo</h4>
+                                </div>
+
+                                <div class="mini-card-back-body">
+                                    <section>
+                                        <h5>Filosofía</h5>
+                                        <p id="previewPhilosophy">Texto corto de filosofía.</p>
+                                    </section>
+
+                                    <section>
+                                        <h5>Misión</h5>
+                                        <p id="previewMission">Texto corto de misión.</p>
+                                    </section>
+
+                                    <section>
+                                        <h5>Visión</h5>
+                                        <p id="previewVision">Texto corto de visión.</p>
+                                    </section>
+
+                                    <section>
+                                        <h5>Valores</h5>
+                                        <p id="previewValues">Texto corto de valores.</p>
+                                    </section>
+                                </div>
+
+                                <div class="mini-card-footer" id="previewBackFooter">by Aula Nova</div>
+                            </div>
+                        </div>
+                    </section>
+                </aside>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/center_settings.js"></script>
+</body>
+</html>
