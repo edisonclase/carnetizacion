@@ -26,12 +26,40 @@
             <header class="page-header">
                 <div>
                     <h2>Registro Interno de Estudiantes</h2>
-                    <p>Creación operativa de estudiantes y tutor principal para la emisión de carnets.</p>
+                    <p>Creación operativa de estudiantes, tutor principal y carnet.</p>
                 </div>
                 <div class="header-chip">Nova ID · Operaciones</div>
             </header>
 
             <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
+
+            <section id="resultPanel" class="result-panel hidden" aria-live="polite">
+                <div class="result-panel-header">
+                    <div>
+                        <h3>Registro completado</h3>
+                        <p id="resultSummary">El estudiante fue registrado correctamente.</p>
+                    </div>
+                    <div class="result-badge" id="resultStudentCode">---</div>
+                </div>
+
+                <div class="result-meta">
+                    <div><strong>Estudiante ID:</strong> <span id="resultStudentId">-</span></div>
+                    <div><strong>Carnet ID:</strong> <span id="resultCardId">-</span></div>
+                    <div><strong>Código del carnet:</strong> <span id="resultCardCode">-</span></div>
+                </div>
+
+                <div class="result-actions">
+                    <a id="openFrontBtn" class="btn btn-primary btn-link hidden" target="_blank" rel="noopener noreferrer">
+                        Ver frontal del carnet
+                    </a>
+                    <a id="openBackBtn" class="btn btn-secondary btn-link hidden" target="_blank" rel="noopener noreferrer">
+                        Ver reverso del carnet
+                    </a>
+                    <a id="openStudentBtn" class="btn btn-neutral btn-link hidden" target="_blank" rel="noopener noreferrer">
+                        Ver ficha del estudiante
+                    </a>
+                </div>
+            </section>
 
             <form id="studentRegisterForm" class="register-form" novalidate>
                 <section class="register-card">
@@ -174,7 +202,7 @@
                     </div>
 
                     <div class="info-box">
-                        Este formulario crea primero el estudiante y luego registra automáticamente el tutor principal.
+                        Este formulario crea el estudiante, el tutor principal y el carnet en una sola operación.
                         No incluye carga de acta de nacimiento, de acuerdo con el modelo operativo definido.
                     </div>
                 </section>

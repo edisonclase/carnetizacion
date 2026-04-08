@@ -6,6 +6,16 @@ const resetBtn = document.getElementById("resetBtn");
 const centerSelect = document.getElementById("center_id");
 const schoolYearSelect = document.getElementById("school_year_id");
 
+const resultPanel = document.getElementById("resultPanel");
+const resultSummary = document.getElementById("resultSummary");
+const resultStudentCode = document.getElementById("resultStudentCode");
+const resultStudentId = document.getElementById("resultStudentId");
+const resultCardId = document.getElementById("resultCardId");
+const resultCardCode = document.getElementById("resultCardCode");
+const openFrontBtn = document.getElementById("openFrontBtn");
+const openBackBtn = document.getElementById("openBackBtn");
+const openStudentBtn = document.getElementById("openStudentBtn");
+
 let allSchoolYears = [];
 let alertTimeoutId = null;
 
@@ -37,6 +47,42 @@ function hideAlert() {
 
   alertBox.textContent = "";
   alertBox.className = "alert-box hidden";
+}
+
+function hideResultPanel() {
+  resultPanel.classList.add("hidden");
+
+  resultSummary.textContent = "El estudiante fue registrado correctamente.";
+  resultStudentCode.textContent = "---";
+  resultStudentId.textContent = "-";
+  resultCardId.textContent = "-";
+  resultCardCode.textContent = "-";
+
+  [openFrontBtn, openBackBtn, openStudentBtn].forEach((btn) => {
+    btn.classList.add("hidden");
+    btn.removeAttribute("href");
+  });
+}
+
+function showResultPanel(result) {
+  const student = result.student;
+  const card = result.card;
+
+  resultSummary.textContent = `El estudiante ${student.first_name} ${student.last_name} fue registrado con éxito y su carnet quedó generado.`;
+  resultStudentCode.textContent = student.student_code || "---";
+  resultStudentId.textContent = student.id ?? "-";
+  resultCardId.textContent = card.id ?? "-";
+  resultCardCode.textContent = card.card_code ?? "-";
+
+  openFrontBtn.href = `/students/${student.id}/card/front`;
+  openBackBtn.href = `/students/${student.id}/card/back`;
+  openStudentBtn.href = `/students/${student.id}`;
+
+  openFrontBtn.classList.remove("hidden");
+  openBackBtn.classList.remove("hidden");
+  openStudentBtn.classList.remove("hidden");
+
+  resultPanel.classList.remove("hidden");
 }
 
 function getValue(id) {
@@ -138,17 +184,10 @@ function validateForm() {
   return null;
 }
 
-function buildSuccessMessage(result) {
-  const studentId = result?.student?.id ?? "-";
-  const cardId = result?.card?.id ?? "-";
-  const cardCode = result?.card?.card_code ?? "-";
-
-  return `Registro completado correctamente. Estudiante ID: ${studentId}. Carnet ID: ${cardId}. Código del carnet: ${cardCode}.`;
-}
-
 async function submitForm(event) {
   event.preventDefault();
   hideAlert();
+  hideResultPanel();
 
   const validationError = validateForm();
   if (validationError) {
@@ -181,11 +220,14 @@ async function submitForm(event) {
     schoolYearSelect.innerHTML = '<option value="">Seleccione primero un centro</option>';
     schoolYearSelect.disabled = true;
 
-    showAlert(buildSuccessMessage(result), "success");
+    showAlert(
+      `Registro completado correctamente. Estudiante ID: ${result.student.id}. Carnet ID: ${result.card.id}. Código del carnet: ${result.card.card_code}.`,
+      "success"
+    );
+
+    showResultPanel(result);
 
     console.log("Registro completo:", result);
-    console.log("Ver carnet frontal:", `/students/${result.student.id}/card/front`);
-    console.log("Ver carnet reverso:", `/students/${result.student.id}/card/back`);
   } catch (error) {
     showAlert(error.message || "Ocurrió un error durante el registro.", "error");
   } finally {
@@ -199,6 +241,7 @@ function resetForm() {
   schoolYearSelect.innerHTML = '<option value="">Seleccione primero un centro</option>';
   schoolYearSelect.disabled = true;
   hideAlert();
+  hideResultPanel();
 }
 
 function bindEvents() {
@@ -212,6 +255,7 @@ function bindEvents() {
 
 async function initPage() {
   hideAlert();
+  hideResultPanel();
 
   try {
     await Promise.all([loadCenters(), loadSchoolYears()]);
