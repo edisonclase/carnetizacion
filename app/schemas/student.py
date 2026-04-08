@@ -2,6 +2,9 @@ from datetime import date, datetime
 
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.card import CardResponse
+from app.schemas.guardian import GuardianResponse
+
 
 class StudentBase(BaseModel):
     center_id: int
@@ -40,3 +43,21 @@ class StudentResponse(StudentBase):
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class StudentRegisterGuardianInput(BaseModel):
+    full_name: str
+    relationship_type: str
+    phone: str | None = None
+    whatsapp: str | None = None
+    email: str | None = None
+
+
+class StudentRegisterRequest(StudentCreate):
+    guardian: StudentRegisterGuardianInput
+
+
+class StudentRegisterResponse(BaseModel):
+    student: StudentResponse
+    guardian: GuardianResponse
+    card: CardResponse
