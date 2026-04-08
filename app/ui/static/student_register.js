@@ -76,7 +76,11 @@ function showResultPanel(result) {
 
   openFrontBtn.href = `/students/${student.id}/card/front`;
   openBackBtn.href = `/students/${student.id}/card/back`;
-  openStudentBtn.href = `/students/${student.id}`;
+  openStudentBtn.href = `/admin/students/${student.id}/print`;
+
+  openFrontBtn.textContent = "Ver frontal del carnet";
+  openBackBtn.textContent = "Ver reverso del carnet";
+  openStudentBtn.textContent = "Imprimir carnet";
 
   openFrontBtn.classList.remove("hidden");
   openBackBtn.classList.remove("hidden");
@@ -226,8 +230,6 @@ async function submitForm(event) {
     );
 
     showResultPanel(result);
-
-    console.log("Registro completo:", result);
   } catch (error) {
     showAlert(error.message || "Ocurrió un error durante el registro.", "error");
   } finally {

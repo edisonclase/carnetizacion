@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado Interno de Estudiantes - Nova ID</title>
+    <link rel="stylesheet" href="/static/student_list.css" />
+</head>
+<body>
+    <div class="student-list-shell">
+        <aside class="student-list-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>Administración interna</p>
+                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin/students/register">Registro de estudiantes</a>
+                <a href="/admin/students" class="active">Listado de estudiantes</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="student-list-main">
+            <header class="page-header">
+                <div>
+                    <h2>Listado Interno de Estudiantes</h2>
+                    <p>Consulta, filtro y acceso rápido a carnets e impresión individual.</p>
+                </div>
+                <div class="header-chip">Nova ID · Registro</div>
+            </header>
+
+            <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
+
+            <section class="list-card filters-card">
+                <div class="card-title-row">
+                    <h3>Filtros</h3>
+                    <span>Ubica estudiantes por centro, año escolar y sección</span>
+                </div>
+
+                <div class="filters-grid">
+                    <div class="field">
+                        <label for="centerFilter">Centro</label>
+                        <select id="centerFilter">
+                            <option value="">Todos los centros</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="schoolYearFilter">Año escolar</label>
+                        <select id="schoolYearFilter">
+                            <option value="">Todos los años</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="gradeFilter">Curso / Grado</label>
+                        <input type="text" id="gradeFilter" placeholder="Ej.: 4to" />
+                    </div>
+
+                    <div class="field">
+                        <label for="sectionFilter">Sección</label>
+                        <input type="text" id="sectionFilter" placeholder="Ej.: A" />
+                    </div>
+
+                    <div class="field field-span-2">
+                        <label for="searchFilter">Búsqueda por nombre o código</label>
+                        <input type="text" id="searchFilter" placeholder="Nombre, apellido, código interno o ID MINERD" />
+                    </div>
+                </div>
+
+                <div class="filter-actions">
+                    <button type="button" id="clearFiltersBtn" class="btn btn-secondary">Limpiar filtros</button>
+                    <button type="button" id="reloadStudentsBtn" class="btn btn-primary">Recargar listado</button>
+                </div>
+            </section>
+
+            <section class="list-card">
+                <div class="card-title-row">
+                    <h3>Estudiantes registrados</h3>
+                    <span id="resultCount">Cargando estudiantes...</span>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>MINERD</th>
+                                <th>Centro</th>
+                                <th>Año escolar</th>
+                                <th>Curso</th>
+                                <th>Sección</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <tr>
+                                <td colspan="10" class="empty-row">Cargando datos...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/student_list.js"></script>
+</body>
+</html>

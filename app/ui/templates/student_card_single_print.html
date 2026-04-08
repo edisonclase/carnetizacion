@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Impresión individual de carnet</title>
+    <link rel="stylesheet" href="/static/student_card_single_print.css" />
+</head>
+<body>
+    <div class="print-toolbar">
+        <button type="button" onclick="window.print()">Imprimir carnet</button>
+    </div>
+
+    <main class="print-page">
+        <section class="print-card-side">
+            <iframe
+                src="/students/{{ student_id }}/card/front"
+                title="Carnet frontal"
+                loading="eager"
+            ></iframe>
+        </section>
+
+        <section class="print-card-side">
+            <iframe
+                src="/students/{{ student_id }}/card/back"
+                title="Carnet reverso"
+                loading="eager"
+            ></iframe>
+        </section>
+    </main>
+</body>
+</html>

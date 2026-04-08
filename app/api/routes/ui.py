@@ -244,7 +244,8 @@ def center_settings_page(
             "center_name": center.name,
         },
     )
-    
+
+
 @router.get("/admin/students/register", response_class=HTMLResponse)
 def student_register_page(request: Request):
     return templates.TemplateResponse(
@@ -252,7 +253,38 @@ def student_register_page(request: Request):
         name="student_register.html",
         context={"request": request},
     )
-    
+
+
+@router.get("/admin/students", response_class=HTMLResponse)
+def student_list_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="student_list.html",
+        context={"request": request},
+    )
+
+
+@router.get("/admin/students/{student_id}/print", response_class=HTMLResponse)
+def student_single_print_page(
+    request: Request,
+    student_id: int,
+    db: Session = Depends(get_db),
+):
+    student = _get_student_or_404(db, student_id)
+    center = db.query(Center).filter(Center.id == student.center_id).first()
+
+    context = {
+        "request": request,
+        **_build_center_theme(center),
+        **_build_student_card_data(request=request, db=db, student=student),
+    }
+
+    return templates.TemplateResponse(
+        request=request,
+        name="student_card_single_print.html",
+        context=context,
+    )
+
 
 @router.get("/students/{student_id}/card/front", response_class=HTMLResponse)
 def student_card_front(
