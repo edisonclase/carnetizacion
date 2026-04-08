@@ -25,7 +25,7 @@ function showAlert(message, type = "success") {
   if (type === "success") {
     alertTimeoutId = window.setTimeout(() => {
       hideAlert();
-    }, 3500);
+    }, 5000);
   }
 }
 
@@ -100,7 +100,7 @@ async function loadSchoolYears() {
   allSchoolYears = await response.json();
 }
 
-function getStudentPayload() {
+function getRegisterPayload() {
   return {
     center_id: Number(centerSelect.value),
     school_year_id: Number(schoolYearSelect.value),
@@ -114,19 +114,13 @@ function getStudentPayload() {
     section: getValue("section"),
     photo_path: getValue("photo_path") || null,
     is_active: document.getElementById("is_active").value === "true",
-  };
-}
-
-function getGuardianPayload(studentId) {
-  return {
-    student_id: studentId,
-    full_name: getValue("guardian_full_name"),
-    relationship_type: getValue("relationship_type"),
-    phone: getValue("guardian_phone") || null,
-    whatsapp: getValue("guardian_whatsapp") || null,
-    email: getValue("guardian_email") || null,
-    is_primary: true,
-    is_active: true,
+    guardian: {
+      full_name: getValue("guardian_full_name"),
+      relationship_type: getValue("relationship_type"),
+      phone: getValue("guardian_phone") || null,
+      whatsapp: getValue("guardian_whatsapp") || null,
+      email: getValue("guardian_email") || null,
+    },
   };
 }
 
@@ -144,6 +138,14 @@ function validateForm() {
   return null;
 }
 
+function buildSuccessMessage(result) {
+  const studentId = result?.student?.id ?? "-";
+  const cardId = result?.card?.id ?? "-";
+  const cardCode = result?.card?.card_code ?? "-";
+
+  return `Registro completado correctamente. Estudiante ID: ${studentId}. Carnet ID: ${cardId}. Código del carnet: ${cardCode}.`;
+}
+
 async function submitForm(event) {
   event.preventDefault();
   hideAlert();
@@ -154,50 +156,36 @@ async function submitForm(event) {
     return;
   }
 
+  const payload = getRegisterPayload();
+
   saveBtn.disabled = true;
   saveBtn.textContent = "Registrando...";
 
   try {
-    const studentPayload = getStudentPayload();
-
-    const studentResponse = await fetch("/students/", {
+    const response = await fetch("/students/with-guardian-and-card", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(studentPayload),
+      body: JSON.stringify(payload),
     });
 
-    const studentResult = await studentResponse.json();
+    const result = await response.json();
 
-    if (!studentResponse.ok) {
-      throw new Error(studentResult?.detail || "No se pudo registrar el estudiante.");
-    }
-
-    const guardianPayload = getGuardianPayload(studentResult.id);
-
-    const guardianResponse = await fetch("/guardians/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(guardianPayload),
-    });
-
-    const guardianResult = await guardianResponse.json();
-
-    if (!guardianResponse.ok) {
-      throw new Error(guardianResult?.detail || "El estudiante fue creado, pero no se pudo registrar el tutor principal.");
+    if (!response.ok) {
+      const detail = result?.detail || "No se pudo completar el registro del estudiante.";
+      throw new Error(detail);
     }
 
     form.reset();
     schoolYearSelect.innerHTML = '<option value="">Seleccione primero un centro</option>';
     schoolYearSelect.disabled = true;
 
-    showAlert(
-      `Estudiante registrado correctamente. ID interno generado: ${studentResult.id}. Tutor principal registrado con éxito.`,
-      "success"
-    );
+    showAlert(buildSuccessMessage(result), "success");
+
+    console.log("Registro completo:", result);
+    console.log("Ver carnet frontal:", `/students/${result.student.id}/card/front`);
+    console.log("Ver carnet reverso:", `/students/${result.student.id}/card/back`);
   } catch (error) {
     showAlert(error.message || "Ocurrió un error durante el registro.", "error");
   } finally {
