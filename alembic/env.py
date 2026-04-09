@@ -1,12 +1,18 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config, pool
-
 from alembic import context
+from sqlalchemy import engine_from_config, pool
 
 from app.core.database import Base
 from app.core.settings import settings
-from app.models import Center
+
+# Importar todos los modelos para que Alembic los registre en Base.metadata
+from app.models.card import Card  # noqa: F401
+from app.models.center import Center  # noqa: F401
+from app.models.guardian import Guardian  # noqa: F401
+from app.models.school_year import SchoolYear  # noqa: F401
+from app.models.student import Student  # noqa: F401
+from app.models.user import User  # noqa: F401
 
 config = context.config
 
