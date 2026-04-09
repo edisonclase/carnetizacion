@@ -1,26 +1,32 @@
 # DOCUMENTO TÉCNICO - NOVA ID
 
+---
+
 ## 1. OBJETIVO
 
-Desarrollar un sistema de carnetización, control de asistencia y análisis institucional para centros educativos.
+Desarrollar un sistema profesional de:
+
+- Carnetización digital
+- Control de acceso
+- Gestión de asistencia
+- Analítica institucional
+
+Diseñado como producto SaaS multi-centro.
 
 ---
 
 ## 2. ALCANCE
 
-El sistema incluye:
-
 ### Estudiantes
-- Identificación mediante carnet
+- Identificación mediante carnet QR
 - Registro de asistencia
-- Excusas
-- Salidas autorizadas
+- Control de acceso
+- Gestión académica básica
 
-### Personal docente (expansión)
+### Personal (futuro)
 - Carnetización
-- Entradas y salidas múltiples
 - Control de jornada
-- Registro de permisos
+- Registro de entradas/salidas
 
 ---
 
@@ -31,12 +37,36 @@ El sistema incluye:
 - SQLAlchemy
 - Alembic
 - Pydantic
+- JWT Authentication
 
 Arquitectura modular orientada a servicios.
 
 ---
 
-## 4. MODELO DE DATOS
+## 4. SEGURIDAD Y AUTENTICACIÓN
+
+### Sistema JWT
+
+- Login con token
+- Endpoint `/auth/me`
+- Protección de rutas
+
+### Roles
+
+- super_admin
+- admin_centro
+- registro
+- consulta
+
+### Control de acceso
+
+- Restricción por centro
+- Validación de permisos por endpoint
+- Separación multi-tenant
+
+---
+
+## 5. MODELO DE DATOS
 
 ### Núcleo
 - Center
@@ -45,7 +75,11 @@ Arquitectura modular orientada a servicios.
 - Guardian
 
 ### Identificación
-- Card
+- Card (QR + código único)
+
+### Usuarios
+- User
+- Roles
 
 ### Asistencia
 - AttendanceEvent
@@ -60,90 +94,70 @@ Arquitectura modular orientada a servicios.
 
 ---
 
-## 5. FILOSOFÍA DE DISEÑO
+## 6. FILOSOFÍA DE DISEÑO
 
-Separación clara de responsabilidades:
+Separación clara:
 
-- Event → evento crudo
-- Summary → resultado diario
-- Institutional → comportamiento global
+- Evento → dato crudo
+- Resumen → resultado procesado
+- Usuario → control de acceso
+- Centro → aislamiento de datos
 
 ---
 
-## 6. REGLAS DE NEGOCIO
+## 7. MULTI-CENTRO
+
+- Cada usuario pertenece a un centro
+- super_admin sin restricción
+- Usuarios operan solo su centro
+- Escalabilidad SaaS
+
+---
+
+## 8. CARNETIZACIÓN
+
+- Código único por estudiante
+- QR único por carnet
+- Generación automática
+- Impresión individual y masiva
+
+---
+
+## 9. REGLAS DE NEGOCIO
 
 ### Estudiantes
+- Sin duplicados por centro/año
+- Tutor principal único
+- Carnet generado automáticamente
 
-- Entrada: 7:30 AM
-- Salida: 3:30 PM
-
-#### Clasificación:
-- Presente
-- Tarde
-- Ausente
-- Ausente con excusa
-
-#### Reglas:
-- Sin registros → posible no docencia
-- Muchas salidas antes de 3:00 → posible despacho temprano
+### Seguridad
+- Acceso restringido por rol
+- Validación por centro
 
 ---
 
-## 7. SALIDAS AUTORIZADAS
+## 10. MIGRACIONES
 
-Entidad independiente:
-
-- Motivo
-- Responsable
-- Persona que retira
-- Registro institucional
+- Alembic configurado
+- Versionado de base de datos
+- Control de cambios estructurales
 
 ---
 
-## 8. MÓDULO DE PERSONAL DOCENTE (DISEÑO FUTURO)
+## 11. ESTADO ACTUAL
 
-### Requisitos
-
-- Múltiples entradas y salidas por día
-- Identificación de salida final
-- Registro de permisos
-- Análisis de permanencia
-
-### Reglas
-
-- La última salida sin reentrada es la salida final
-- Puede haber salidas intermedias
-- Puede haber permisos registrados
+- Backend estable
+- Autenticación funcional
+- Tabla users implementada
+- Roles operativos
+- Multi-centro activo
 
 ---
 
-## 9. REPORTES
+## 12. SIGUIENTE FASE
 
-### Operativos
-- Asistencia diaria
-
-### Administrativos
-- Resumen mensual
-
-### Analíticos
-- Tendencias
-- Comportamiento
-- Incidencias
-
----
-
-## 10. ESCALABILIDAD
-
-- Multi-centro
-- Multi-año escolar
-- Integración con Aula Nova
-
----
-
-## 11. SIGUIENTE FASE
-
-- Generación automática de AttendanceDailySummary
-- Generación de CenterAttendanceDay
-- Endpoints de reportes
-- Dashboard interactivo
-- Módulo de personal docente
+- Protección de UI por rol
+- Dashboard por centro
+- Facturación de carnets
+- Control de acceso físico
+- API para dispositivos de entrada

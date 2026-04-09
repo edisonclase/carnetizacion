@@ -1,21 +1,24 @@
-# Nova ID - Sistema de Carnetización y Control de Asistencia  
+# Nova ID - Sistema de Carnetización, Control de Acceso y Asistencia  
 **by Aula Nova**
+
+---
 
 ## 📌 Descripción
 
-Nova ID es un sistema integral de identificación, control de asistencia y análisis institucional para centros educativos.
+Nova ID es un sistema profesional de identificación digital, carnetización, control de acceso y análisis institucional para centros educativos.
 
-Permite gestionar tanto estudiantes como personal docente, incorporando registro de entradas, salidas, permisos y análisis de comportamiento.
+Permite gestionar estudiantes, personal, accesos y asistencia mediante carnets con QR únicos, integrando seguridad, trazabilidad y analítica en tiempo real.
 
 ---
 
 ## 🎯 Objetivos
 
-- Digitalizar la asistencia escolar
-- Automatizar el control de entradas y salidas
-- Generar reportes institucionales
-- Proveer analítica educativa en tiempo real
-- Integrarse conceptualmente con Aula Nova
+- Digitalizar la identificación institucional
+- Automatizar el control de acceso
+- Gestionar asistencia en tiempo real
+- Proveer analítica educativa e institucional
+- Implementar un modelo SaaS multi-centro escalable
+- Integrarse con la plataforma Aula Nova
 
 ---
 
@@ -26,6 +29,42 @@ Permite gestionar tanto estudiantes como personal docente, incorporando registro
 - **ORM:** SQLAlchemy
 - **Migraciones:** Alembic
 - **Validación:** Pydantic
+- **Autenticación:** JWT (python-jose)
+- **Seguridad:** Passlib + bcrypt
+
+---
+
+## 🔐 Sistema de autenticación
+
+El sistema cuenta con autenticación completa basada en JWT.
+
+### Roles implementados
+
+- **super_admin**
+  - Control total del sistema
+  - Gestión global multi-centro
+
+- **admin_centro**
+  - Acceso a dashboard institucional
+  - Visualización de estadísticas
+
+- **registro**
+  - Operación completa de estudiantes
+  - Emisión de carnets
+
+- **consulta**
+  - Acceso de solo lectura
+
+---
+
+## 🏫 Multi-centro (SaaS Ready)
+
+El sistema está diseñado para operar múltiples centros educativos:
+
+- Separación de datos por `center_id`
+- Control de acceso por usuario
+- Restricción automática de datos por centro
+- Escalable para comercialización
 
 ---
 
@@ -38,7 +77,11 @@ Permite gestionar tanto estudiantes como personal docente, incorporando registro
 - Guardian
 
 ### Identificación
-- Card
+- Card (QR único por estudiante)
+
+### Usuarios y seguridad
+- User
+- Roles
 
 ### Asistencia
 - AttendanceEvent
@@ -53,84 +96,66 @@ Permite gestionar tanto estudiantes como personal docente, incorporando registro
 
 ---
 
-## 🏫 Reglas institucionales (CEJOMA)
+## 🪪 Carnetización
 
-- Entrada: 7:30 AM  
-- Salida: 3:30 PM  
-- Días laborables: lunes a viernes  
+### Funcionalidades
 
-Reglas inteligentes:
-- Sin registros → posible no docencia
-- Muchas salidas antes de las 3:00 PM → posible despacho temprano
-
----
-
-## 👨‍🏫 Módulo de personal (EN DESARROLLO)
-
-El sistema incluirá soporte para docentes y personal administrativo:
-
-- Carnetización del personal
-- Registro de múltiples entradas y salidas por día
-- Identificación de salida final del día
-- Registro de salidas con permiso
-- Análisis de permanencia laboral
+- Generación automática de carnets
+- Código único por estudiante
+- Token QR único
+- Impresión individual y masiva
+- Preparado para PDF profesional
 
 ---
 
-## 📊 Funcionalidades
+## 📊 Funcionalidades principales
 
 ### Estudiantes
-- Registro de asistencia
-- Tardanzas
-- Ausencias
-- Excusas
-- Salidas autorizadas
+- Registro completo
+- Edición
+- Validación de duplicados
+- Asociación con tutor
 
-### Personal docente (futuro)
-- Entradas múltiples
-- Salidas intermedias
-- Permisos
-- Control de jornada
+### Carnets
+- Generación automática
+- QR único
+- Impresión múltiple
 
-### Reportes
-- Diario
-- Mensual
-- Por curso
-- Por sexo
-- Por estudiante
+### Asistencia
+- Registro de entradas y salidas
+- Clasificación automática
+- Control institucional
 
-### Analítica
-- Porcentaje de asistencia
-- Tendencias
-- Incidencias
-- Comportamiento institucional
+### Usuarios
+- Autenticación JWT
+- Roles y permisos
+- Multi-centro seguro
 
 ---
 
 ## 🚀 Estado del proyecto
 
 Fase actual:
-- Modelado de datos completo ✔
-- CRUDs principales ✔
-- Registro de eventos ✔
 
-Próximos pasos:
-- Lógica automática de asistencia
-- Generación de resúmenes
-- Reportes y estadísticas
-- Dashboard
-- Módulo de personal docente
+- Autenticación completa ✔
+- Sistema de roles ✔
+- Multi-centro ✔
+- CRUD de estudiantes ✔
+- Generación de carnets ✔
+- Alembic configurado ✔
+- UI operativa ✔
 
 ---
 
 ## 🧠 Visión
 
-Convertirse en una plataforma inteligente de gestión educativa que combine:
+Convertirse en una plataforma educativa inteligente que combine:
 
 - Identidad digital
 - Control institucional
-- Analítica educativa
-- Toma de decisiones basada en datos
+- Seguridad de acceso
+- Analítica en tiempo real
+- Modelo SaaS comercializable
 
 ---
 
