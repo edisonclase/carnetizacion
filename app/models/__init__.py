@@ -8,6 +8,7 @@ from app.models.center_schedule import CenterSchedule
 from app.models.guardian import Guardian
 from app.models.school_year import SchoolYear
 from app.models.student import Student
+from app.models.user import User
 
 __all__ = [
     "Center",
@@ -20,4 +21,5 @@ __all__ = [
     "AttendanceEvent",
     "AttendanceDailySummary",
     "AuthorizedExit",
+    "User",
 ]
