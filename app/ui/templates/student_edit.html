@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Estudiante - Nova ID</title>
+    <link rel="stylesheet" href="/static/student_edit.css" />
+</head>
+<body data-student-id="{{ student_id }}">
+    <div class="edit-shell">
+        <aside class="edit-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>Administración interna</p>
+                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin/students/register">Registro de estudiantes</a>
+                <a href="/admin/students" class="active">Listado de estudiantes</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="edit-main">
+            <header class="page-header">
+                <div>
+                    <h2>Editar Estudiante</h2>
+                    <p>Actualización de datos del estudiante y del tutor principal.</p>
+                </div>
+                <div class="header-chip" id="studentCodeChip">Cargando...</div>
+            </header>
+
+            <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
+
+            <form id="studentEditForm" class="edit-form" novalidate>
+                <section class="edit-card">
+                    <div class="card-title-row">
+                        <h3>Datos académicos</h3>
+                        <span>Información institucional del estudiante</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="student_code">Código interno</label>
+                            <input type="text" id="student_code" name="student_code" />
+                        </div>
+
+                        <div class="field">
+                            <label for="minerd_id">ID MINERD</label>
+                            <input type="text" id="minerd_id" name="minerd_id" />
+                        </div>
+
+                        <div class="field">
+                            <label for="grade">Curso / Grado</label>
+                            <input type="text" id="grade" name="grade" />
+                        </div>
+
+                        <div class="field">
+                            <label for="section">Sección</label>
+                            <input type="text" id="section" name="section" />
+                        </div>
+
+                        <div class="field">
+                            <label for="is_active">Estado</label>
+                            <select id="is_active" name="is_active">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="edit-card">
+                    <div class="card-title-row">
+                        <h3>Datos personales</h3>
+                        <span>Información del estudiante para carnet y control</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="first_name">Nombres</label>
+                            <input type="text" id="first_name" name="first_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="last_name">Apellidos</label>
+                            <input type="text" id="last_name" name="last_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="birth_date">Fecha de nacimiento</label>
+                            <input type="date" id="birth_date" name="birth_date" />
+                        </div>
+
+                        <div class="field">
+                            <label for="gender">Sexo</label>
+                            <select id="gender" name="gender">
+                                <option value="">Seleccione</option>
+                                <option value="Masculino">Masculino</option>
+                                <option value="Femenino">Femenino</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="field field-span-2">
+                            <label for="photo_path">Ruta o URL de foto</label>
+                            <input type="text" id="photo_path" name="photo_path" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="edit-card">
+                    <div class="card-title-row">
+                        <h3>Tutor principal</h3>
+                        <span>Responsable principal del estudiante</span>
+                    </div>
+
+                    <input type="hidden" id="guardian_id" />
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="guardian_full_name">Nombre completo</label>
+                            <input type="text" id="guardian_full_name" name="guardian_full_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="relationship_type">Parentesco</label>
+                            <input type="text" id="relationship_type" name="relationship_type" />
+                        </div>
+
+                        <div class="field">
+                            <label for="guardian_phone">Teléfono</label>
+                            <input type="text" id="guardian_phone" name="guardian_phone" />
+                        </div>
+
+                        <div class="field">
+                            <label for="guardian_whatsapp">WhatsApp</label>
+                            <input type="text" id="guardian_whatsapp" name="guardian_whatsapp" />
+                        </div>
+
+                        <div class="field field-span-2">
+                            <label for="guardian_email">Correo electrónico</label>
+                            <input type="email" id="guardian_email" name="guardian_email" />
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <a href="/admin/students" class="btn btn-secondary btn-link">Volver al listado</a>
+                    <button type="button" id="reloadBtn" class="btn btn-neutral">Recargar</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/student_edit.js"></script>
+</body>
+</html>

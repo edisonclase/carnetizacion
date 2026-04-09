@@ -433,3 +433,14 @@ def student_cards_multiple_print(
             "cards_data": cards_data,
         },
     )
+    
+@router.get("/admin/students/{student_id}/edit", response_class=HTMLResponse)
+def edit_student_view(request: Request, student_id: int):
+    return templates.TemplateResponse(
+        request=request,
+        name="student_edit.html",
+        context={
+            "request": request,
+            "student_id": student_id,
+        },
+    )
