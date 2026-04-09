@@ -1,6 +1,6 @@
 from uuid import uuid4
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -221,8 +221,41 @@ def create_student_with_guardian_and_card(
 
 
 @router.get("/", response_model=list[StudentResponse])
-def list_students(db: Session = Depends(get_db)):
-    students = db.query(Student).order_by(Student.id.asc()).all()
+def list_students(
+    center_id: int | None = Query(default=None),
+    school_year_id: int | None = Query(default=None),
+    grade: str | None = Query(default=None),
+    section: str | None = Query(default=None),
+    is_active: bool | None = Query(default=None),
+    db: Session = Depends(get_db),
+):
+    query = db.query(Student)
+
+    if center_id is not None:
+        query = query.filter(Student.center_id == center_id)
+
+    if school_year_id is not None:
+        query = query.filter(Student.school_year_id == school_year_id)
+
+    if grade:
+        query = query.filter(Student.grade == grade)
+
+    if section:
+        query = query.filter(Student.section == section)
+
+    if is_active is not None:
+        query = query.filter(Student.is_active == is_active)
+
+    students = (
+        query.order_by(
+            Student.grade.asc(),
+            Student.section.asc(),
+            Student.first_name.asc(),
+            Student.last_name.asc(),
+            Student.id.asc(),
+        )
+        .all()
+    )
     return students
 
 
@@ -253,12 +286,27 @@ def update_student(
 
     update_data = payload.model_dump(exclude_unset=True)
 
-    if "student_code" in update_data and update_data["student_code"] != student.student_code:
+    if "center_id" in update_data:
+        _get_center_or_404(db, update_data["center_id"])
+
+    final_center_id = update_data.get("center_id", student.center_id)
+    final_school_year_id = update_data.get("school_year_id", student.school_year_id)
+
+    if "school_year_id" in update_data or "center_id" in update_data:
+        _get_school_year_or_404(db, final_center_id, final_school_year_id)
+
+    final_student_code = update_data.get("student_code", student.student_code)
+
+    if (
+        final_student_code != student.student_code
+        or final_center_id != student.center_id
+        or final_school_year_id != student.school_year_id
+    ):
         if _student_code_exists(
             db=db,
-            center_id=student.center_id,
-            school_year_id=student.school_year_id,
-            student_code=update_data["student_code"],
+            center_id=final_center_id,
+            school_year_id=final_school_year_id,
+            student_code=final_student_code,
             exclude_student_id=student.id,
         ):
             raise HTTPException(

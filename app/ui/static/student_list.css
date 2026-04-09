@@ -203,6 +203,7 @@ body {
     justify-content: flex-end;
     gap: 12px;
     margin-top: 18px;
+    flex-wrap: wrap;
 }
 
 .bulk-actions {
@@ -232,6 +233,8 @@ body {
     color: var(--muted);
     font-size: 0.95rem;
     font-weight: 700;
+    min-width: 130px;
+    text-align: right;
 }
 
 .btn {
@@ -274,6 +277,7 @@ body {
 .btn-neutral {
     background: var(--neutral-soft);
     color: var(--neutral);
+    border: 1px solid #d9e2f0;
 }
 
 .btn-success {
@@ -391,5 +395,9 @@ input[type="checkbox"] {
 
     .select-all-label {
         align-self: flex-start;
+    }
+
+    .selected-count {
+        text-align: left;
     }
 }
