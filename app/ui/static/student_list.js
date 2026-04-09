@@ -11,6 +11,7 @@ const clearBtn = document.getElementById("clearBtn");
 const selectAllCheckbox = document.getElementById("selectAll");
 const printSelectedBtn = document.getElementById("printSelectedBtn");
 const resultCount = document.getElementById("resultCount");
+const selectedCount = document.getElementById("selectedCount");
 const alertBox = document.getElementById("alertBox");
 
 let students = [];
@@ -66,6 +67,7 @@ async function loadStudents() {
 
     buildDynamicFilters(filteredStudents);
     renderTable(filteredStudents);
+    updateSelectedState();
 }
 
 function buildDynamicFilters(data) {
@@ -112,6 +114,7 @@ function applyFilters() {
 
     renderTable(filteredStudents);
     resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
+    updateSelectedState();
 }
 
 function renderTable(data) {
@@ -120,7 +123,7 @@ function renderTable(data) {
     if (!data.length) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="empty-row">No se encontraron estudiantes con esos filtros.</td>
+                <td colspan="8" class="empty-row">No se encontraron estudiantes con esos filtros.</td>
             </tr>
         `;
         return;
@@ -128,6 +131,8 @@ function renderTable(data) {
 
     data.forEach((student) => {
         const row = document.createElement("tr");
+        const statusClass = student.is_active ? "status-active" : "status-inactive";
+        const statusLabel = student.is_active ? "Activo" : "Inactivo";
 
         row.innerHTML = `
             <td>
@@ -135,8 +140,12 @@ function renderTable(data) {
             </td>
             <td>${student.student_code ?? "-"}</td>
             <td>${student.first_name} ${student.last_name}</td>
+            <td>${student.minerd_id ?? "-"}</td>
             <td>${student.grade ?? "-"}</td>
             <td>${student.section ?? "-"}</td>
+            <td>
+                <span class="status-badge ${statusClass}">${statusLabel}</span>
+            </td>
             <td>
                 <div class="action-stack">
                     <button class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>
@@ -149,6 +158,10 @@ function renderTable(data) {
         tableBody.appendChild(row);
     });
 
+    document.querySelectorAll(".studentCheck").forEach((checkbox) => {
+        checkbox.addEventListener("change", updateSelectedState);
+    });
+
     selectAllCheckbox.checked = false;
 }
 
@@ -157,10 +170,27 @@ function getSelectedStudents() {
     return Array.from(checks).map((c) => c.value);
 }
 
+function updateSelectedState() {
+    const selected = getSelectedStudents();
+    const allChecks = document.querySelectorAll(".studentCheck");
+    const totalChecks = allChecks.length;
+
+    selectedCount.textContent = `${selected.length} seleccionado(s)`;
+    printSelectedBtn.disabled = selected.length === 0;
+
+    if (totalChecks === 0) {
+        selectAllCheckbox.checked = false;
+        return;
+    }
+
+    selectAllCheckbox.checked = selected.length > 0 && selected.length === totalChecks;
+}
+
 selectAllCheckbox.addEventListener("change", () => {
     document.querySelectorAll(".studentCheck").forEach((cb) => {
         cb.checked = selectAllCheckbox.checked;
     });
+    updateSelectedState();
 });
 
 printSelectedBtn.addEventListener("click", () => {
@@ -201,6 +231,7 @@ clearBtn.addEventListener("click", () => {
     renderTable(filteredStudents);
     resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
     hideAlert();
+    updateSelectedState();
 });
 
 centerFilter.addEventListener("change", () => {
@@ -237,6 +268,7 @@ async function init() {
         await loadFilters();
         await loadStudents();
         resultCount.textContent = `${filteredStudents.length} estudiante(s) encontrado(s)`;
+        updateSelectedState();
     } catch (error) {
         showAlert("No se pudieron cargar los datos del listado.", "error");
         console.error(error);

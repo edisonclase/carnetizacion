@@ -79,42 +79,47 @@
             <section class="list-card">
                 <div class="card-title-row">
                     <h3>Acciones masivas</h3>
-                    <span>Selecciona varios estudiantes para impresión conjunta</span>
+                    <span id="resultCount">Cargando estudiantes...</span>
                 </div>
 
-                <div class="filter-actions">
-                    <label class="btn btn-neutral" style="gap:8px; cursor:default;">
+                <div class="bulk-actions">
+                    <label class="select-all-label">
                         <input type="checkbox" id="selectAll" />
                         <span>Seleccionar todos</span>
                     </label>
 
-                    <button type="button" id="printSelectedBtn" class="btn btn-success">
-                        Imprimir seleccionados
-                    </button>
+                    <div class="bulk-actions-right">
+                        <span id="selectedCount" class="selected-count">0 seleccionados</span>
+                        <button type="button" id="printSelectedBtn" class="btn btn-success" disabled>
+                            Imprimir seleccionados
+                        </button>
+                    </div>
                 </div>
             </section>
 
             <section class="list-card">
                 <div class="card-title-row">
                     <h3>Estudiantes registrados</h3>
-                    <span id="resultCount">Cargando estudiantes...</span>
+                    <span>Listado operativo con acciones rápidas</span>
                 </div>
 
                 <div class="table-wrapper">
                     <table>
                         <thead>
                             <tr>
-                                <th></th>
+                                <th class="th-check"></th>
                                 <th>Código</th>
                                 <th>Nombre</th>
+                                <th>MINERD</th>
                                 <th>Curso</th>
                                 <th>Sección</th>
+                                <th>Estado</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTable">
                             <tr>
-                                <td colspan="6" class="empty-row">Cargando datos...</td>
+                                <td colspan="8" class="empty-row">Cargando datos...</td>
                             </tr>
                         </tbody>
                     </table>
