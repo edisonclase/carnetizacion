@@ -4,6 +4,7 @@ from sqlalchemy import text
 
 from app.api.routes.attendance_daily_summary import router as attendance_daily_summary_router
 from app.api.routes.attendance_event import router as attendance_event_router
+from app.api.routes.auth import router as auth_router
 from app.api.routes.authorized_exit import router as authorized_exit_router
 from app.api.routes.card import router as card_router
 from app.api.routes.card_qr import router as card_qr_router
@@ -18,6 +19,7 @@ from app.api.routes.ui import router as ui_router
 from app.api.routes.uploads import router as uploads_router
 from app.core.database import engine
 from app.core.settings import settings
+from app.models.user import User  # noqa: F401
 
 app = FastAPI(title=settings.app_name)
 
@@ -28,6 +30,7 @@ app.mount("/static", StaticFiles(directory="app/ui/static"), name="static")
 # Se coloca card_qr_router al inicio para evitar conflictos con rutas de ID en card_router
 app.include_router(card_qr_router)
 
+app.include_router(auth_router)
 app.include_router(center_router)
 app.include_router(school_year_router)
 app.include_router(student_router)

@@ -3,12 +3,13 @@ from uuid import uuid4
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_db, require_roles, resolve_center_scope
 from app.models.card import Card
 from app.models.center import Center
 from app.models.guardian import Guardian
 from app.models.school_year import SchoolYear
 from app.models.student import Student
+from app.models.user import User, UserRole
 from app.schemas.student import (
     StudentCreate,
     StudentRegisterRequest,
@@ -101,14 +102,41 @@ def _create_card_for_student(db: Session, student: Student) -> Card:
     return card
 
 
+def _get_student_or_404(db: Session, student_id: int) -> Student:
+    student = db.query(Student).filter(Student.id == student_id).first()
+    if not student:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Estudiante no encontrado.",
+        )
+    return student
+
+
+def _ensure_student_center_access(current_user: User, student: Student) -> None:
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return
+
+    if current_user.center_id != student.center_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes acceso a estudiantes de otro centro.",
+        )
+
+
 @router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
-def create_student(payload: StudentCreate, db: Session = Depends(get_db)):
-    _get_center_or_404(db, payload.center_id)
-    _get_school_year_or_404(db, payload.center_id, payload.school_year_id)
+def create_student(
+    payload: StudentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
+):
+    effective_center_id = resolve_center_scope(current_user, payload.center_id)
+
+    _get_center_or_404(db, effective_center_id)
+    _get_school_year_or_404(db, effective_center_id, payload.school_year_id)
 
     if _student_code_exists(
         db=db,
-        center_id=payload.center_id,
+        center_id=effective_center_id,
         school_year_id=payload.school_year_id,
         student_code=payload.student_code,
     ):
@@ -118,7 +146,7 @@ def create_student(payload: StudentCreate, db: Session = Depends(get_db)):
         )
 
     student = Student(
-        center_id=payload.center_id,
+        center_id=effective_center_id,
         school_year_id=payload.school_year_id,
         student_code=payload.student_code,
         minerd_id=payload.minerd_id,
@@ -147,13 +175,16 @@ def create_student(payload: StudentCreate, db: Session = Depends(get_db)):
 def create_student_with_guardian_and_card(
     payload: StudentRegisterRequest,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
-    _get_center_or_404(db, payload.center_id)
-    _get_school_year_or_404(db, payload.center_id, payload.school_year_id)
+    effective_center_id = resolve_center_scope(current_user, payload.center_id)
+
+    _get_center_or_404(db, effective_center_id)
+    _get_school_year_or_404(db, effective_center_id, payload.school_year_id)
 
     if _student_code_exists(
         db=db,
-        center_id=payload.center_id,
+        center_id=effective_center_id,
         school_year_id=payload.school_year_id,
         student_code=payload.student_code,
     ):
@@ -164,7 +195,7 @@ def create_student_with_guardian_and_card(
 
     try:
         student = Student(
-            center_id=payload.center_id,
+            center_id=effective_center_id,
             school_year_id=payload.school_year_id,
             student_code=payload.student_code,
             minerd_id=payload.minerd_id,
@@ -228,11 +259,16 @@ def list_students(
     section: str | None = Query(default=None),
     is_active: bool | None = Query(default=None),
     db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO, UserRole.CONSULTA)
+    ),
 ):
+    effective_center_id = resolve_center_scope(current_user, center_id)
+
     query = db.query(Student)
 
-    if center_id is not None:
-        query = query.filter(Student.center_id == center_id)
+    if effective_center_id is not None:
+        query = query.filter(Student.center_id == effective_center_id)
 
     if school_year_id is not None:
         query = query.filter(Student.school_year_id == school_year_id)
@@ -260,14 +296,15 @@ def list_students(
 
 
 @router.get("/{student_id}", response_model=StudentResponse)
-def get_student(student_id: int, db: Session = Depends(get_db)):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estudiante no encontrado.",
-        )
-
+def get_student(
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO, UserRole.CONSULTA)
+    ),
+):
+    student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
     return student
 
 
@@ -276,35 +313,34 @@ def update_student(
     student_id: int,
     payload: StudentUpdate,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
-    student = db.query(Student).filter(Student.id == student_id).first()
-    if not student:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Estudiante no encontrado.",
-        )
+    student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
 
     update_data = payload.model_dump(exclude_unset=True)
 
-    if "center_id" in update_data:
-        _get_center_or_404(db, update_data["center_id"])
+    requested_center_id = update_data.get("center_id", student.center_id)
+    effective_center_id = resolve_center_scope(current_user, requested_center_id)
 
-    final_center_id = update_data.get("center_id", student.center_id)
+    if "center_id" in update_data:
+        _get_center_or_404(db, effective_center_id)
+
     final_school_year_id = update_data.get("school_year_id", student.school_year_id)
 
     if "school_year_id" in update_data or "center_id" in update_data:
-        _get_school_year_or_404(db, final_center_id, final_school_year_id)
+        _get_school_year_or_404(db, effective_center_id, final_school_year_id)
 
     final_student_code = update_data.get("student_code", student.student_code)
 
     if (
         final_student_code != student.student_code
-        or final_center_id != student.center_id
+        or effective_center_id != student.center_id
         or final_school_year_id != student.school_year_id
     ):
         if _student_code_exists(
             db=db,
-            center_id=final_center_id,
+            center_id=effective_center_id,
             school_year_id=final_school_year_id,
             student_code=final_student_code,
             exclude_student_id=student.id,
@@ -313,6 +349,8 @@ def update_student(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Ya existe un estudiante con ese código en este centro y año escolar.",
             )
+
+    update_data["center_id"] = effective_center_id
 
     for field, value in update_data.items():
         setattr(student, field, value)
