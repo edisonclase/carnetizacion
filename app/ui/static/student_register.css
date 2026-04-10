@@ -367,3 +367,10 @@ body {
         align-items: flex-start;
     }
 }
+
+.header-user-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
