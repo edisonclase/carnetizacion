@@ -10,6 +10,13 @@ const logoutBtn = document.getElementById("logoutBtn");
 const navRegisterLink = document.getElementById("navRegisterLink");
 const navDocsLink = document.getElementById("navDocsLink");
 
+const photoFileInput = document.getElementById("photo_file");
+const photoPathInput = document.getElementById("photo_path");
+const uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+const photoUploadStatus = document.getElementById("photoUploadStatus");
+const photoPreviewWrap = document.getElementById("photoPreviewWrap");
+const photoPreview = document.getElementById("photoPreview");
+
 let alertTimeoutId = null;
 let currentGuardianId = null;
 let currentUser = null;
@@ -67,6 +74,17 @@ function configureRoleUI(user) {
     }
 }
 
+function setPhotoPreview(url) {
+    if (!url) {
+        photoPreviewWrap.classList.add("hidden");
+        photoPreview.removeAttribute("src");
+        return;
+    }
+
+    photoPreview.src = url;
+    photoPreviewWrap.classList.remove("hidden");
+}
+
 function fillStudentForm(student) {
     getField("student_code").value = normalizeValue(student.student_code);
     getField("minerd_id").value = normalizeValue(student.minerd_id);
@@ -79,6 +97,11 @@ function fillStudentForm(student) {
     getField("photo_path").value = normalizeValue(student.photo_path);
     getField("is_active").value = String(student.is_active);
 
+    setPhotoPreview(student.photo_path || "");
+    photoUploadStatus.textContent = student.photo_path
+        ? "Foto actual cargada."
+        : "No se ha actualizado la foto.";
+
     studentCodeChip.textContent = student.student_code || `Estudiante #${student.id}`;
 }
 
@@ -90,6 +113,49 @@ function fillGuardianForm(guardian) {
     getField("guardian_phone").value = normalizeValue(guardian?.phone);
     getField("guardian_whatsapp").value = normalizeValue(guardian?.whatsapp);
     getField("guardian_email").value = normalizeValue(guardian?.email);
+}
+
+async function uploadSelectedPhoto() {
+    const file = photoFileInput.files?.[0];
+
+    if (!file) {
+        showAlert("Debes seleccionar una imagen antes de subirla.", "error");
+        return null;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadPhotoBtn.disabled = true;
+    uploadPhotoBtn.textContent = "Subiendo...";
+    photoUploadStatus.textContent = "Subiendo foto...";
+
+    try {
+        const response = await apiFetch("/uploads/students/photo", {
+            method: "POST",
+            body: formData,
+            headers: {},
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result?.detail || "No se pudo subir la foto.");
+        }
+
+        photoPathInput.value = result.file_url || "";
+        photoUploadStatus.textContent = "Foto subida correctamente.";
+        setPhotoPreview(result.file_url || "");
+
+        return result.file_url || "";
+    } catch (error) {
+        photoUploadStatus.textContent = "No se pudo subir la foto.";
+        showAlert(error.message || "Error al subir la foto.", "error");
+        return null;
+    } finally {
+        uploadPhotoBtn.disabled = false;
+        uploadPhotoBtn.textContent = "Subir foto";
+    }
 }
 
 async function loadStudentData() {
@@ -203,6 +269,13 @@ async function saveStudentAndGuardian(event) {
         return;
     }
 
+    if (photoFileInput.files?.length && !photoPathInput.value.startsWith("/static/")) {
+        const uploadedPhoto = await uploadSelectedPhoto();
+        if (!uploadedPhoto) {
+            return;
+        }
+    }
+
     saveBtn.disabled = true;
     saveBtn.textContent = "Guardando...";
 
@@ -273,6 +346,24 @@ async function saveStudentAndGuardian(event) {
 function bindEvents() {
     form.addEventListener("submit", saveStudentAndGuardian);
     reloadBtn.addEventListener("click", loadStudentData);
+    uploadPhotoBtn.addEventListener("click", uploadSelectedPhoto);
+
+    photoFileInput.addEventListener("change", () => {
+        const file = photoFileInput.files?.[0];
+
+        if (!file) {
+            photoUploadStatus.textContent = getField("photo_path").value
+                ? "Foto actual cargada."
+                : "No se ha actualizado la foto.";
+            setPhotoPreview(getField("photo_path").value || "");
+            return;
+        }
+
+        photoUploadStatus.textContent = `Archivo seleccionado: ${file.name}. Falta subirlo.`;
+
+        const previewUrl = URL.createObjectURL(file);
+        setPhotoPreview(previewUrl);
+    });
 }
 
 async function initPage() {

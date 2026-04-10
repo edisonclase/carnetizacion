@@ -160,8 +160,16 @@
                         </div>
 
                         <div class="field field-span-2">
-                            <label for="photo_path">Ruta o URL de foto</label>
-                            <input type="text" id="photo_path" name="photo_path" placeholder="/uploads/students/foto.png o URL pública" />
+                            <label for="photo_file">Foto del estudiante</label>
+                            <input type="file" id="photo_file" name="photo_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                            <input type="hidden" id="photo_path" name="photo_path" />
+                            <div class="upload-row">
+                                <button type="button" id="uploadPhotoBtn" class="btn btn-secondary">Subir foto</button>
+                                <span id="photoUploadStatus" class="upload-status">No se ha subido ninguna foto.</span>
+                            </div>
+                            <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+                                <img id="photoPreview" class="photo-preview" alt="Vista previa de la foto del estudiante" />
+                            </div>
                         </div>
                     </div>
                 </section>
@@ -208,7 +216,7 @@
 
                     <div class="info-box">
                         Este formulario crea el estudiante, el tutor principal y el carnet en una sola operación.
-                        No incluye carga de acta de nacimiento, de acuerdo con el modelo operativo definido.
+                        La foto puede subirse antes de guardar el registro para que quede disponible de inmediato en el carnet.
                     </div>
                 </section>
 

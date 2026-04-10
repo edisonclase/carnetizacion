@@ -6,6 +6,13 @@ const resetBtn = document.getElementById("resetBtn");
 const centerSelect = document.getElementById("center_id");
 const schoolYearSelect = document.getElementById("school_year_id");
 
+const photoFileInput = document.getElementById("photo_file");
+const photoPathInput = document.getElementById("photo_path");
+const uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+const photoUploadStatus = document.getElementById("photoUploadStatus");
+const photoPreviewWrap = document.getElementById("photoPreviewWrap");
+const photoPreview = document.getElementById("photoPreview");
+
 const resultPanel = document.getElementById("resultPanel");
 const resultSummary = document.getElementById("resultSummary");
 const resultStudentCode = document.getElementById("resultStudentCode");
@@ -141,6 +148,60 @@ function setSchoolYearOptions(centerId) {
     });
 }
 
+function setPhotoPreview(url) {
+    if (!url) {
+        photoPreviewWrap.classList.add("hidden");
+        photoPreview.removeAttribute("src");
+        return;
+    }
+
+    photoPreview.src = url;
+    photoPreviewWrap.classList.remove("hidden");
+}
+
+async function uploadSelectedPhoto() {
+    const file = photoFileInput.files?.[0];
+
+    if (!file) {
+        showAlert("Debes seleccionar una imagen antes de subirla.", "error");
+        return null;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadPhotoBtn.disabled = true;
+    uploadPhotoBtn.textContent = "Subiendo...";
+    photoUploadStatus.textContent = "Subiendo foto...";
+
+    try {
+        const response = await apiFetch("/uploads/students/photo", {
+            method: "POST",
+            body: formData,
+            headers: {},
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result?.detail || "No se pudo subir la foto.");
+        }
+
+        photoPathInput.value = result.file_url || "";
+        photoUploadStatus.textContent = "Foto subida correctamente.";
+        setPhotoPreview(result.file_url || "");
+
+        return result.file_url || "";
+    } catch (error) {
+        photoUploadStatus.textContent = "No se pudo subir la foto.";
+        showAlert(error.message || "Error al subir la foto.", "error");
+        return null;
+    } finally {
+        uploadPhotoBtn.disabled = false;
+        uploadPhotoBtn.textContent = "Subir foto";
+    }
+}
+
 async function loadCenters() {
     const response = await apiFetch("/centers/");
     if (!response.ok) {
@@ -241,6 +302,13 @@ async function submitForm(event) {
         return;
     }
 
+    if (photoFileInput.files?.length && !photoPathInput.value) {
+        const uploadedPhoto = await uploadSelectedPhoto();
+        if (!uploadedPhoto) {
+            return;
+        }
+    }
+
     const payload = getRegisterPayload();
 
     saveBtn.disabled = true;
@@ -260,6 +328,9 @@ async function submitForm(event) {
         }
 
         form.reset();
+        photoPathInput.value = "";
+        setPhotoPreview("");
+        photoUploadStatus.textContent = "No se ha subido ninguna foto.";
 
         if (currentUser.role === "super_admin") {
             centerSelect.value = "";
@@ -295,6 +366,10 @@ function resetForm() {
         setSchoolYearOptions(currentUser.center_id);
     }
 
+    photoPathInput.value = "";
+    setPhotoPreview("");
+    photoUploadStatus.textContent = "No se ha subido ninguna foto.";
+
     hideAlert();
     hideResultPanel();
 }
@@ -302,9 +377,27 @@ function resetForm() {
 function bindEvents() {
     form.addEventListener("submit", submitForm);
     resetBtn.addEventListener("click", resetForm);
+    uploadPhotoBtn.addEventListener("click", uploadSelectedPhoto);
 
     centerSelect.addEventListener("change", (event) => {
         setSchoolYearOptions(event.target.value);
+    });
+
+    photoFileInput.addEventListener("change", () => {
+        const file = photoFileInput.files?.[0];
+
+        if (!file) {
+            photoUploadStatus.textContent = "No se ha subido ninguna foto.";
+            setPhotoPreview("");
+            photoPathInput.value = "";
+            return;
+        }
+
+        photoUploadStatus.textContent = `Archivo seleccionado: ${file.name}. Falta subirlo.`;
+
+        const previewUrl = URL.createObjectURL(file);
+        setPhotoPreview(previewUrl);
+        photoPathInput.value = "";
     });
 }
 

@@ -109,8 +109,16 @@
                         </div>
 
                         <div class="field field-span-2">
-                            <label for="photo_path">Ruta o URL de foto</label>
-                            <input type="text" id="photo_path" name="photo_path" />
+                            <label for="photo_file">Foto del estudiante</label>
+                            <input type="file" id="photo_file" name="photo_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                            <input type="hidden" id="photo_path" name="photo_path" />
+                            <div class="upload-row">
+                                <button type="button" id="uploadPhotoBtn" class="btn btn-secondary">Subir foto</button>
+                                <span id="photoUploadStatus" class="upload-status">No se ha actualizado la foto.</span>
+                            </div>
+                            <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+                                <img id="photoPreview" class="photo-preview" alt="Vista previa de la foto del estudiante" />
+                            </div>
                         </div>
                     </div>
                 </section>

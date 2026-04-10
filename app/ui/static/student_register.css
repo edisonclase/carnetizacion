@@ -374,3 +374,31 @@ body {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+.upload-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+}
+
+.upload-status {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.photo-preview-wrap {
+    margin-top: 10px;
+    width: 100%;
+}
+
+.photo-preview {
+    width: 150px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    background: #fff;
+}
