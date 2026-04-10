@@ -18,7 +18,8 @@
             <nav class="sidebar-nav">
                 <a href="/dashboard">Dashboard</a>
                 <a href="/admin/students/register" class="active">Registro de estudiantes</a>
-                <a href="/docs" target="_blank">API Docs</a>
+                <a href="/admin/students">Listado de estudiantes</a>
+                <a href="/docs" target="_blank" id="navDocsLink">API Docs</a>
             </nav>
         </aside>
 
@@ -28,7 +29,11 @@
                     <h2>Registro Interno de Estudiantes</h2>
                     <p>Creación operativa de estudiantes, tutor principal y carnet.</p>
                 </div>
-                <div class="header-chip">Nova ID · Operaciones</div>
+
+                <div class="header-user-actions">
+                    <div class="header-chip" id="headerUserChip">Nova ID · Cargando...</div>
+                    <button type="button" id="logoutBtn" class="btn btn-neutral">Cerrar sesión</button>
+                </div>
             </header>
 
             <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
@@ -215,6 +220,7 @@
         </main>
     </div>
 
+    <script src="/static/auth.js"></script>
     <script src="/static/student_register.js"></script>
 </body>
 </html>

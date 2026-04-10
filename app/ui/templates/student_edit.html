@@ -17,9 +17,9 @@
 
             <nav class="sidebar-nav">
                 <a href="/dashboard">Dashboard</a>
-                <a href="/admin/students/register">Registro de estudiantes</a>
+                <a href="/admin/students/register" id="navRegisterLink">Registro de estudiantes</a>
                 <a href="/admin/students" class="active">Listado de estudiantes</a>
-                <a href="/docs" target="_blank">API Docs</a>
+                <a href="/docs" target="_blank" id="navDocsLink">API Docs</a>
             </nav>
         </aside>
 
@@ -29,7 +29,11 @@
                     <h2>Editar Estudiante</h2>
                     <p>Actualización de datos del estudiante y del tutor principal.</p>
                 </div>
-                <div class="header-chip" id="studentCodeChip">Cargando...</div>
+
+                <div class="header-user-actions">
+                    <div class="header-chip" id="studentCodeChip">Cargando...</div>
+                    <button type="button" id="logoutBtn" class="btn btn-neutral">Cerrar sesión</button>
+                </div>
             </header>
 
             <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
@@ -156,6 +160,7 @@
         </main>
     </div>
 
+    <script src="/static/auth.js"></script>
     <script src="/static/student_edit.js"></script>
 </body>
 </html>
