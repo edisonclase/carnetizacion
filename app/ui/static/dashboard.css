@@ -557,3 +557,89 @@ body {
         align-items: flex-start;
     }
 }
+
+.hidden {
+    display: none !important;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.user-chip {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    background: #eef4ff;
+    border: 1px solid #d7e4ff;
+    border-radius: 14px;
+    padding: 10px 14px;
+}
+
+.user-chip strong {
+    font-size: 0.92rem;
+    color: #152033;
+}
+
+.user-chip span {
+    font-size: 0.82rem;
+    color: #667085;
+}
+
+.logout-btn {
+    height: 42px;
+    border: 1px solid #d9e2f0;
+    background: #fff;
+    color: #334155;
+    border-radius: 12px;
+    padding: 0 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.module-access-header h3 {
+    margin: 0;
+}
+
+.module-access-header p {
+    margin: 6px 0 0;
+    color: #667085;
+}
+
+.module-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.module-card {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-decoration: none;
+    color: #152033;
+    background: #ffffff;
+    border: 1px solid #d9e2f0;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.module-card strong {
+    font-size: 1rem;
+}
+
+.module-card span {
+    color: #667085;
+    font-size: 0.92rem;
+}
+
+@media (max-width: 860px) {
+    .module-grid {
+        grid-template-columns: 1fr;
+    }
+}

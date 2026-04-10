@@ -1,5 +1,7 @@
 let courseChartInstance = null;
 let genderChartInstance = null;
+let currentUser = null;
+let allSchoolYears = [];
 
 function getTodayLocalDate() {
     const now = new Date();
@@ -202,12 +204,60 @@ function renderGenderChart(data) {
 }
 
 async function fetchJson(url) {
-    const response = await fetch(url);
+    const response = await apiFetch(url);
+
     if (!response.ok) {
         const data = await response.json().catch(() => ({}));
         throw new Error(data.detail || "No se pudo cargar la información.");
     }
+
     return response.json();
+}
+
+function configureRoleUI(user) {
+    document.getElementById("currentUserName").textContent = user.full_name;
+    document.getElementById("currentUserRole").textContent = roleLabel(user.role);
+
+    const navStudentsLink = document.getElementById("navStudentsLink");
+    const navRegisterLink = document.getElementById("navRegisterLink");
+    const moduleAccessCard = document.getElementById("moduleAccessCard");
+    const moduleStudentsList = document.getElementById("moduleStudentsList");
+    const moduleStudentRegister = document.getElementById("moduleStudentRegister");
+    const navDocsLink = document.getElementById("navDocsLink");
+
+    if (canViewStudents(user.role)) {
+        navStudentsLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleStudentsList.classList.remove("hidden");
+    }
+
+    if (canManageStudents(user.role)) {
+        navRegisterLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleStudentRegister.classList.remove("hidden");
+    }
+
+    if (user.role !== "super_admin") {
+        navDocsLink.classList.add("hidden");
+    }
+}
+
+function filterSchoolYearsByCenter(centerId) {
+    const schoolYearSelect = document.getElementById("schoolYearId");
+    if (!schoolYearSelect) return;
+
+    const filtered = allSchoolYears.filter((item) => {
+        return !centerId || String(item.center_id) === String(centerId);
+    });
+
+    if (!filtered.length) {
+        schoolYearSelect.innerHTML = `<option value="">No hay años escolares disponibles</option>`;
+        return;
+    }
+
+    schoolYearSelect.innerHTML = filtered.map(item => `
+        <option value="${item.id}">${item.name}</option>
+    `).join("");
 }
 
 async function loadCenters() {
@@ -216,14 +266,28 @@ async function loadCenters() {
 
     try {
         const centers = await fetchJson("/centers/");
+
         if (!centers.length) {
             centerSelect.innerHTML = `<option value="">No hay centros registrados</option>`;
             return;
         }
 
-        centerSelect.innerHTML = centers.map(center => `
-            <option value="${center.id}">${center.name}</option>
-        `).join("");
+        if (currentUser.role === "super_admin") {
+            centerSelect.innerHTML = centers.map(center => `
+                <option value="${center.id}">${center.name}</option>
+            `).join("");
+        } else {
+            const ownCenter = centers.find((center) => String(center.id) === String(currentUser.center_id));
+
+            if (!ownCenter) {
+                centerSelect.innerHTML = `<option value="">Centro no disponible</option>`;
+                return;
+            }
+
+            centerSelect.innerHTML = `<option value="${ownCenter.id}">${ownCenter.name}</option>`;
+            centerSelect.value = String(ownCenter.id);
+            centerSelect.disabled = true;
+        }
     } catch (error) {
         centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
     }
@@ -234,15 +298,14 @@ async function loadSchoolYears() {
     if (!schoolYearSelect) return;
 
     try {
-        const schoolYears = await fetchJson("/school-years/");
-        if (!schoolYears.length) {
+        allSchoolYears = await fetchJson("/school-years/");
+
+        if (!allSchoolYears.length) {
             schoolYearSelect.innerHTML = `<option value="">No hay años escolares registrados</option>`;
             return;
         }
 
-        schoolYearSelect.innerHTML = schoolYears.map(item => `
-            <option value="${item.id}">${item.name}</option>
-        `).join("");
+        filterSchoolYearsByCenter(document.getElementById("centerId").value);
     } catch (error) {
         schoolYearSelect.innerHTML = `<option value="">Error cargando años escolares</option>`;
     }
@@ -305,12 +368,31 @@ async function loadDashboard() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-    setDefaultDate();
-    await loadCenters();
-    await loadSchoolYears();
+    try {
+        currentUser = await requireAuth(["super_admin", "admin_centro", "registro", "consulta"]);
+        configureRoleUI(currentUser);
 
-    const button = document.getElementById("loadDashboardBtn");
-    if (button) {
-        button.addEventListener("click", loadDashboard);
+        setDefaultDate();
+        await loadCenters();
+        await loadSchoolYears();
+
+        const centerSelect = document.getElementById("centerId");
+        if (centerSelect) {
+            centerSelect.addEventListener("change", () => {
+                filterSchoolYearsByCenter(centerSelect.value);
+            });
+        }
+
+        const button = document.getElementById("loadDashboardBtn");
+        if (button) {
+            button.addEventListener("click", loadDashboard);
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", logout);
+        }
+    } catch (error) {
+        console.error(error);
     }
 });

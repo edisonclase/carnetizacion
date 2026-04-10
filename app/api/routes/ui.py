@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -218,6 +218,15 @@ def _build_student_cards_print_context(
     }
 
 
+@router.get("/login", response_class=HTMLResponse)
+def login_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="login.html",
+        context={"request": request},
+    )
+
+
 @router.get("/dashboard", response_class=HTMLResponse)
 def dashboard_page(request: Request):
     return templates.TemplateResponse(
@@ -384,6 +393,7 @@ def student_cards_print_sheet_pdf(
         },
     )
 
+
 @router.get("/students/cards/print-multiple", response_class=HTMLResponse)
 def student_cards_multiple_print(
     request: Request,
@@ -433,7 +443,8 @@ def student_cards_multiple_print(
             "cards_data": cards_data,
         },
     )
-    
+
+
 @router.get("/admin/students/{student_id}/edit", response_class=HTMLResponse)
 def edit_student_view(request: Request, student_id: int):
     return templates.TemplateResponse(

@@ -16,7 +16,9 @@
 
             <nav class="sidebar-nav">
                 <a href="/dashboard" class="active">Dashboard</a>
-                <a href="/docs" target="_blank">API Docs</a>
+                <a href="/admin/students" id="navStudentsLink" class="hidden">Listado de estudiantes</a>
+                <a href="/admin/students/register" id="navRegisterLink" class="hidden">Registrar estudiante</a>
+                <a href="/docs" id="navDocsLink" target="_blank">API Docs</a>
             </nav>
         </aside>
 
@@ -26,23 +28,52 @@
                     <h2>Dashboard Institucional</h2>
                     <p>Asistencia, comportamiento y consolidado diario</p>
                 </div>
+
+                <div class="topbar-right">
+                    <div class="user-chip">
+                        <strong id="currentUserName">Cargando...</strong>
+                        <span id="currentUserRole">-</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-btn" type="button">Cerrar sesión</button>
+                </div>
             </header>
+
+            <section id="moduleAccessCard" class="filters-card hidden">
+                <div class="module-access-header">
+                    <div>
+                        <h3>Accesos disponibles</h3>
+                        <p>Los módulos visibles dependen del rol del usuario autenticado.</p>
+                    </div>
+                </div>
+
+                <div class="module-grid">
+                    <a href="/admin/students" id="moduleStudentsList" class="module-card hidden">
+                        <strong>Listado de estudiantes</strong>
+                        <span>Consulta y acciones operativas sobre los estudiantes.</span>
+                    </a>
+
+                    <a href="/admin/students/register" id="moduleStudentRegister" class="module-card hidden">
+                        <strong>Registro de estudiantes</strong>
+                        <span>Creación de estudiantes, tutor y flujo de carnetización.</span>
+                    </a>
+                </div>
+            </section>
 
             <section class="filters-card">
                 <div class="filters-grid">
-    <div class="field">
-        <label for="centerId">Centro</label>
-        <select id="centerId">
-            <option value="">Cargando centros...</option>
-        </select>
-    </div>
+                    <div class="field">
+                        <label for="centerId">Centro</label>
+                        <select id="centerId">
+                            <option value="">Cargando centros...</option>
+                        </select>
+                    </div>
 
-    <div class="field">
-        <label for="schoolYearId">Año escolar</label>
-        <select id="schoolYearId">
-            <option value="">Cargando años escolares...</option>
-        </select>
-    </div>
+                    <div class="field">
+                        <label for="schoolYearId">Año escolar</label>
+                        <select id="schoolYearId">
+                            <option value="">Cargando años escolares...</option>
+                        </select>
+                    </div>
 
                     <div class="field">
                         <label for="reportDate">Fecha</label>
@@ -50,7 +81,7 @@
                     </div>
 
                     <div class="field field-actions">
-                        <button id="loadDashboardBtn">Cargar dashboard</button>
+                        <button id="loadDashboardBtn" type="button">Cargar dashboard</button>
                     </div>
                 </div>
             </section>
@@ -205,6 +236,7 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/static/auth.js"></script>
     <script src="/static/dashboard.js"></script>
 </body>
 </html>

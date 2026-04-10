@@ -17,9 +17,9 @@
 
             <nav class="sidebar-nav">
                 <a href="/dashboard">Dashboard</a>
-                <a href="/admin/students/register">Registro de estudiantes</a>
+                <a href="/admin/students/register" id="navRegisterStudentLink">Registro de estudiantes</a>
                 <a href="/admin/students" class="active">Listado de estudiantes</a>
-                <a href="/docs" target="_blank">API Docs</a>
+                <a href="/docs" target="_blank" id="navDocsStudentLink">API Docs</a>
             </nav>
         </aside>
 
@@ -29,7 +29,11 @@
                     <h2>Listado Interno de Estudiantes</h2>
                     <p>Consulta, filtro, selección múltiple e impresión de carnets.</p>
                 </div>
-                <div class="header-chip">Nova ID · Registro</div>
+
+                <div class="header-user-actions">
+                    <div class="header-chip" id="headerUserChip">Nova ID · Cargando...</div>
+                    <button type="button" id="logoutBtn" class="btn btn-neutral">Cerrar sesión</button>
+                </div>
             </header>
 
             <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
@@ -76,7 +80,7 @@
                 </div>
             </section>
 
-            <section class="list-card">
+            <section class="list-card" id="bulkActionsCard">
                 <div class="card-title-row">
                     <h3>Acciones masivas</h3>
                     <span id="resultCount">Cargando estudiantes...</span>
@@ -110,7 +114,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th class="th-check"></th>
+                                <th class="th-check" id="thCheck"></th>
                                 <th>Código</th>
                                 <th>Nombre</th>
                                 <th>MINERD</th>
@@ -131,6 +135,7 @@
         </main>
     </div>
 
+    <script src="/static/auth.js"></script>
     <script src="/static/student_list.js"></script>
 </body>
 </html>

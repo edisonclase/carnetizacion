@@ -14,6 +14,12 @@ const clearSelectedBtn = document.getElementById("clearSelectedBtn");
 const resultCount = document.getElementById("resultCount");
 const selectedCount = document.getElementById("selectedCount");
 const alertBox = document.getElementById("alertBox");
+const bulkActionsCard = document.getElementById("bulkActionsCard");
+const thCheck = document.getElementById("thCheck");
+const logoutBtn = document.getElementById("logoutBtn");
+const headerUserChip = document.getElementById("headerUserChip");
+const navRegisterStudentLink = document.getElementById("navRegisterStudentLink");
+const navDocsStudentLink = document.getElementById("navDocsStudentLink");
 
 const STORAGE_KEY = "nova_id_selected_students";
 
@@ -23,6 +29,7 @@ let centers = [];
 let schoolYears = [];
 let alertTimeoutId = null;
 let selectedStudents = new Set();
+let currentUser = null;
 
 function showAlert(message, type = "success") {
     if (alertTimeoutId) {
@@ -119,10 +126,31 @@ function getStudentsUrl() {
     return `/students/${params.toString() ? `?${params.toString()}` : ""}`;
 }
 
+function configureRoleUI(user) {
+    headerUserChip.textContent = `Nova ID · ${roleLabel(user.role)} · ${user.full_name}`;
+
+    if (!canManageStudents(user.role)) {
+        navRegisterStudentLink.style.display = "none";
+    }
+
+    if (user.role !== "super_admin") {
+        navDocsStudentLink.style.display = "none";
+    }
+
+    if (!canPrint(user.role)) {
+        bulkActionsCard.style.display = "none";
+        thCheck.style.display = "none";
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
+}
+
 async function loadFilters() {
     const [centersResponse, schoolYearsResponse] = await Promise.all([
-        fetch("/centers/"),
-        fetch("/school-years/")
+        apiFetch("/centers/"),
+        apiFetch("/school-years/"),
     ]);
 
     if (!centersResponse.ok || !schoolYearsResponse.ok) {
@@ -132,25 +160,59 @@ async function loadFilters() {
     centers = await centersResponse.json();
     schoolYears = await schoolYearsResponse.json();
 
-    centerFilter.innerHTML = `<option value="">Todos los centros</option>`;
-    yearFilter.innerHTML = `<option value="">Todos los años</option>`;
+    if (currentUser.role === "super_admin") {
+        centerFilter.innerHTML = `<option value="">Todos los centros</option>`;
+        centers.forEach((c) => {
+            centerFilter.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
+        });
+    } else {
+        const ownCenter = centers.find((c) => String(c.id) === String(currentUser.center_id));
+        centerFilter.innerHTML = ownCenter
+            ? `<option value="${ownCenter.id}">${escapeHtml(ownCenter.name)}</option>`
+            : `<option value="">Centro no disponible</option>`;
 
-    centers.forEach((c) => {
-        centerFilter.innerHTML += `<option value="${c.id}">${escapeHtml(c.name)}</option>`;
-    });
+        if (ownCenter) {
+            centerFilter.value = String(ownCenter.id);
+        }
 
-    schoolYears.forEach((y) => {
-        yearFilter.innerHTML += `<option value="${y.id}">${escapeHtml(y.name)}</option>`;
-    });
+        centerFilter.disabled = true;
+    }
 
     setFiltersFromUrl();
+
+    if (currentUser.role !== "super_admin") {
+        centerFilter.value = String(currentUser.center_id);
+    }
+
+    filterSchoolYearsByCenter(centerFilter.value);
+}
+
+function filterSchoolYearsByCenter(centerId) {
+    const selectedYear = yearFilter.value;
+    const filtered = schoolYears.filter((item) => {
+        return !centerId || String(item.center_id) === String(centerId);
+    });
+
+    if (currentUser.role === "super_admin") {
+        yearFilter.innerHTML = `<option value="">Todos los años</option>`;
+    } else {
+        yearFilter.innerHTML = `<option value="">Seleccione un año escolar</option>`;
+    }
+
+    filtered.forEach((item) => {
+        yearFilter.innerHTML += `<option value="${item.id}">${escapeHtml(item.name)}</option>`;
+    });
+
+    const exists = filtered.some((item) => String(item.id) === String(selectedYear));
+    yearFilter.value = exists ? selectedYear : "";
 }
 
 async function loadStudents() {
-    const response = await fetch(getStudentsUrl());
+    const response = await apiFetch(getStudentsUrl());
 
     if (!response.ok) {
-        throw new Error("No se pudo cargar el listado de estudiantes.");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.detail || "No se pudo cargar el listado de estudiantes.");
     }
 
     students = await response.json();
@@ -223,16 +285,40 @@ function renderTable(data) {
         const fullName = `${student.first_name ?? ""} ${student.last_name ?? ""}`.trim();
         const isChecked = selectedStudents.has(String(student.id));
 
+        const checkboxCell = canPrint(currentUser.role)
+            ? `
+                <td>
+                    <input
+                        type="checkbox"
+                        class="studentCheck"
+                        value="${student.id}"
+                        ${isChecked ? "checked" : ""}
+                        aria-label="Seleccionar estudiante ${escapeHtml(fullName)}"
+                    >
+                </td>
+            `
+            : `<td></td>`;
+
+        const actions = [];
+
+        actions.push(
+            `<button type="button" class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>`
+        );
+
+        if (canEdit(currentUser.role)) {
+            actions.push(
+                `<button type="button" class="btn btn-neutral" onclick="editStudent(${student.id})">Editar</button>`
+            );
+        }
+
+        if (canPrint(currentUser.role)) {
+            actions.push(
+                `<button type="button" class="btn btn-success" onclick="printStudent(${student.id})">Imprimir</button>`
+            );
+        }
+
         row.innerHTML = `
-            <td>
-                <input
-                    type="checkbox"
-                    class="studentCheck"
-                    value="${student.id}"
-                    ${isChecked ? "checked" : ""}
-                    aria-label="Seleccionar estudiante ${escapeHtml(fullName)}"
-                >
-            </td>
+            ${checkboxCell}
             <td>${escapeHtml(student.student_code ?? "-")}</td>
             <td>${escapeHtml(fullName || "-")}</td>
             <td>${escapeHtml(student.minerd_id ?? "-")}</td>
@@ -243,9 +329,7 @@ function renderTable(data) {
             </td>
             <td>
                 <div class="action-stack">
-                    <button type="button" class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>
-                    <button type="button" class="btn btn-neutral" onclick="editStudent(${student.id})">Editar</button>
-                    <button type="button" class="btn btn-success" onclick="printStudent(${student.id})">Imprimir</button>
+                    ${actions.join("")}
                 </div>
             </td>
         `;
@@ -296,6 +380,10 @@ function updateSelectedState() {
     selectedCount.textContent = `${selectedStudents.size} seleccionado(s)`;
     printSelectedBtn.disabled = selectedStudents.size === 0;
     clearSelectedBtn.disabled = selectedStudents.size === 0;
+
+    if (!canPrint(currentUser.role)) {
+        return;
+    }
 
     if (visibleIds.length === 0) {
         selectAllCheckbox.checked = false;
@@ -388,10 +476,17 @@ filterBtn.addEventListener("click", async () => {
 
 clearBtn.addEventListener("click", async () => {
     try {
-        centerFilter.value = "";
+        if (currentUser.role === "super_admin") {
+            centerFilter.value = "";
+        } else {
+            centerFilter.value = String(currentUser.center_id);
+        }
+
         yearFilter.value = "";
         gradeFilter.value = "";
         sectionFilter.value = "";
+
+        filterSchoolYearsByCenter(centerFilter.value);
 
         hideAlert();
         await applyServerFilters();
@@ -401,12 +496,14 @@ clearBtn.addEventListener("click", async () => {
     }
 });
 
-centerFilter.addEventListener("change", async () => {
+centerFilter.addEventListener("change", () => {
+    yearFilter.value = "";
     gradeFilter.value = "";
     sectionFilter.value = "";
+    filterSchoolYearsByCenter(centerFilter.value);
 });
 
-yearFilter.addEventListener("change", async () => {
+yearFilter.addEventListener("change", () => {
     gradeFilter.value = "";
     sectionFilter.value = "";
 });
@@ -435,16 +532,15 @@ gradeFilter.addEventListener("change", () => {
     }
 });
 
-async function init() {
+document.addEventListener("DOMContentLoaded", async () => {
     try {
         hideAlert();
+        currentUser = await requireAuth(["super_admin", "registro", "consulta"]);
+        configureRoleUI(currentUser);
         loadSelectionFromStorage();
         await loadFilters();
         await loadStudents();
     } catch (error) {
-        showAlert("No se pudieron cargar los datos del listado.", "error");
         console.error(error);
     }
-}
-
-init();
+});
