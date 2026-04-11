@@ -68,12 +68,10 @@
             <div class="qr-block">
                 {% if qr_image_url %}
                 <div class="qr-frame">
-                    <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
                 </div>
-                <div class="qr-label">Escanee para validar</div>
                 {% else %}
                 <div class="qr-placeholder">QR</div>
-                <div class="qr-label">Escanee para validar</div>
                 {% endif %}
             </div>
         </div>

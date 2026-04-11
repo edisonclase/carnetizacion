@@ -235,9 +235,9 @@ body.card-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.55mm;
+    gap: 0.9mm;
     margin-top: auto;
-    margin-bottom: 0.4mm;
+    margin-bottom: 1.6mm;
 }
 
 .qr-frame {
@@ -274,12 +274,6 @@ body.card-body {
     font-size: 1.9mm;
 }
 
-.qr-label {
-    font-size: 1.55mm;
-    color: #475569;
-    text-align: center;
-    line-height: 1.05;
-}
 
 .card-footer {
     padding: 1.2mm 1.8mm;
