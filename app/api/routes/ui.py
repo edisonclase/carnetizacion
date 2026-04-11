@@ -209,7 +209,7 @@ def _build_student_cards_print_context(
         for student in students
     ]
 
-    pages = _chunk_list(student_cards, 8)
+    pages = _chunk_list(student_cards, 6)
 
     return {
         "request": request,
