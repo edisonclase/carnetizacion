@@ -1,13 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_db
+from app.api.deps import get_current_user, get_db, require_roles, resolve_center_scope
 from app.models.card import Card
 from app.models.center import Center
 from app.models.school_year import SchoolYear
 from app.models.student import Student
+from app.models.user import User, UserRole
 from app.services.pdf_service import render_pdf_from_html
 
 router = APIRouter(tags=["UI"])
@@ -33,6 +34,17 @@ def _get_student_or_404(db: Session, student_id: int) -> Student:
     if not student:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado.")
     return student
+
+
+def _ensure_student_center_access(current_user: User, student: Student) -> None:
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return
+
+    if current_user.center_id != student.center_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tienes acceso a estudiantes de otro centro.",
+        )
 
 
 def _get_latest_card_for_student(db: Session, student_id: int) -> Card | None:
@@ -228,11 +240,21 @@ def login_page(request: Request):
 
 
 @router.get("/dashboard", response_class=HTMLResponse)
-def dashboard_page(request: Request):
+def dashboard_page(
+    request: Request,
+    current_user: User = Depends(
+        require_roles(
+            UserRole.SUPER_ADMIN,
+            UserRole.REGISTRO,
+            UserRole.ADMIN_CENTRO,
+            UserRole.CONSULTA,
+        )
+    ),
+):
     return templates.TemplateResponse(
         request=request,
         name="dashboard.html",
-        context={"request": request},
+        context={"request": request, "current_user": current_user},
     )
 
 
@@ -241,8 +263,10 @@ def center_settings_page(
     request: Request,
     center_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN)),
 ):
     center = _get_center_or_404(db, center_id)
+    resolve_center_scope(current_user, center.id)
 
     return templates.TemplateResponse(
         request=request,
@@ -256,20 +280,26 @@ def center_settings_page(
 
 
 @router.get("/admin/students/register", response_class=HTMLResponse)
-def student_register_page(request: Request):
+def student_register_page(
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
+):
     return templates.TemplateResponse(
         request=request,
         name="student_register.html",
-        context={"request": request},
+        context={"request": request, "current_user": current_user},
     )
 
 
 @router.get("/admin/students", response_class=HTMLResponse)
-def student_list_page(request: Request):
+def student_list_page(
+    request: Request,
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
+):
     return templates.TemplateResponse(
         request=request,
         name="student_list.html",
-        context={"request": request},
+        context={"request": request, "current_user": current_user},
     )
 
 
@@ -278,8 +308,10 @@ def student_single_print_page(
     request: Request,
     student_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
     student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
     center = db.query(Center).filter(Center.id == student.center_id).first()
 
     context = {
@@ -300,8 +332,10 @@ def student_card_front(
     request: Request,
     student_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
     student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
     center = db.query(Center).filter(Center.id == student.center_id).first()
 
     context = {
@@ -322,8 +356,10 @@ def student_card_back(
     request: Request,
     student_id: int,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
     student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
     center = db.query(Center).filter(Center.id == student.center_id).first()
 
     context = {
@@ -347,10 +383,13 @@ def student_cards_print_sheet(
     grade: str | None = None,
     section: str | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
+    effective_center_id = resolve_center_scope(current_user, center_id)
+
     context = _build_student_cards_print_context(
         request=request,
-        center_id=center_id,
+        center_id=effective_center_id,
         school_year_id=school_year_id,
         grade=grade,
         section=section,
@@ -372,10 +411,13 @@ def student_cards_print_sheet_pdf(
     grade: str | None = None,
     section: str | None = None,
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
+    effective_center_id = resolve_center_scope(current_user, center_id)
+
     context = _build_student_cards_print_context(
         request=request,
-        center_id=center_id,
+        center_id=effective_center_id,
         school_year_id=school_year_id,
         grade=grade,
         section=section,
@@ -399,6 +441,7 @@ def student_cards_multiple_print(
     request: Request,
     ids: list[int],
     db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
 ):
     if not ids:
         raise HTTPException(
@@ -418,6 +461,9 @@ def student_cards_multiple_print(
             status_code=404,
             detail="No se encontraron estudiantes para imprimir.",
         )
+
+    for student in students:
+        _ensure_student_center_access(current_user, student)
 
     cards_data = []
     for student in students:
@@ -446,12 +492,21 @@ def student_cards_multiple_print(
 
 
 @router.get("/admin/students/{student_id}/edit", response_class=HTMLResponse)
-def edit_student_view(request: Request, student_id: int):
+def edit_student_view(
+    request: Request,
+    student_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)),
+):
+    student = _get_student_or_404(db, student_id)
+    _ensure_student_center_access(current_user, student)
+
     return templates.TemplateResponse(
         request=request,
         name="student_edit.html",
         context={
             "request": request,
             "student_id": student_id,
+            "current_user": current_user,
         },
     )

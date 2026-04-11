@@ -260,7 +260,7 @@ def list_students(
     is_active: bool | None = Query(default=None),
     db: Session = Depends(get_db),
     current_user: User = Depends(
-        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO, UserRole.CONSULTA)
+        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)
     ),
 ):
     effective_center_id = resolve_center_scope(current_user, center_id)
@@ -300,7 +300,7 @@ def get_student(
     student_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(
-        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO, UserRole.CONSULTA)
+        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)
     ),
 ):
     student = _get_student_or_404(db, student_id)

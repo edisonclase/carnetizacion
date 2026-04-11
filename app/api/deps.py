@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
@@ -7,7 +6,7 @@ from app.core.database import SessionLocal
 from app.core.security import extract_subject_from_token
 from app.models.user import User, UserRole
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")
 
 
 def get_db():
@@ -24,12 +23,12 @@ def get_current_user(
 ) -> User:
     try:
         subject = extract_subject_from_token(token)
-    except ValueError:
+    except ValueError as exc:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="No autenticado o token inválido.",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from exc
 
     user = db.query(User).filter(User.email == subject).first()
 
@@ -59,7 +58,10 @@ def require_roles(*allowed_roles: str):
     return checker
 
 
-def resolve_center_scope(current_user: User, requested_center_id: int | None = None) -> int | None:
+def resolve_center_scope(
+    current_user: User,
+    requested_center_id: int | None = None,
+) -> int | None:
     if current_user.role == UserRole.SUPER_ADMIN:
         return requested_center_id
 
