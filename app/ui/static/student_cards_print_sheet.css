@@ -1,5 +1,5 @@
 @page {
-    size: A4;
+    size: A4 portrait;
     margin: 8mm;
 }
 
@@ -28,127 +28,152 @@ body {
 .sheet-grid {
     display: grid;
     grid-template-columns: repeat(2, 53.98mm);
-    grid-template-rows: repeat(4, 85.60mm);
+    grid-template-rows: repeat(3, 85.60mm);
     justify-content: center;
+    align-content: start;
     gap: 6mm 8mm;
 }
 
-.print-card {
+.sheet-card {
     width: 53.98mm;
     height: 85.60mm;
-    border: 1px solid #dbe4f0;
-    border-radius: 3mm;
+    background: var(--card-bg, #ffffff);
+    color: var(--card-text, #1e293b);
+    border-radius: 4mm;
     overflow: hidden;
+    border: 0.35mm solid var(--card-accent, #f4c95d);
     display: flex;
     flex-direction: column;
     box-sizing: border-box;
 }
 
-.print-card-header {
-    min-height: 15mm;
-    padding: 2.2mm 2.6mm 1.8mm;
+.sheet-card-topbar {
+    height: 2.2mm;
+    background: linear-gradient(
+        90deg,
+        var(--card-secondary, #0b3d24) 0%,
+        var(--card-primary, #1f8f4a) 70%,
+        var(--card-accent, #f4c95d) 100%
+    );
+}
+
+.sheet-brand-header {
+    background: #ffffff;
+    padding: 2.3mm 2.6mm 1.8mm;
     display: flex;
     align-items: flex-start;
     gap: 2mm;
-    color: #ffffff;
+    border-bottom: 0.25mm solid rgba(11, 61, 36, 0.10);
+    min-height: 15.5mm;
     box-sizing: border-box;
 }
 
-.print-card-header-back {
-    justify-content: center;
+.sheet-brand-header-back {
     align-items: center;
-    text-align: center;
-    padding: 2.5mm;
 }
 
-.print-card-header-back h3 {
-    margin: 0;
-    font-size: 2.2mm;
-    line-height: 1.08;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.print-center-logo {
-    width: 8.8mm;
-    height: 8.8mm;
-    object-fit: contain;
+.sheet-logo-badge {
+    width: 10.2mm;
+    height: 10.2mm;
     background: #ffffff;
-    border-radius: 1.8mm;
-    padding: 0.8mm;
-    box-sizing: border-box;
-    flex-shrink: 0;
-}
-
-.print-header-text {
-    flex: 1;
-    min-width: 0;
-}
-
-.print-header-text h3 {
-    margin: 0;
-    font-size: 2.3mm;
-    line-height: 1.08;
-    color: #ffffff;
-    overflow-wrap: anywhere;
-    word-break: break-word;
-}
-
-.print-header-text p {
-    margin: 0.7mm 0 0;
-    font-size: 1.8mm;
-    line-height: 1.08;
-    color: #ffffff;
-    font-weight: 600;
-}
-
-.print-header-meta {
-    margin-top: 0.6mm;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25mm;
-}
-
-.print-header-meta span {
-    font-size: 1.35mm;
-    line-height: 1.08;
-    color: rgba(255, 255, 255, 0.96);
-    word-break: break-word;
-    overflow-wrap: anywhere;
-}
-
-.print-card-body {
-    flex: 1;
-    padding: 2.2mm 2.8mm 1.2mm;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.6mm;
-    box-sizing: border-box;
-}
-
-.print-photo-block {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-}
-
-.print-student-photo {
-    width: 18.5mm;
-    height: 22mm;
+    border: 0.25mm solid rgba(11, 61, 36, 0.12);
     border-radius: 2mm;
-    object-fit: cover;
-    border: 1px solid #dbe4f0;
+    box-shadow: 0 1mm 2mm rgba(15, 23, 42, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.sheet-center-logo {
+    width: 8.5mm;
+    height: 8.5mm;
+    object-fit: contain;
     display: block;
     background: #ffffff;
 }
 
-.print-photo-placeholder {
-    width: 18.5mm;
-    height: 22mm;
-    border: 2px dashed #c7d3e3;
-    border-radius: 2mm;
+.sheet-center-logo-placeholder {
+    background: #f8fafc;
+    border: 0.25mm dashed #cbd5e1;
+}
+
+.sheet-brand-copy {
+    flex: 1;
+    min-width: 0;
+}
+
+.sheet-brand-copy h3 {
+    margin: 0;
+    font-size: 2.35mm;
+    line-height: 1.08;
+    font-weight: 700;
+    color: var(--card-secondary, #0b3d24);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+}
+
+.sheet-brand-copy-back h3 {
+    margin-top: 0.4mm;
+}
+
+.sheet-brand-meta {
+    margin-top: 0.55mm;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2mm;
+}
+
+.sheet-brand-meta span {
+    font-size: 1.42mm;
+    line-height: 1.08;
+    color: #64748b;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.sheet-brand-copy p {
+    margin: 0.7mm 0 0;
+    font-size: 1.85mm;
+    line-height: 1.08;
+    color: var(--card-primary, #1f8f4a);
+    font-weight: 700;
+}
+
+.sheet-card-body {
+    flex: 1;
+    padding: 2.1mm 2.8mm 1.8mm;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.55mm;
+    box-sizing: border-box;
+}
+
+.sheet-photo-block {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-top: 0.4mm;
+}
+
+.sheet-student-photo {
+    width: 18.8mm;
+    height: 22.8mm;
+    border-radius: 2.2mm;
+    object-fit: cover;
+    border: 0.25mm solid rgba(11, 61, 36, 0.10);
+    display: block;
+    background: #ffffff;
+    box-shadow: 0 1mm 2mm rgba(15, 23, 42, 0.08);
+}
+
+.sheet-photo-placeholder {
+    width: 18.8mm;
+    height: 22.8mm;
+    border: 0.35mm dashed #c7d3e3;
+    border-radius: 2.2mm;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,51 +182,50 @@ body {
     font-size: 2mm;
 }
 
-.print-student-info {
+.sheet-student-name {
     width: 100%;
     text-align: center;
-}
-
-.print-student-info h4 {
-    margin: 0 0 1.3mm;
-    font-size: 2.65mm;
+    font-size: 2.7mm;
     line-height: 1.08;
+    font-weight: 700;
     color: #0f172a;
     word-break: break-word;
     overflow-wrap: anywhere;
 }
 
-.print-info-grid {
+.sheet-info-panel {
+    width: 100%;
     display: grid;
     gap: 0.75mm;
-    font-size: 2mm;
+    font-size: 1.95mm;
     color: #334155;
     text-align: left;
     background: #f8fafc;
-    border: 1px solid #e2e8f0;
+    border: 0.25mm solid #d9e2f0;
     border-radius: 2.2mm;
     padding: 1.7mm 1.9mm;
     box-sizing: border-box;
 }
 
-.print-info-grid div {
+.sheet-info-panel div {
     line-height: 1.12;
     word-break: break-word;
     overflow-wrap: anywhere;
 }
 
-.print-qr-block {
+.sheet-qr-block {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.6mm;
+    gap: 0.55mm;
     margin-top: auto;
+    margin-bottom: 0.4mm;
 }
 
-.print-qr-frame {
-    width: 17.5mm;
-    height: 17.5mm;
-    border: 1px solid #dbe4f0;
+.sheet-qr-frame {
+    width: 16.8mm;
+    height: 16.8mm;
+    border: 0.25mm solid #dbe4f0;
     border-radius: 1.9mm;
     padding: 0.9mm;
     background: #ffffff;
@@ -211,17 +235,17 @@ body {
     box-sizing: border-box;
 }
 
-.print-qr-image {
+.sheet-qr-image {
     width: 100%;
     height: 100%;
     object-fit: contain;
     display: block;
 }
 
-.print-qr-placeholder {
-    width: 17.5mm;
-    height: 17.5mm;
-    border: 2px dashed #c7d3e3;
+.sheet-qr-placeholder {
+    width: 16.8mm;
+    height: 16.8mm;
+    border: 0.35mm dashed #c7d3e3;
     border-radius: 1.9mm;
     display: flex;
     align-items: center;
@@ -232,53 +256,56 @@ body {
     font-size: 1.9mm;
 }
 
-.print-qr-label {
-    font-size: 1.6mm;
+.sheet-qr-label {
+    font-size: 1.55mm;
     color: #475569;
     text-align: center;
     line-height: 1.05;
 }
 
-.print-card-back-body {
+.sheet-card-back-body {
     flex: 1;
-    padding: 1.9mm 2.6mm 0.8mm;
+    padding: 1.9mm 2.5mm 1.1mm;
     display: flex;
     flex-direction: column;
-    gap: 0.85mm;
-    justify-content: space-between;
+    gap: 1.1mm;
     box-sizing: border-box;
+    justify-content: space-between;
     overflow: hidden;
 }
 
-.print-card-back-body section {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2mm;
-    min-height: 0;
+.sheet-back-section {
+    background: #ffffff;
+    border: 0.25mm solid rgba(11, 61, 36, 0.08);
+    border-left: 0.9mm solid var(--card-primary, #1f8f4a);
+    border-radius: 1.6mm;
+    padding: 1.1mm 1.4mm 1mm;
+    box-sizing: border-box;
 }
 
-.print-card-back-body h4 {
-    margin: 0;
+.sheet-back-section h4 {
+    margin: 0 0 0.35mm;
     font-size: 1.9mm;
     line-height: 1.05;
-    color: #0f172a;
+    color: var(--card-secondary, #0b3d24);
 }
 
-.print-card-back-body p {
+.sheet-back-section p {
     margin: 0;
-    font-size: 1.5mm;
+    font-size: 1.48mm;
     line-height: 1.08;
-    text-align: justify;
+    text-align: left;
     word-break: break-word;
     overflow-wrap: anywhere;
 }
 
-.print-card-footer {
-    padding: 1.1mm 1.8mm;
-    border-top: 1px solid #e2e8f0;
-    font-size: 1.5mm;
+.sheet-card-footer {
+    padding: 1.2mm 1.8mm;
+    background: #ffffff;
+    border-top: 0.25mm solid #e2e8f0;
+    color: #64748b;
+    font-size: 1.55mm;
     text-align: center;
-    color: #475569;
     box-sizing: border-box;
     line-height: 1.05;
 }

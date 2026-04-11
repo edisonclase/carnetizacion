@@ -7,60 +7,56 @@
     <link rel="stylesheet" href="/static/student_card.css" />
 </head>
 <body class="card-body">
-    <div
+    <article
         class="card card-front"
         style="
-            background: {{ center_background_color or '#ffffff' }};
-            color: {{ center_text_color or '#1e293b' }};
-            border-color: {{ center_accent_color or '#dbe4f0' }};
+            --card-bg: {{ center_background_color or '#ffffff' }};
+            --card-text: {{ center_text_color or '#1e293b' }};
+            --card-primary: {{ center_primary_color or '#1f8f4a' }};
+            --card-secondary: {{ center_secondary_color or '#0b3d24' }};
+            --card-accent: {{ center_accent_color or '#f4c95d' }};
         "
     >
-        <div
-            class="card-header compact-header"
-            style="background: {{ center_primary_color or '#2563eb' }};"
-        >
-            {% if center_logo_url %}
+        <div class="card-topbar"></div>
+
+        <header class="card-brand-header">
+            <div class="card-logo-badge">
+                {% if center_logo_url %}
                 <img
                     src="{{ center_logo_url }}"
                     alt="Logo del centro"
                     class="center-logo"
                 />
-            {% else %}
+                {% else %}
                 <div class="center-logo center-logo-placeholder"></div>
-            {% endif %}
+                {% endif %}
+            </div>
 
-            <div class="compact-header-text">
+            <div class="card-brand-copy">
                 <h1>{{ center_name }}</h1>
 
-                <div class="compact-center-meta">
+                <div class="card-brand-meta">
                     {% if phone %}<span>{{ phone }}</span>{% endif %}
                     {% if email %}<span>{{ email }}</span>{% endif %}
                 </div>
 
-                <p class="header-card-title">Carnet Estudiantil</p>
+                <p class="header-card-title">Carnet estudiantil</p>
             </div>
-        </div>
+        </header>
 
         <div class="card-content">
             <div class="photo-block">
                 {% if student_photo_url %}
-                    <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo" />
+                <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo" />
                 {% else %}
-                    <div class="photo-placeholder">Foto</div>
+                <div class="photo-placeholder">Foto</div>
                 {% endif %}
             </div>
 
             <div class="student-info">
                 <h2>{{ student_full_name }}</h2>
 
-                <div
-                    class="info-grid"
-                    style="
-                        background: {{ center_background_color or '#f8fafc' }};
-                        border-color: {{ center_accent_color or '#e2e8f0' }};
-                        color: {{ center_text_color or '#334155' }};
-                    "
-                >
+                <div class="info-grid">
                     <div><strong>Código:</strong> {{ student_code }}</div>
                     <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
                     <div><strong>Curso:</strong> {{ grade }}</div>
@@ -71,29 +67,20 @@
 
             <div class="qr-block">
                 {% if qr_image_url %}
-                    <div
-                        class="qr-frame"
-                        style="border-color: {{ center_accent_color or '#dbe4f0' }};"
-                    >
-                        <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
-                    </div>
-                    <div class="qr-label">Escanee para validar</div>
+                <div class="qr-frame">
+                    <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                </div>
+                <div class="qr-label">Escanee para validar</div>
                 {% else %}
-                    <div class="qr-placeholder">QR</div>
+                <div class="qr-placeholder">QR</div>
+                <div class="qr-label">Escanee para validar</div>
                 {% endif %}
             </div>
         </div>
 
-        <div
-            class="card-footer"
-            style="
-                background: {{ center_background_color or '#f8fafc' }};
-                border-top-color: {{ center_accent_color or '#e2e8f0' }};
-                color: {{ center_text_color or '#475569' }};
-            "
-        >
+        <footer class="card-footer">
             <span>{{ card_footer_text }}</span>
-        </div>
-    </div>
+        </footer>
+    </article>
 </body>
 </html>

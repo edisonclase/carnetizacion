@@ -12,65 +12,75 @@
     <section class="print-page">
         <div class="sheet-grid">
             {% for card in page %}
-            <div
-                class="print-card"
+            <article
+                class="sheet-card sheet-card-front"
                 style="
-                    background: {{ center_background_color }};
-                    color: {{ center_text_color }};
-                    border-color: {{ center_accent_color }};
+                    --card-bg: {{ center_background_color or '#ffffff' }};
+                    --card-text: {{ center_text_color or '#1e293b' }};
+                    --card-primary: {{ center_primary_color or '#1f8f4a' }};
+                    --card-secondary: {{ center_secondary_color or '#0b3d24' }};
+                    --card-accent: {{ center_accent_color or '#f4c95d' }};
                 "
             >
-                <div class="print-card-header" style="background: {{ center_primary_color }};">
-                    {% if center_logo_url %}
-                    <img src="{{ center_logo_url }}" alt="Logo del centro" class="print-center-logo" />
-                    {% endif %}
+                <div class="sheet-card-topbar"></div>
 
-                    <div class="print-header-text">
+                <header class="sheet-brand-header">
+                    <div class="sheet-logo-badge">
+                        {% if center_logo_url %}
+                        <img src="{{ center_logo_url }}" alt="Logo del centro" class="sheet-center-logo" />
+                        {% else %}
+                        <div class="sheet-center-logo sheet-center-logo-placeholder"></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sheet-brand-copy">
                         <h3>{{ center_name }}</h3>
-                        <div class="print-header-meta">
+
+                        <div class="sheet-brand-meta">
                             {% if phone %}<span>{{ phone }}</span>{% endif %}
                             {% if email %}<span>{{ email }}</span>{% endif %}
                         </div>
-                        <p>Carnet Estudiantil</p>
-                    </div>
-                </div>
 
-                <div class="print-card-body">
-                    <div class="print-photo-block">
+                        <p>Carnet estudiantil</p>
+                    </div>
+                </header>
+
+                <div class="sheet-card-body">
+                    <div class="sheet-photo-block">
                         {% if card.student_photo_url %}
-                        <img src="{{ card.student_photo_url }}" alt="Foto" class="print-student-photo" />
+                        <img src="{{ card.student_photo_url }}" alt="Foto del estudiante" class="sheet-student-photo" />
                         {% else %}
-                        <div class="print-photo-placeholder">Foto</div>
+                        <div class="sheet-photo-placeholder">Foto</div>
                         {% endif %}
                     </div>
 
-                    <div class="print-student-info">
-                        <h4>{{ card.student_full_name }}</h4>
-                        <div class="print-info-grid">
-                            <div><strong>Código:</strong> {{ card.student_code }}</div>
-                            <div><strong>ID MINERD:</strong> {{ card.minerd_id or "-" }}</div>
-                            <div><strong>Curso:</strong> {{ card.grade }}</div>
-                            <div><strong>Sección:</strong> {{ card.section }}</div>
-                            <div><strong>Año escolar:</strong> {{ card.school_year_name }}</div>
-                        </div>
+                    <div class="sheet-student-name">{{ card.student_full_name }}</div>
+
+                    <div class="sheet-info-panel">
+                        <div><strong>Código:</strong> {{ card.student_code }}</div>
+                        <div><strong>ID MINERD:</strong> {{ card.minerd_id or "-" }}</div>
+                        <div><strong>Curso:</strong> {{ card.grade }}</div>
+                        <div><strong>Sección:</strong> {{ card.section }}</div>
+                        <div><strong>Año escolar:</strong> {{ card.school_year_name }}</div>
                     </div>
 
-                    <div class="print-qr-block">
+                    <div class="sheet-qr-block">
                         {% if card.qr_image_url %}
-                        <div class="print-qr-frame">
-                            <img src="{{ card.qr_image_url }}" alt="QR" class="print-qr-image" />
+                        <div class="sheet-qr-frame">
+                            <img src="{{ card.qr_image_url }}" alt="QR del carnet" class="sheet-qr-image" />
                         </div>
-                        <div class="print-qr-label">Validación</div>
+                        <div class="sheet-qr-label">Validación</div>
                         {% else %}
-                        <div class="print-qr-placeholder">QR</div>
+                        <div class="sheet-qr-placeholder">QR</div>
+                        <div class="sheet-qr-label">Validación</div>
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="print-card-footer">
+                <footer class="sheet-card-footer">
                     <span>{{ card_footer_text }}</span>
-                </div>
-            </div>
+                </footer>
+            </article>
             {% endfor %}
         </div>
     </section>
@@ -81,44 +91,59 @@
     <section class="print-page">
         <div class="sheet-grid">
             {% for card in page %}
-            <div
-                class="print-card"
+            <article
+                class="sheet-card sheet-card-back"
                 style="
-                    background: {{ center_background_color }};
-                    color: {{ center_text_color }};
-                    border-color: {{ center_accent_color }};
+                    --card-bg: {{ center_background_color or '#ffffff' }};
+                    --card-text: {{ center_text_color or '#1e293b' }};
+                    --card-primary: {{ center_primary_color or '#1f8f4a' }};
+                    --card-secondary: {{ center_secondary_color or '#0b3d24' }};
+                    --card-accent: {{ center_accent_color or '#f4c95d' }};
                 "
             >
-                <div class="print-card-header print-card-header-back" style="background: {{ center_primary_color }};">
-                    <h3>{{ center_name }}</h3>
-                </div>
+                <div class="sheet-card-topbar"></div>
 
-                <div class="print-card-back-body">
-                    <section>
+                <header class="sheet-brand-header sheet-brand-header-back">
+                    <div class="sheet-logo-badge">
+                        {% if center_logo_url %}
+                        <img src="{{ center_logo_url }}" alt="Logo del centro" class="sheet-center-logo" />
+                        {% else %}
+                        <div class="sheet-center-logo sheet-center-logo-placeholder"></div>
+                        {% endif %}
+                    </div>
+
+                    <div class="sheet-brand-copy sheet-brand-copy-back">
+                        <h3>{{ center_name }}</h3>
+                        <p>Información institucional</p>
+                    </div>
+                </header>
+
+                <div class="sheet-card-back-body">
+                    <section class="sheet-back-section">
                         <h4>Filosofía</h4>
                         <p>{{ philosophy or "-" }}</p>
                     </section>
 
-                    <section>
+                    <section class="sheet-back-section">
                         <h4>Misión</h4>
                         <p>{{ mission or "-" }}</p>
                     </section>
 
-                    <section>
+                    <section class="sheet-back-section">
                         <h4>Visión</h4>
                         <p>{{ vision or "-" }}</p>
                     </section>
 
-                    <section>
+                    <section class="sheet-back-section">
                         <h4>Valores</h4>
                         <p>{{ values or "-" }}</p>
                     </section>
                 </div>
 
-                <div class="print-card-footer">
+                <footer class="sheet-card-footer">
                     <span>{{ card_footer_text }}</span>
-                </div>
-            </div>
+                </footer>
+            </article>
             {% endfor %}
         </div>
     </section>
