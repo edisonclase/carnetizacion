@@ -77,13 +77,13 @@ body {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 70%;
-    height: 40%;
+    width: 46%;
+    height: 24%;
     background: linear-gradient(
         135deg,
         rgba(31, 143, 74, 0.00) 0%,
-        rgba(31, 143, 74, 0.18) 35%,
-        rgba(11, 61, 36, 0.28) 100%
+        rgba(31, 143, 74, 0.12) 42%,
+        rgba(11, 61, 36, 0.20) 100%
     );
     clip-path: polygon(100% 0, 0 100%, 100% 100%);
     z-index: 0;
