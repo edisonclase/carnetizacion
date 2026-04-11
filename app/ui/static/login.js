@@ -1,6 +1,8 @@
 const loginForm = document.getElementById("loginForm");
 const loginAlert = document.getElementById("loginAlert");
 const loginBtn = document.getElementById("loginBtn");
+const passwordInput = document.getElementById("password");
+const togglePasswordBtn = document.getElementById("togglePasswordBtn");
 
 function showLoginError(message) {
     loginAlert.textContent = message;
@@ -16,7 +18,31 @@ function getDashboardRouteForUser() {
     return "/dashboard";
 }
 
+function syncPasswordToggleState() {
+    const isVisible = passwordInput.type === "text";
+
+    togglePasswordBtn.setAttribute("aria-pressed", String(isVisible));
+    togglePasswordBtn.setAttribute(
+        "aria-label",
+        isVisible ? "Ocultar contraseña" : "Mostrar contraseña"
+    );
+    togglePasswordBtn.setAttribute(
+        "title",
+        isVisible ? "Ocultar contraseña" : "Mostrar contraseña"
+    );
+    togglePasswordBtn.textContent = isVisible ? "🙈" : "👁️";
+}
+
+function togglePasswordVisibility() {
+    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
+    syncPasswordToggleState();
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+    syncPasswordToggleState();
+
+    togglePasswordBtn.addEventListener("click", togglePasswordVisibility);
+
     const token = getAccessToken();
 
     if (token) {
@@ -34,7 +60,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         hideLoginError();
 
         const email = document.getElementById("email").value.trim().toLowerCase();
-        const password = document.getElementById("password").value;
+        const password = passwordInput.value;
 
         if (!email || !password) {
             showLoginError("Debes completar correo y contraseña.");
