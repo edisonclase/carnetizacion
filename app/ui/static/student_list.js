@@ -444,7 +444,7 @@ printSelectedBtn.addEventListener("click", () => {
     const params = new URLSearchParams();
     selected.forEach((id) => params.append("ids", id));
 
-    window.open(`/students/cards/print-multiple?${params.toString()}`, "_blank");
+    window.open(`/students/cards/print-selected?${params.toString()}`, "_blank");
 });
 
 clearSelectedBtn.addEventListener("click", () => {

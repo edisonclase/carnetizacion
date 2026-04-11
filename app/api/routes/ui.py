@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, Query, status
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -457,4 +457,54 @@ def edit_student_view(
             "request": request,
             "student_id": student_id,
         },
+    )
+    
+@router.get("/students/cards/print-selected", response_class=HTMLResponse)
+def student_cards_print_selected(
+    request: Request,
+    ids: list[int] = Query(...),
+    db: Session = Depends(get_db),
+):
+    if not ids:
+        raise HTTPException(
+            status_code=400,
+            detail="Debes indicar al menos un estudiante.",
+        )
+
+    students = (
+        db.query(Student)
+        .filter(Student.id.in_(ids))
+        .order_by(Student.last_name.asc(), Student.first_name.asc())
+        .all()
+    )
+
+    if not students:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontraron estudiantes.",
+        )
+
+    center = db.query(Center).filter(Center.id == students[0].center_id).first()
+
+    student_cards = [
+        _build_student_card_data(
+            request=request,
+            db=db,
+            student=student,
+        )
+        for student in students
+    ]
+
+    pages = _chunk_list(student_cards, 6)
+
+    context = {
+        "request": request,
+        "pages": pages,
+        **_build_center_theme(center),
+    }
+
+    return templates.TemplateResponse(
+        request=request,
+        name="student_cards_print_sheet.html",
+        context=context,
     )
