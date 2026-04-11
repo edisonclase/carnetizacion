@@ -52,13 +52,13 @@ body.card-body {
     position: absolute;
     bottom: 0;
     right: 0;
-    width: 70%;
-    height: 40%;
+    width: 68%;
+    height: 38%;
     background: linear-gradient(
         135deg,
         rgba(31, 143, 74, 0.00) 0%,
-        rgba(31, 143, 74, 0.18) 35%,
-        rgba(11, 61, 36, 0.28) 100%
+        rgba(31, 143, 74, 0.14) 38%,
+        rgba(11, 61, 36, 0.22) 100%
     );
     clip-path: polygon(100% 0, 0 100%, 100% 100%);
     z-index: 0;
@@ -187,16 +187,16 @@ body.card-body {
 }
 
 .photo-placeholder {
-    width: 18.8mm;
-    height: 22.8mm;
-    border: 0.35mm dashed #c7d3e3;
-    border-radius: 2.2mm;
+    width: 20mm;
+    height: 20mm;
+    border: 0.6mm dashed #c7d3e3;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #64748b;
     background: #f8fafc;
-    font-size: 2mm;
+    font-size: 1.9mm;
 }
 
 .student-info {
