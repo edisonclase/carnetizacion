@@ -20,6 +20,51 @@ body.card-body {
     position: relative;
 }
 
+.card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            135deg,
+            rgba(31, 143, 74, 0.18) 0%,
+            rgba(31, 143, 74, 0.12) 20%,
+            transparent 40%
+        ),
+        linear-gradient(
+            315deg,
+            rgba(11, 61, 36, 0.12) 0%,
+            transparent 35%
+        );
+
+    pointer-events: none;
+    z-index: 0;
+}
+
+.card > * {
+    position: relative;
+    z-index: 1;
+}
+
+.card::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 70%;
+    height: 40%;
+    background: linear-gradient(
+        135deg,
+        rgba(31, 143, 74, 0.00) 0%,
+        rgba(31, 143, 74, 0.18) 35%,
+        rgba(11, 61, 36, 0.28) 100%
+    );
+    clip-path: polygon(100% 0, 0 100%, 100% 100%);
+    z-index: 0;
+    pointer-events: none;
+}
+
 .card-topbar {
     height: 2.2mm;
     background: linear-gradient(
@@ -132,14 +177,13 @@ body.card-body {
 }
 
 .student-photo {
-    width: 18.8mm;
-    height: 22.8mm;
-    border-radius: 2.2mm;
+    width: 20mm;
+    height: 20mm;
+    border-radius: 50%;
     object-fit: cover;
-    border: 0.25mm solid rgba(11, 61, 36, 0.10);
-    display: block;
+    border: 1mm solid var(--card-primary);
+    box-shadow: 0 2mm 4mm rgba(0,0,0,0.15);
     background: #ffffff;
-    box-shadow: 0 1mm 2mm rgba(15, 23, 42, 0.08);
 }
 
 .photo-placeholder {
@@ -162,11 +206,10 @@ body.card-body {
 
 .student-info h2 {
     margin: 0 0 1.3mm;
-    font-size: 2.7mm;
-    line-height: 1.08;
-    color: #0f172a;
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    font-size: 3.2mm;
+    font-weight: 800;
+    letter-spacing: 0.2mm;
+    color: var(--card-secondary);
 }
 
 .info-grid {
@@ -255,36 +298,40 @@ body.card-body {
 
 .card-back-content {
     flex: 1;
-    padding: 1.9mm 2.5mm 1.1mm;
+    padding: 2.2mm 2.6mm 1.3mm;
     display: flex;
     flex-direction: column;
-    gap: 1.1mm;
-    box-sizing: border-box;
     justify-content: space-between;
+    gap: 1.4mm;
+    box-sizing: border-box;
     overflow: hidden;
+    background: none;
 }
 
 .back-section {
-    background: #ffffff;
-    border: 0.25mm solid rgba(11, 61, 36, 0.08);
-    border-left: 0.9mm solid var(--card-primary, #1f8f4a);
-    border-radius: 1.6mm;
-    padding: 1.1mm 1.4mm 1mm;
+    background: rgba(255, 255, 255, 0.90);
+    border: 0.2mm solid rgba(11, 61, 36, 0.08);
+    border-left: 0.8mm solid var(--card-primary, #1f8f4a);
+    border-radius: 1.4mm;
+    padding: 1mm 1.3mm 0.9mm;
     box-sizing: border-box;
+    box-shadow: none;
 }
 
 .back-section h3 {
-    margin: 0 0 0.35mm;
-    font-size: 1.9mm;
+    margin: 0 0 0.25mm;
+    font-size: 1.8mm;
     line-height: 1.05;
     color: var(--card-secondary, #0b3d24);
+    font-weight: 700;
 }
 
 .back-section p {
     margin: 0;
-    font-size: 1.48mm;
-    line-height: 1.08;
+    font-size: 1.38mm;
+    line-height: 1.1;
     text-align: left;
+    color: #334155;
     word-break: break-word;
     overflow-wrap: anywhere;
 }
