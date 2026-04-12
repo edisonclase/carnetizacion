@@ -14,7 +14,7 @@
     <main class="print-page">
         <section class="print-card-side">
             <iframe
-                src="/students/{{ student_id }}/card/front"
+                src="/students/{{ student_id }}/card/front?v={{ student_id }}"
                 title="Carnet frontal"
                 loading="eager"
             ></iframe>
@@ -22,7 +22,7 @@
 
         <section class="print-card-side">
             <iframe
-                src="/students/{{ student_id }}/card/back"
+                src="/students/{{ student_id }}/card/back?v={{ student_id }}"
                 title="Carnet reverso"
                 loading="eager"
             ></iframe>

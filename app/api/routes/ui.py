@@ -106,13 +106,6 @@ def _build_center_theme(center: Center | None) -> dict:
         else True
     )
 
-    philosophy = _resolve_card_text(
-        center=center,
-        full_text=center.philosophy if center else None,
-        short_text=center.card_philosophy if center else None,
-        fallback_text="Formar ciudadanos íntegros, críticos y comprometidos con su comunidad.",
-        prefer_full=prefer_full_identity,
-    )
     mission = _resolve_card_text(
         center=center,
         full_text=center.mission if center else None,
@@ -161,7 +154,6 @@ def _build_center_theme(center: Center | None) -> dict:
         ),
         "phone": center.phone if center and center.phone else None,
         "email": center.email if center and center.email else None,
-        "philosophy": philosophy,
         "mission": mission,
         "vision": vision,
         "values": values,
