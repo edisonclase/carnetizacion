@@ -19,11 +19,9 @@ const fieldIds = [
   "background_color",
   "card_design_key",
   "show_full_card_identity",
-  "philosophy",
   "mission",
   "vision",
   "values",
-  "card_philosophy",
   "card_mission",
   "card_vision",
   "card_values",
@@ -52,7 +50,7 @@ const defaultTheme = {
   text_color: "#1e1e1e",
   background_color: "#ffffff",
   card_footer_text: "Nova ID by Aula Nova",
-  card_design_key: "nova_modern_v1",
+  card_design_key: "classic_green_v1",
   show_full_card_identity: "true",
 };
 
@@ -65,7 +63,9 @@ const designLabels = {
 let alertTimeoutId = null;
 
 function showAlert(message, type = "success") {
-  if (alertTimeoutId) clearTimeout(alertTimeoutId);
+  if (alertTimeoutId) {
+    clearTimeout(alertTimeoutId);
+  }
 
   alertBox.textContent = message;
   alertBox.className = `alert-box ${type}`;
@@ -127,6 +127,7 @@ function syncTextFromPicker(inputId, pickerId) {
 
 function applyDesignClass(cardEl, designKey) {
   if (!cardEl) return;
+
   cardEl.classList.remove("preview-classic", "preview-prestige", "preview-modern");
 
   if (designKey === "classic_green_v1") {
@@ -250,6 +251,11 @@ function renderPreview() {
   const topBand = document.getElementById("previewTopBand");
   const backTopBand = document.getElementById("previewBackTopBand");
   const backBody = document.getElementById("previewBackBody");
+  const frontDecor = document.getElementById("previewFrontDecor");
+  const backDecor = document.getElementById("previewBackDecor");
+  const frontInfoGrid = document.getElementById("previewFrontInfoGrid");
+  const frontName = document.getElementById("previewStudentName");
+  const frontBody = document.getElementById("previewFrontBody");
 
   applyDesignClass(frontCard, designKey);
   applyDesignClass(backCard, designKey);
@@ -258,11 +264,7 @@ function renderPreview() {
     card.style.background = backgroundColor;
     card.style.color = textColor;
     card.style.borderColor = accentColor;
-  });
-
-  [frontHeader, backHeader].forEach((header) => {
-    if (!header) return;
-    header.style.color = textColor;
+    card.style.boxShadow = "0 10px 26px rgba(15, 23, 42, 0.10)";
   });
 
   [topBand, backTopBand].forEach((band) => {
@@ -272,9 +274,69 @@ function renderPreview() {
 
   [frontFooter, backFooter].forEach((footer) => {
     if (!footer) return;
-    footer.style.color = textColor;
     footer.textContent = footerText;
+    footer.style.color = "#5b6777";
   });
+
+  if (frontHeader) {
+    frontHeader.style.color = textColor;
+  }
+
+  if (backHeader) {
+    backHeader.style.color = textColor;
+  }
+
+  if (frontDecor) {
+    frontDecor.style.display = designKey === "nova_modern_v1" ? "block" : "none";
+    frontDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.20))`;
+  }
+
+  if (backDecor) {
+    backDecor.style.display = designKey === "nova_modern_v1" ? "block" : "none";
+    backDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.20))`;
+  }
+
+  if (designKey === "classic_green_v1") {
+    if (frontBody) frontBody.style.alignItems = "stretch";
+    if (frontName) {
+      frontName.style.textAlign = "center";
+      frontName.style.fontSize = "13px";
+      frontName.style.fontWeight = "800";
+    }
+    if (frontInfoGrid) {
+      frontInfoGrid.style.background = "rgba(248,250,252,0.92)";
+      frontInfoGrid.style.borderRadius = "12px";
+      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
+    }
+  }
+
+  if (designKey === "prestige_clean_v1") {
+    if (frontBody) frontBody.style.alignItems = "stretch";
+    if (frontName) {
+      frontName.style.textAlign = "center";
+      frontName.style.fontSize = "14px";
+      frontName.style.fontWeight = "800";
+    }
+    if (frontInfoGrid) {
+      frontInfoGrid.style.background = "rgba(255,255,255,0.96)";
+      frontInfoGrid.style.borderRadius = "10px";
+      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.06)";
+    }
+  }
+
+  if (designKey === "nova_modern_v1") {
+    if (frontBody) frontBody.style.alignItems = "stretch";
+    if (frontName) {
+      frontName.style.textAlign = "center";
+      frontName.style.fontSize = "14px";
+      frontName.style.fontWeight = "800";
+    }
+    if (frontInfoGrid) {
+      frontInfoGrid.style.background = "rgba(248,250,252,0.90)";
+      frontInfoGrid.style.borderRadius = "14px";
+      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
+    }
+  }
 
   document.getElementById("previewCenterNameFront").textContent =
     data.name || "Centro educativo";
@@ -287,7 +349,7 @@ function renderPreview() {
     contactParts.length > 0 ? contactParts.join(" · ") : "Teléfono · correo";
 
   document.getElementById("previewDesignName").textContent =
-    designLabels[designKey] || "Nova Modern v1";
+    designLabels[designKey] || "Classic Green v1";
 
   document.getElementById("previewMission").textContent =
     useFullIdentity
@@ -308,6 +370,14 @@ function renderPreview() {
     backBody.classList.toggle("preview-long", useFullIdentity);
     backBody.classList.toggle("preview-short", !useFullIdentity);
   }
+
+  document.querySelectorAll(".mini-back-section h5").forEach((title) => {
+    title.style.textAlign = "center";
+  });
+
+  document.querySelectorAll(".mini-back-section p").forEach((paragraph) => {
+    paragraph.style.textAlign = useFullIdentity ? "left" : "center";
+  });
 
   const logo = document.getElementById("previewLogo");
   const logoPlaceholder = document.getElementById("previewLogoPlaceholder");
@@ -393,7 +463,7 @@ function bindEvents() {
 
   fieldIds.forEach((id) => {
     const field = getField(id);
-    if (!field || field.disabled) return;
+    if (!field) return;
 
     field.addEventListener("input", renderPreview);
     field.addEventListener("change", renderPreview);

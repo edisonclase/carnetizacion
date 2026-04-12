@@ -128,7 +128,7 @@
                     <section class="settings-card">
                         <div class="card-title-row">
                             <h3>Diseño del carnet</h3>
-                            <span>Selección visual del modelo por centro</span>
+                            <span>La vista previa cambia aquí sin afectar el carnet real operativo.</span>
                         </div>
 
                         <div class="form-grid two-cols">
@@ -188,15 +188,10 @@
                     <section class="settings-card">
                         <div class="card-title-row">
                             <h3>Textos institucionales</h3>
-                            <span>Se usará Misión, Visión y Valores. Filosofía queda deshabilitada.</span>
+                            <span>Solo usaremos Misión, Visión y Valores.</span>
                         </div>
 
                         <div class="form-grid one-col">
-                            <div class="field disabled-field">
-                                <label for="philosophy">Filosofía</label>
-                                <textarea id="philosophy" name="philosophy" rows="2" disabled></textarea>
-                            </div>
-
                             <div class="field">
                                 <label for="mission">Misión</label>
                                 <textarea id="mission" name="mission" rows="3"></textarea>
@@ -221,11 +216,6 @@
                         </div>
 
                         <div class="form-grid one-col">
-                            <div class="field disabled-field">
-                                <label for="card_philosophy">Filosofía corta</label>
-                                <textarea id="card_philosophy" name="card_philosophy" rows="2" disabled></textarea>
-                            </div>
-
                             <div class="field">
                                 <label for="card_mission">Misión corta</label>
                                 <textarea id="card_mission" name="card_mission" rows="2"></textarea>
@@ -267,6 +257,7 @@
 
                                 <div class="mini-card" id="previewFrontCard">
                                     <div class="mini-card-topband" id="previewTopBand"></div>
+                                    <div class="mini-card-decor" id="previewFrontDecor"></div>
 
                                     <div class="mini-card-header" id="previewFrontHeader">
                                         <div class="mini-logo-wrap">
@@ -277,16 +268,16 @@
                                         <div class="mini-header-text">
                                             <h4 id="previewCenterNameFront">Centro educativo</h4>
                                             <p id="previewContactLine">Teléfono · correo</p>
-                                            <span id="previewDesignName">Carnet Estudiantil</span>
+                                            <span id="previewDesignName">Classic Green v1</span>
                                         </div>
                                     </div>
 
-                                    <div class="mini-card-body">
+                                    <div class="mini-card-body" id="previewFrontBody">
                                         <div class="mini-photo">Foto</div>
 
-                                        <div class="mini-student-name">NOMBRE DEL ESTUDIANTE</div>
+                                        <div class="mini-student-name" id="previewStudentName">NOMBRE DEL ESTUDIANTE</div>
 
-                                        <div class="mini-info-grid">
+                                        <div class="mini-info-grid" id="previewFrontInfoGrid">
                                             <div><strong>Código:</strong> 0001</div>
                                             <div><strong>ID MINERD:</strong> 123456789</div>
                                             <div><strong>Curso:</strong> 4to</div>
@@ -309,13 +300,14 @@
 
                                 <div class="mini-card" id="previewBackCard">
                                     <div class="mini-card-topband" id="previewBackTopBand"></div>
+                                    <div class="mini-card-decor" id="previewBackDecor"></div>
 
                                     <div class="mini-card-header mini-card-header-back" id="previewBackHeader">
                                         <h4 id="previewCenterNameBack">Centro educativo</h4>
                                         <span class="preview-subtitle">Información institucional</span>
                                     </div>
 
-                                    <div class="mini-card-back-body" id="previewBackBody">
+                                    <div class="mini-card-back-body preview-long" id="previewBackBody">
                                         <section class="mini-back-section">
                                             <h5>Misión</h5>
                                             <p id="previewMission">Texto del centro.</p>
