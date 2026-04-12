@@ -27,7 +27,7 @@
             <header class="topbar">
                 <div>
                     <h2>Dashboard Institucional</h2>
-                    <p>Asistencia, comportamiento y consolidado diario</p>
+                    <p>Asistencia, matrícula y estadísticas operativas</p>
                 </div>
 
                 <div class="topbar-right">
@@ -60,7 +60,7 @@
 
                     <a href="#" id="moduleCenterSettings" class="module-card hidden">
                         <strong>Configuración de carnet por centro</strong>
-                        <span>Colores, textos institucionales y selección del diseño del carnet.</span>
+                        <span>Colores, textos institucionales y diseño del carnet.</span>
                     </a>
                 </div>
             </section>
@@ -93,26 +93,62 @@
             </section>
 
             <section class="metrics-grid">
-                <article class="metric-card">
+                <article class="metric-card metric-card-breakdown">
                     <span class="metric-label">Presentes</span>
-                    <strong id="metricPresent">0</strong>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="presentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="presentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="presentTotal">0</strong></div>
+                    </div>
                 </article>
 
-                <article class="metric-card">
+                <article class="metric-card metric-card-breakdown">
                     <span class="metric-label">Tardanzas</span>
-                    <strong id="metricLate">0</strong>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="lateMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="lateFemale">0</strong></div>
+                        <div><span>Total</span><strong id="lateTotal">0</strong></div>
+                    </div>
                 </article>
 
-                <article class="metric-card">
+                <article class="metric-card metric-card-breakdown">
                     <span class="metric-label">Ausentes</span>
-                    <strong id="metricAbsent">0</strong>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="absentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="absentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="absentTotal">0</strong></div>
+                    </div>
                 </article>
 
-                <article class="metric-card">
+                <article class="metric-card metric-card-breakdown">
                     <span class="metric-label">Con excusa</span>
-                    <strong id="metricExcuse">0</strong>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="excuseMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="excuseFemale">0</strong></div>
+                        <div><span>Total</span><strong id="excuseTotal">0</strong></div>
+                    </div>
                 </article>
 
+                <article class="metric-card metric-card-breakdown">
+                    <span class="metric-label">Total general</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="generalMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="generalFemale">0</strong></div>
+                        <div><span>Total</span><strong id="generalTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown">
+                    <span class="metric-label">Matrícula actual</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="enrollmentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="enrollmentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="enrollmentTotal">0</strong></div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="metrics-grid">
                 <article class="metric-card">
                     <span class="metric-label">Entradas</span>
                     <strong id="metricEntries">0</strong>
@@ -121,28 +157,6 @@
                 <article class="metric-card">
                     <span class="metric-label">Salidas</span>
                     <strong id="metricExits">0</strong>
-                </article>
-            </section>
-
-            <section class="metrics-grid">
-                <article class="metric-card">
-                    <span class="metric-label">Total estudiantes</span>
-                    <strong id="metricStudentsTotal">0</strong>
-                </article>
-
-                <article class="metric-card">
-                    <span class="metric-label">Sexo M</span>
-                    <strong id="metricStudentsMale">0</strong>
-                </article>
-
-                <article class="metric-card">
-                    <span class="metric-label">Sexo F</span>
-                    <strong id="metricStudentsFemale">0</strong>
-                </article>
-
-                <article class="metric-card">
-                    <span class="metric-label">Otros / No especificado</span>
-                    <strong id="metricStudentsOther">0</strong>
                 </article>
             </section>
 
@@ -174,13 +188,13 @@
 
             <section class="charts-section">
                 <div class="chart-card">
-                    <h3>Asistencia por curso</h3>
-                    <canvas id="courseChart"></canvas>
+                    <h3>Estados del día por sexo</h3>
+                    <canvas id="statusGenderChart"></canvas>
                 </div>
 
                 <div class="chart-card">
-                    <h3>Distribución por sexo</h3>
-                    <canvas id="genderChart"></canvas>
+                    <h3>Matrícula actual por sexo</h3>
+                    <canvas id="enrollmentGenderChart"></canvas>
                 </div>
             </section>
 
@@ -204,9 +218,9 @@
             </section>
 
             <section class="tables-section">
-                <div class="table-card">
+                <div class="table-card full-width">
                     <div class="table-card-header">
-                        <h3>Resumen por curso</h3>
+                        <h3>Resumen por curso y sexo</h3>
                     </div>
                     <div class="table-wrapper">
                         <table>
@@ -214,41 +228,26 @@
                                 <tr>
                                     <th>Curso</th>
                                     <th>Sección</th>
-                                    <th>Total</th>
-                                    <th>Presentes</th>
-                                    <th>Tardes</th>
-                                    <th>Ausentes</th>
-                                    <th>Excusas</th>
+                                    <th>Mat. M</th>
+                                    <th>Mat. F</th>
+                                    <th>Mat. T</th>
+                                    <th>Pres. M</th>
+                                    <th>Pres. F</th>
+                                    <th>Pres. T</th>
+                                    <th>Tard. M</th>
+                                    <th>Tard. F</th>
+                                    <th>Tard. T</th>
+                                    <th>Aus. M</th>
+                                    <th>Aus. F</th>
+                                    <th>Aus. T</th>
+                                    <th>Exc. M</th>
+                                    <th>Exc. F</th>
+                                    <th>Exc. T</th>
                                 </tr>
                             </thead>
                             <tbody id="courseTableBody">
                                 <tr>
-                                    <td colspan="7" class="empty-row">Sin datos cargados.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div class="table-card">
-                    <div class="table-card-header">
-                        <h3>Resumen por sexo</h3>
-                    </div>
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Sexo</th>
-                                    <th>Total</th>
-                                    <th>Presentes</th>
-                                    <th>Tardes</th>
-                                    <th>Ausentes</th>
-                                    <th>Excusas</th>
-                                </tr>
-                            </thead>
-                            <tbody id="genderTableBody">
-                                <tr>
-                                    <td colspan="6" class="empty-row">Sin datos cargados.</td>
+                                    <td colspan="17" class="empty-row">Sin datos cargados.</td>
                                 </tr>
                             </tbody>
                         </table>

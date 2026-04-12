@@ -25,7 +25,7 @@
             <header class="page-header">
                 <div>
                     <h2>Configuración del Centro</h2>
-                    <p>Gestión interna de identidad institucional, branding y textos del carnet.</p>
+                    <p>Gestión interna de identidad institucional, branding y diseño del carnet.</p>
                 </div>
                 <div class="header-chip" id="currentCenterName">{{ center_name }}</div>
             </header>
@@ -121,6 +121,32 @@
                                     <input type="color" id="background_color_picker" />
                                     <input type="text" id="background_color" name="background_color" placeholder="#ffffff" />
                                 </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Diseño del carnet</h3>
+                            <span>Selección visual del modelo por centro</span>
+                        </div>
+
+                        <div class="form-grid two-cols">
+                            <div class="field">
+                                <label for="card_design_key">Diseño del carnet</label>
+                                <select id="card_design_key" name="card_design_key">
+                                    <option value="classic_green_v1">Classic Green v1</option>
+                                    <option value="prestige_clean_v1">Prestige Clean v1</option>
+                                    <option value="nova_modern_v1">Nova Modern v1</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="show_full_card_identity">Texto del reverso</label>
+                                <select id="show_full_card_identity" name="show_full_card_identity">
+                                    <option value="true">Usar filosofía, misión, visión y valores completos</option>
+                                    <option value="false">Usar textos cortos del carnet</option>
+                                </select>
                             </div>
                         </div>
                     </section>
@@ -249,7 +275,7 @@
                                         <div class="mini-header-text">
                                             <h4 id="previewCenterNameFront">Centro educativo</h4>
                                             <p id="previewContactLine">Teléfono · correo</p>
-                                            <span>Carnet Estudiantil</span>
+                                            <span id="previewDesignName">Carnet Estudiantil</span>
                                         </div>
                                     </div>
 
@@ -287,22 +313,22 @@
                                     <div class="mini-card-back-body">
                                         <section>
                                             <h5>Filosofía</h5>
-                                            <p id="previewPhilosophy">Texto corto de filosofía.</p>
+                                            <p id="previewPhilosophy">Texto del centro.</p>
                                         </section>
 
                                         <section>
                                             <h5>Misión</h5>
-                                            <p id="previewMission">Texto corto de misión.</p>
+                                            <p id="previewMission">Texto del centro.</p>
                                         </section>
 
                                         <section>
                                             <h5>Visión</h5>
-                                            <p id="previewVision">Texto corto de visión.</p>
+                                            <p id="previewVision">Texto del centro.</p>
                                         </section>
 
                                         <section>
                                             <h5>Valores</h5>
-                                            <p id="previewValues">Texto corto de valores.</p>
+                                            <p id="previewValues">Texto del centro.</p>
                                         </section>
                                     </div>
 

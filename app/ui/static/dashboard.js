@@ -1,5 +1,5 @@
-let courseChartInstance = null;
-let genderChartInstance = null;
+let statusGenderChartInstance = null;
+let enrollmentGenderChartInstance = null;
 let currentUser = null;
 let allSchoolYears = [];
 
@@ -34,11 +34,9 @@ function statusBadge(status) {
     return status || "-";
 }
 
-function fillMetric(id, value) {
+function setText(id, value) {
     const el = document.getElementById(id);
-    if (el) {
-        el.textContent = value ?? 0;
-    }
+    if (el) el.textContent = value ?? 0;
 }
 
 function fillFlag(id, value) {
@@ -48,12 +46,161 @@ function fillFlag(id, value) {
     }
 }
 
+function normalizeGender(value) {
+    const raw = String(value || "").trim().toLowerCase();
+
+    if (raw === "m" || raw === "masculino" || raw === "male") return "M";
+    if (raw === "f" || raw === "femenino" || raw === "female") return "F";
+    return "O";
+}
+
+function mergedDailyRows(report) {
+    const rows = [];
+    (report.present_students || []).forEach(item => rows.push(item));
+    (report.late_students || []).forEach(item => rows.push(item));
+    (report.absent_students || []).forEach(item => rows.push(item));
+
+    return rows.sort((a, b) => {
+        if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade), "es");
+        if (a.section !== b.section) return String(a.section).localeCompare(String(b.section), "es");
+        return String(a.full_name || "").localeCompare(String(b.full_name || ""), "es");
+    });
+}
+
+function computeAttendanceBreakdown(report) {
+    const rows = mergedDailyRows(report);
+
+    const result = {
+        present: { M: 0, F: 0, T: 0 },
+        late: { M: 0, F: 0, T: 0 },
+        absent: { M: 0, F: 0, T: 0 },
+        excuse: { M: 0, F: 0, T: 0 },
+        general: { M: 0, F: 0, T: 0 },
+    };
+
+    rows.forEach((item) => {
+        const gender = normalizeGender(item.gender);
+        const status = String(item.status || "").toLowerCase();
+
+        if (gender === "M" || gender === "F") {
+            result.general[gender] += 1;
+        }
+        result.general.T += 1;
+
+        if (status === "present") {
+            if (gender === "M" || gender === "F") result.present[gender] += 1;
+            result.present.T += 1;
+        } else if (status === "late") {
+            if (gender === "M" || gender === "F") result.late[gender] += 1;
+            result.late.T += 1;
+        } else if (status === "absent") {
+            if (gender === "M" || gender === "F") result.absent[gender] += 1;
+            result.absent.T += 1;
+        }
+
+        if (item.has_excuse) {
+            if (gender === "M" || gender === "F") result.excuse[gender] += 1;
+            result.excuse.T += 1;
+        }
+    });
+
+    return result;
+}
+
+function computeEnrollmentBreakdown(summary) {
+    const byGender = summary.by_gender || {};
+    let male = 0;
+    let female = 0;
+
+    Object.entries(byGender).forEach(([key, value]) => {
+        const normalized = normalizeGender(key);
+        if (normalized === "M") male += Number(value || 0);
+        if (normalized === "F") female += Number(value || 0);
+    });
+
+    return {
+        M: male,
+        F: female,
+        T: Number(summary.total_students || 0),
+    };
+}
+
+function computeCourseGenderSummary(report) {
+    const rows = mergedDailyRows(report);
+    const map = new Map();
+
+    rows.forEach((item) => {
+        const grade = item.grade || "-";
+        const section = item.section || "-";
+        const key = `${grade}|||${section}`;
+        const gender = normalizeGender(item.gender);
+        const status = String(item.status || "").toLowerCase();
+
+        if (!map.has(key)) {
+            map.set(key, {
+                grade,
+                section,
+                enrollment_m: 0,
+                enrollment_f: 0,
+                enrollment_t: 0,
+                present_m: 0,
+                present_f: 0,
+                present_t: 0,
+                late_m: 0,
+                late_f: 0,
+                late_t: 0,
+                absent_m: 0,
+                absent_f: 0,
+                absent_t: 0,
+                excuse_m: 0,
+                excuse_f: 0,
+                excuse_t: 0,
+            });
+        }
+
+        const row = map.get(key);
+
+        if (gender === "M") row.enrollment_m += 1;
+        if (gender === "F") row.enrollment_f += 1;
+        row.enrollment_t += 1;
+
+        if (status === "present") {
+            if (gender === "M") row.present_m += 1;
+            if (gender === "F") row.present_f += 1;
+            row.present_t += 1;
+        }
+
+        if (status === "late") {
+            if (gender === "M") row.late_m += 1;
+            if (gender === "F") row.late_f += 1;
+            row.late_t += 1;
+        }
+
+        if (status === "absent") {
+            if (gender === "M") row.absent_m += 1;
+            if (gender === "F") row.absent_f += 1;
+            row.absent_t += 1;
+        }
+
+        if (item.has_excuse) {
+            if (gender === "M") row.excuse_m += 1;
+            if (gender === "F") row.excuse_f += 1;
+            row.excuse_t += 1;
+        }
+    });
+
+    return [...map.values()].sort((a, b) => {
+        if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade), "es");
+        return String(a.section).localeCompare(String(b.section), "es");
+    });
+}
+
 function renderCourseTable(rows) {
     const tbody = document.getElementById("courseTableBody");
     if (!tbody) return;
 
     if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" class="empty-row">Sin datos disponibles.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="17" class="empty-row">Sin datos disponibles.</td></tr>`;
         return;
     }
 
@@ -61,55 +208,30 @@ function renderCourseTable(rows) {
         <tr>
             <td>${item.grade}</td>
             <td>${item.section}</td>
-            <td>${item.total_students}</td>
-            <td>${item.total_present}</td>
-            <td>${item.total_late}</td>
-            <td>${item.total_absent}</td>
-            <td>${item.total_with_excuse}</td>
+            <td>${item.enrollment_m}</td>
+            <td>${item.enrollment_f}</td>
+            <td>${item.enrollment_t}</td>
+            <td>${item.present_m}</td>
+            <td>${item.present_f}</td>
+            <td>${item.present_t}</td>
+            <td>${item.late_m}</td>
+            <td>${item.late_f}</td>
+            <td>${item.late_t}</td>
+            <td>${item.absent_m}</td>
+            <td>${item.absent_f}</td>
+            <td>${item.absent_t}</td>
+            <td>${item.excuse_m}</td>
+            <td>${item.excuse_f}</td>
+            <td>${item.excuse_t}</td>
         </tr>
     `).join("");
-}
-
-function renderGenderTable(rows) {
-    const tbody = document.getElementById("genderTableBody");
-    if (!tbody) return;
-
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Sin datos disponibles.</td></tr>`;
-        return;
-    }
-
-    tbody.innerHTML = rows.map(item => `
-        <tr>
-            <td>${item.gender}</td>
-            <td>${item.total_students}</td>
-            <td>${item.total_present}</td>
-            <td>${item.total_late}</td>
-            <td>${item.total_absent}</td>
-            <td>${item.total_with_excuse}</td>
-        </tr>
-    `).join("");
-}
-
-function mergeDetailRows(report) {
-    const result = [];
-
-    (report.present_students || []).forEach(item => result.push(item));
-    (report.late_students || []).forEach(item => result.push(item));
-    (report.absent_students || []).forEach(item => result.push(item));
-
-    return result.sort((a, b) => {
-        if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade));
-        if (a.section !== b.section) return String(a.section).localeCompare(String(b.section));
-        return String(a.full_name).localeCompare(String(b.full_name));
-    });
 }
 
 function renderDetailTable(report) {
     const tbody = document.getElementById("detailTableBody");
     if (!tbody) return;
 
-    const rows = mergeDetailRows(report);
+    const rows = mergedDailyRows(report);
 
     if (rows.length === 0) {
         tbody.innerHTML = `<tr><td colspan="10" class="empty-row">Sin datos disponibles.</td></tr>`;
@@ -132,38 +254,74 @@ function renderDetailTable(report) {
     `).join("");
 }
 
-function renderCourseChart(data) {
-    const ctx = document.getElementById("courseChart");
+function renderStatusGenderChart(breakdown) {
+    const ctx = document.getElementById("statusGenderChart");
     if (!ctx) return;
 
-    if (courseChartInstance) {
-        courseChartInstance.destroy();
+    if (statusGenderChartInstance) {
+        statusGenderChartInstance.destroy();
     }
 
-    const labels = data.map(item => `${item.grade}-${item.section}`);
-    const present = data.map(item => item.total_present);
-    const absent = data.map(item => item.total_absent);
-    const late = data.map(item => item.total_late);
-
-    courseChartInstance = new Chart(ctx, {
+    statusGenderChartInstance = new Chart(ctx, {
         type: "bar",
         data: {
-            labels,
+            labels: ["Presentes", "Tardanzas", "Ausentes", "Con excusa"],
             datasets: [
                 {
-                    label: "Presentes",
-                    data: present,
-                    backgroundColor: "#16a34a",
+                    label: "Masculino",
+                    data: [
+                        breakdown.present.M,
+                        breakdown.late.M,
+                        breakdown.absent.M,
+                        breakdown.excuse.M,
+                    ],
+                    backgroundColor: "#2563eb",
+                    borderRadius: 8,
                 },
                 {
-                    label: "Ausentes",
-                    data: absent,
-                    backgroundColor: "#dc2626",
+                    label: "Femenino",
+                    data: [
+                        breakdown.present.F,
+                        breakdown.late.F,
+                        breakdown.absent.F,
+                        breakdown.excuse.F,
+                    ],
+                    backgroundColor: "#ec4899",
+                    borderRadius: 8,
                 },
+            ],
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: "top",
+                },
+                title: {
+                    display: false,
+                },
+            },
+        },
+    });
+}
+
+function renderEnrollmentGenderChart(enrollment) {
+    const ctx = document.getElementById("enrollmentGenderChart");
+    if (!ctx) return;
+
+    if (enrollmentGenderChartInstance) {
+        enrollmentGenderChartInstance.destroy();
+    }
+
+    enrollmentGenderChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: ["Masculino", "Femenino"],
+            datasets: [
                 {
-                    label: "Tardes",
-                    data: late,
-                    backgroundColor: "#d97706",
+                    data: [enrollment.M, enrollment.F],
+                    backgroundColor: ["#2563eb", "#ec4899"],
+                    borderWidth: 1,
                 },
             ],
         },
@@ -178,29 +336,32 @@ function renderCourseChart(data) {
     });
 }
 
-function renderGenderChart(data) {
-    const ctx = document.getElementById("genderChart");
-    if (!ctx) return;
+function fillAttendanceCards(breakdown) {
+    setText("presentMale", breakdown.present.M);
+    setText("presentFemale", breakdown.present.F);
+    setText("presentTotal", breakdown.present.T);
 
-    if (genderChartInstance) {
-        genderChartInstance.destroy();
-    }
+    setText("lateMale", breakdown.late.M);
+    setText("lateFemale", breakdown.late.F);
+    setText("lateTotal", breakdown.late.T);
 
-    const labels = data.map(item => item.gender);
-    const present = data.map(item => item.total_present);
+    setText("absentMale", breakdown.absent.M);
+    setText("absentFemale", breakdown.absent.F);
+    setText("absentTotal", breakdown.absent.T);
 
-    genderChartInstance = new Chart(ctx, {
-        type: "pie",
-        data: {
-            labels,
-            datasets: [
-                {
-                    data: present,
-                    backgroundColor: ["#2563eb", "#ec4899", "#10b981", "#f59e0b"],
-                },
-            ],
-        },
-    });
+    setText("excuseMale", breakdown.excuse.M);
+    setText("excuseFemale", breakdown.excuse.F);
+    setText("excuseTotal", breakdown.excuse.T);
+
+    setText("generalMale", breakdown.general.M);
+    setText("generalFemale", breakdown.general.F);
+    setText("generalTotal", breakdown.general.T);
+}
+
+function fillEnrollmentCards(enrollment) {
+    setText("enrollmentMale", enrollment.M);
+    setText("enrollmentFemale", enrollment.F);
+    setText("enrollmentTotal", enrollment.T);
 }
 
 async function fetchJson(url) {
@@ -288,45 +449,19 @@ function updateCenterSettingsLinks() {
     const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
 
-    if (!centerId) {
-        if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", "#");
-        if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", "#");
-        return;
-    }
-
-    const href = `/admin/centers/${centerId}/settings`;
+    const href = centerId ? `/admin/centers/${centerId}/settings` : "#";
 
     if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
     if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
 }
 
-function fillStudentSummary(summary) {
-    fillMetric("metricStudentsTotal", summary.total_students ?? 0);
+function fillPrintGradeOptions(summary) {
+    const select = document.getElementById("printGradeSelect");
+    if (!select) return;
 
-    const byGender = summary.by_gender || {};
-    const male = byGender.M || byGender.Masculino || byGender.masculino || 0;
-    const female = byGender.F || byGender.Femenino || byGender.femenino || 0;
-
-    let other = 0;
-    Object.entries(byGender).forEach(([key, value]) => {
-        const normalized = String(key).toLowerCase();
-        if (normalized !== "m" && normalized !== "masculino" && normalized !== "f" && normalized !== "femenino") {
-            other += Number(value || 0);
-        }
-    });
-
-    fillMetric("metricStudentsMale", male);
-    fillMetric("metricStudentsFemale", female);
-    fillMetric("metricStudentsOther", other);
-
-    const printGradeSelect = document.getElementById("printGradeSelect");
-    if (!printGradeSelect) return;
-
-    const grades = Object.keys(summary.by_grade || {});
-    printGradeSelect.innerHTML = `<option value="">Seleccione un curso</option>`;
-
-    grades.forEach((grade) => {
-        printGradeSelect.innerHTML += `<option value="${grade}">${grade}</option>`;
+    select.innerHTML = `<option value="">Seleccione un curso</option>`;
+    Object.keys(summary.by_grade || {}).forEach((grade) => {
+        select.innerHTML += `<option value="${grade}">${grade}</option>`;
     });
 }
 
@@ -342,7 +477,7 @@ async function loadCenters() {
             return;
         }
 
-        if (currentUser.role === "super_admin") {
+        if (String(currentUser.role).toLowerCase() === "super_admin") {
             centerSelect.innerHTML = centers.map(center => `
                 <option value="${center.id}">${center.name}</option>
             `).join("");
@@ -383,17 +518,6 @@ async function loadSchoolYears() {
     }
 }
 
-async function loadStudentSummary(centerId, schoolYearId) {
-    const params = new URLSearchParams();
-
-    if (centerId) params.set("center_id", centerId);
-    if (schoolYearId) params.set("school_year_id", schoolYearId);
-
-    const summaryUrl = `/reports/students/summary?${params.toString()}`;
-    const summary = await fetchJson(summaryUrl);
-    fillStudentSummary(summary);
-}
-
 async function loadDashboard() {
     const centerId = document.getElementById("centerId").value;
     const schoolYearId = document.getElementById("schoolYearId").value;
@@ -409,21 +533,23 @@ async function loadDashboard() {
 
     try {
         const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
-        const groupedUrl = `/reports/daily-grouped?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
+        const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
 
-        const [dailyReport, groupedReport] = await Promise.all([
+        const [dailyReport, studentSummary] = await Promise.all([
             fetchJson(dailyUrl),
-            fetchJson(groupedUrl),
+            fetchJson(summaryUrl),
         ]);
 
-        await loadStudentSummary(centerId, schoolYearId);
+        const attendanceBreakdown = computeAttendanceBreakdown(dailyReport);
+        const enrollmentBreakdown = computeEnrollmentBreakdown(studentSummary);
+        const courseRows = computeCourseGenderSummary(dailyReport);
 
-        fillMetric("metricPresent", dailyReport.total_present);
-        fillMetric("metricLate", dailyReport.total_late);
-        fillMetric("metricAbsent", dailyReport.total_absent);
-        fillMetric("metricExcuse", dailyReport.total_with_excuse);
-        fillMetric("metricEntries", dailyReport.total_entries);
-        fillMetric("metricExits", dailyReport.total_exits);
+        fillAttendanceCards(attendanceBreakdown);
+        fillEnrollmentCards(enrollmentBreakdown);
+        fillPrintGradeOptions(studentSummary);
+
+        setText("metricEntries", dailyReport.total_entries);
+        setText("metricExits", dailyReport.total_exits);
 
         fillFlag("flagWorkday", dailyReport.is_workday);
         fillFlag("flagActivity", dailyReport.had_attendance_activity);
@@ -431,29 +557,37 @@ async function loadDashboard() {
         fillFlag("flagEarlyDismissal", dailyReport.possible_early_dismissal);
 
         generalMessage.textContent =
-            `Reporte cargado para ${dailyReport.date}. Presentes: ${dailyReport.total_present}, Tardanzas: ${dailyReport.total_late}, Ausentes: ${dailyReport.total_absent}.`;
+            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}.`;
 
-        renderCourseTable(groupedReport.by_course || []);
-        renderGenderTable(groupedReport.by_gender || []);
+        renderCourseTable(courseRows);
         renderDetailTable(dailyReport);
-        renderCourseChart(groupedReport.by_course || []);
-        renderGenderChart(groupedReport.by_gender || []);
+        renderStatusGenderChart(attendanceBreakdown);
+        renderEnrollmentGenderChart(enrollmentBreakdown);
     } catch (error) {
         generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
+
+        fillAttendanceCards({
+            present: { M: 0, F: 0, T: 0 },
+            late: { M: 0, F: 0, T: 0 },
+            absent: { M: 0, F: 0, T: 0 },
+            excuse: { M: 0, F: 0, T: 0 },
+            general: { M: 0, F: 0, T: 0 },
+        });
+
+        fillEnrollmentCards({ M: 0, F: 0, T: 0 });
         renderCourseTable([]);
-        renderGenderTable([]);
         renderDetailTable({
             present_students: [],
             late_students: [],
             absent_students: [],
         });
-        renderCourseChart([]);
-        renderGenderChart([]);
-        fillStudentSummary({
-            total_students: 0,
-            by_gender: {},
-            by_grade: {},
+        renderStatusGenderChart({
+            present: { M: 0, F: 0, T: 0 },
+            late: { M: 0, F: 0, T: 0 },
+            absent: { M: 0, F: 0, T: 0 },
+            excuse: { M: 0, F: 0, T: 0 },
         });
+        renderEnrollmentGenderChart({ M: 0, F: 0 });
     }
 }
 
