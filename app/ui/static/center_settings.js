@@ -46,36 +46,31 @@ const pickerMap = [
 ];
 
 const defaultTheme = {
-  primary_color: "#2563eb",
-  secondary_color: "#1d4ed8",
-  accent_color: "#e2e8f0",
-  text_color: "#1e293b",
+  primary_color: "#1f8f4a",
+  secondary_color: "#0b3d24",
+  accent_color: "#f4c95d",
+  text_color: "#1e1e1e",
   background_color: "#ffffff",
-  card_footer_text: "by Aula Nova",
-  card_design_key: "classic_green_v1",
+  card_footer_text: "Nova ID by Aula Nova",
+  card_design_key: "nova_modern_v1",
   show_full_card_identity: "true",
 };
 
 const designLabels = {
-  classic_green_v1: "Carnet Estudiantil · Classic Green v1",
-  prestige_clean_v1: "Carnet Estudiantil · Prestige Clean v1",
-  nova_modern_v1: "Carnet Estudiantil · Nova Modern v1",
+  classic_green_v1: "Classic Green v1",
+  prestige_clean_v1: "Prestige Clean v1",
+  nova_modern_v1: "Nova Modern v1",
 };
 
 let alertTimeoutId = null;
 
 function showAlert(message, type = "success") {
-  if (alertTimeoutId) {
-    clearTimeout(alertTimeoutId);
-  }
+  if (alertTimeoutId) clearTimeout(alertTimeoutId);
 
   alertBox.textContent = message;
   alertBox.className = `alert-box ${type}`;
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
+  window.scrollTo({ top: 0, behavior: "smooth" });
 
   if (type === "success") {
     alertTimeoutId = window.setTimeout(() => {
@@ -130,6 +125,19 @@ function syncTextFromPicker(inputId, pickerId) {
   renderPreview();
 }
 
+function applyDesignClass(cardEl, designKey) {
+  if (!cardEl) return;
+  cardEl.classList.remove("preview-classic", "preview-prestige", "preview-modern");
+
+  if (designKey === "classic_green_v1") {
+    cardEl.classList.add("preview-classic");
+  } else if (designKey === "prestige_clean_v1") {
+    cardEl.classList.add("preview-prestige");
+  } else {
+    cardEl.classList.add("preview-modern");
+  }
+}
+
 function fillForm(data) {
   fieldIds.forEach((id) => {
     const field = getField(id);
@@ -181,11 +189,11 @@ function getFormData() {
     background_color: getField("background_color").value.trim() || null,
     card_design_key: getField("card_design_key").value || defaultTheme.card_design_key,
     show_full_card_identity: getField("show_full_card_identity").value === "true",
-    philosophy: getField("philosophy").value.trim() || null,
+    philosophy: null,
     mission: getField("mission").value.trim() || null,
     vision: getField("vision").value.trim() || null,
     values: getField("values").value.trim() || null,
-    card_philosophy: getField("card_philosophy").value.trim() || null,
+    card_philosophy: null,
     card_mission: getField("card_mission").value.trim() || null,
     card_vision: getField("card_vision").value.trim() || null,
     card_values: getField("card_values").value.trim() || null,
@@ -201,13 +209,8 @@ function getFormData() {
 }
 
 function validateForm(data) {
-  if (!data.name) {
-    return "El nombre del centro es obligatorio.";
-  }
-
-  if (!data.code) {
-    return "El código del centro es obligatorio.";
-  }
+  if (!data.name) return "El nombre del centro es obligatorio.";
+  if (!data.code) return "El código del centro es obligatorio.";
 
   const colorFields = [
     ["primary_color", "Color primario"],
@@ -230,11 +233,13 @@ function renderPreview() {
   const data = getFormData();
 
   const primaryColor = data.primary_color || defaultTheme.primary_color;
+  const secondaryColor = data.secondary_color || defaultTheme.secondary_color;
   const accentColor = data.accent_color || defaultTheme.accent_color;
   const textColor = data.text_color || defaultTheme.text_color;
   const backgroundColor = data.background_color || defaultTheme.background_color;
   const footerText = data.card_footer_text || defaultTheme.card_footer_text;
   const useFullIdentity = data.show_full_card_identity === true;
+  const designKey = data.card_design_key || defaultTheme.card_design_key;
 
   const frontCard = document.getElementById("previewFrontCard");
   const backCard = document.getElementById("previewBackCard");
@@ -242,28 +247,34 @@ function renderPreview() {
   const backHeader = document.getElementById("previewBackHeader");
   const frontFooter = document.getElementById("previewFrontFooter");
   const backFooter = document.getElementById("previewBackFooter");
-  const previewDesignName = document.getElementById("previewDesignName");
+  const topBand = document.getElementById("previewTopBand");
+  const backTopBand = document.getElementById("previewBackTopBand");
+  const backBody = document.getElementById("previewBackBody");
 
-  frontCard.style.background = backgroundColor;
-  frontCard.style.color = textColor;
-  frontCard.style.borderColor = accentColor;
+  applyDesignClass(frontCard, designKey);
+  applyDesignClass(backCard, designKey);
 
-  backCard.style.background = backgroundColor;
-  backCard.style.color = textColor;
-  backCard.style.borderColor = accentColor;
+  [frontCard, backCard].forEach((card) => {
+    card.style.background = backgroundColor;
+    card.style.color = textColor;
+    card.style.borderColor = accentColor;
+  });
 
-  frontHeader.style.background = primaryColor;
-  backHeader.style.background = primaryColor;
+  [frontHeader, backHeader].forEach((header) => {
+    if (!header) return;
+    header.style.color = textColor;
+  });
 
-  frontFooter.style.borderTopColor = accentColor;
-  frontFooter.style.background = backgroundColor;
-  frontFooter.style.color = textColor;
-  frontFooter.textContent = footerText;
+  [topBand, backTopBand].forEach((band) => {
+    if (!band) return;
+    band.style.background = `linear-gradient(90deg, ${secondaryColor}, ${primaryColor}, ${accentColor})`;
+  });
 
-  backFooter.style.borderTopColor = accentColor;
-  backFooter.style.background = backgroundColor;
-  backFooter.style.color = textColor;
-  backFooter.textContent = footerText;
+  [frontFooter, backFooter].forEach((footer) => {
+    if (!footer) return;
+    footer.style.color = textColor;
+    footer.textContent = footerText;
+  });
 
   document.getElementById("previewCenterNameFront").textContent =
     data.name || "Centro educativo";
@@ -275,13 +286,8 @@ function renderPreview() {
   document.getElementById("previewContactLine").textContent =
     contactParts.length > 0 ? contactParts.join(" · ") : "Teléfono · correo";
 
-  previewDesignName.textContent =
-    designLabels[data.card_design_key] || "Carnet Estudiantil";
-
-  document.getElementById("previewPhilosophy").textContent =
-    useFullIdentity
-      ? (data.philosophy || "Texto institucional completo.")
-      : (data.card_philosophy || data.philosophy || "Texto corto de filosofía.");
+  document.getElementById("previewDesignName").textContent =
+    designLabels[designKey] || "Nova Modern v1";
 
   document.getElementById("previewMission").textContent =
     useFullIdentity
@@ -297,6 +303,11 @@ function renderPreview() {
     useFullIdentity
       ? (data.values || "Texto institucional completo.")
       : (data.card_values || data.values || "Texto corto de valores.");
+
+  if (backBody) {
+    backBody.classList.toggle("preview-long", useFullIdentity);
+    backBody.classList.toggle("preview-short", !useFullIdentity);
+  }
 
   const logo = document.getElementById("previewLogo");
   const logoPlaceholder = document.getElementById("previewLogoPlaceholder");
@@ -382,7 +393,7 @@ function bindEvents() {
 
   fieldIds.forEach((id) => {
     const field = getField(id);
-    if (!field) return;
+    if (!field || field.disabled) return;
 
     field.addEventListener("input", renderPreview);
     field.addEventListener("change", renderPreview);
