@@ -44,6 +44,10 @@ def create_center(payload: CenterCreate, db: Session = Depends(get_db)):
         text_color=payload.text_color,
         background_color=payload.background_color,
 
+        # Configuración de diseño del carnet
+        card_design_key=payload.card_design_key,
+        show_full_card_identity=payload.show_full_card_identity,
+
         # Identidad institucional general
         philosophy=payload.philosophy,
         mission=payload.mission,

@@ -4,65 +4,230 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Reverso del Carnet</title>
-    <link rel="stylesheet" href="/static/student_card.css" />
-</head>
-<body class="card-body">
-    <article
-        class="card card-back"
-        style="
+    <style>
+        :root {
             --card-bg: {{ center_background_color or '#ffffff' }};
             --card-text: {{ center_text_color or '#1e293b' }};
             --card-primary: {{ center_primary_color or '#1f8f4a' }};
             --card-secondary: {{ center_secondary_color or '#0b3d24' }};
             --card-accent: {{ center_accent_color or '#f4c95d' }};
-        "
-    >
-        <div class="card-topbar"></div>
+        }
 
-        <header class="card-brand-header card-brand-header-back">
-            <div class="card-logo-badge">
-                {% if center_logo_url %}
-                <img
-                    src="{{ center_logo_url }}"
-                    alt="Logo del centro"
-                    class="center-logo"
-                />
-                {% else %}
-                <div class="center-logo center-logo-placeholder"></div>
-                {% endif %}
+        * {
+            box-sizing: border-box;
+        }
+
+        body.card-body {
+            margin: 0;
+            background: #eef2f7;
+            font-family: Arial, Helvetica, sans-serif;
+            color: var(--card-text);
+        }
+
+        .card {
+            position: relative;
+            width: 323px;
+            height: 204px;
+            background: var(--card-bg);
+            color: var(--card-text);
+            border-radius: 18px;
+            overflow: hidden;
+            border: 1.5px solid var(--card-accent);
+            box-shadow: 0 10px 28px rgba(15, 23, 42, 0.12);
+        }
+
+        .top-band {
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 12px;
+            background: linear-gradient(90deg, var(--card-secondary), var(--card-primary), var(--card-accent));
+        }
+
+        .back-content {
+            position: relative;
+            z-index: 2;
+            padding: 16px 14px 12px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(15,23,42,0.08);
+        }
+
+        .logo-wrap {
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .logo-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .logo-placeholder {
+            width: 100%;
+            height: 100%;
+            background: #e8eef7;
+        }
+
+        .brand-copy h1 {
+            margin: 0;
+            font-size: 12px;
+            line-height: 1.05;
+            font-weight: 800;
+        }
+
+        .brand-copy .subtitle {
+            margin-top: 3px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--card-primary);
+        }
+
+        .sections {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            gap: 7px;
+            margin-top: 8px;
+        }
+
+        .section-card {
+            background: rgba(255, 255, 255, 0.88);
+            border: 1px solid rgba(15,23,42,0.08);
+            border-radius: 10px;
+            padding: 7px 8px;
+        }
+
+        .section-card h3 {
+            margin: 0 0 3px;
+            font-size: 10px;
+            color: #0f172a;
+        }
+
+        .section-card p {
+            margin: 0;
+            font-size: 8px;
+            line-height: 1.3;
+            color: #334155;
+        }
+
+        .footer-line {
+            margin-top: auto;
+            padding-top: 5px;
+            font-size: 9px;
+            text-align: center;
+            color: #637286;
+        }
+
+        .design-classic::after,
+        .design-modern::after,
+        .design-prestige::after {
+            content: "";
+            position: absolute;
+            right: -42px;
+            bottom: -28px;
+            width: 150px;
+            height: 110px;
+            background: linear-gradient(135deg, rgba(31, 143, 74, 0.06), rgba(11, 61, 36, 0.18));
+            transform: rotate(-20deg);
+            border-radius: 24px;
+        }
+
+        .design-prestige {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.97), rgba(248,250,252,0.98)),
+                var(--card-bg);
+        }
+
+        .design-modern {
+            background:
+                linear-gradient(180deg, rgba(255,255,255,0.98), rgba(245,249,253,0.98)),
+                var(--card-bg);
+        }
+
+        .identity-short .sections {
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .identity-short .section-card {
+            text-align: center;
+        }
+
+        .identity-short .section-card h3 {
+            text-align: center;
+        }
+
+        .identity-short .section-card p {
+            text-align: center;
+        }
+
+        .identity-full .section-card h3 {
+            text-align: center;
+        }
+
+        .identity-full .section-card p {
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="card-body">
+    <article class="card {% if card_design_key == 'prestige_clean_v1' %}design-prestige{% elif card_design_key == 'classic_green_v1' %}design-classic{% else %}design-modern{% endif %} {% if show_full_card_identity %}identity-full{% else %}identity-short{% endif %}">
+        <div class="top-band"></div>
+
+        <div class="back-content">
+            <div class="brand-row">
+                <div class="logo-wrap">
+                    {% if center_logo_url %}
+                    <img src="{{ center_logo_url }}" alt="Logo del centro">
+                    {% else %}
+                    <div class="logo-placeholder"></div>
+                    {% endif %}
+                </div>
+
+                <div class="brand-copy">
+                    <h1>{{ center_name }}</h1>
+                    <div class="subtitle">Información institucional</div>
+                </div>
             </div>
 
-            <div class="card-brand-copy card-brand-copy-back">
-                <h1>{{ center_name }}</h1>
-                <p class="header-card-title">Información institucional</p>
+            <div class="sections">
+                <section class="section-card">
+                    <h3>Misión</h3>
+                    <p>{{ mission or "-" }}</p>
+                </section>
+
+                <section class="section-card">
+                    <h3>Visión</h3>
+                    <p>{{ vision or "-" }}</p>
+                </section>
+
+                <section class="section-card">
+                    <h3>Valores</h3>
+                    <p>{{ values or "-" }}</p>
+                </section>
             </div>
-        </header>
 
-        <div class="card-back-content">
-            <section class="back-section">
-                <h3>Filosofía</h3>
-                <p>{{ philosophy or "-" }}</p>
-            </section>
-
-            <section class="back-section">
-                <h3>Misión</h3>
-                <p>{{ mission or "-" }}</p>
-            </section>
-
-            <section class="back-section">
-                <h3>Visión</h3>
-                <p>{{ vision or "-" }}</p>
-            </section>
-
-            <section class="back-section">
-                <h3>Valores</h3>
-                <p>{{ values or "-" }}</p>
-            </section>
+            <div class="footer-line">{{ card_footer_text }}</div>
         </div>
-
-        <footer class="card-footer card-footer-back">
-            <span>{{ card_footer_text }}</span>
-        </footer>
     </article>
 </body>
 </html>

@@ -29,6 +29,10 @@ class CenterBase(BaseModel):
     text_color: str | None = None
     background_color: str | None = None
 
+    # Configuración de diseño del carnet
+    card_design_key: str = "classic_green_v1"
+    show_full_card_identity: bool = True
+
     # Identidad institucional general
     philosophy: str | None = None
     mission: str | None = None
@@ -126,6 +130,19 @@ class CenterBase(BaseModel):
     def normalize_code(cls, value: str) -> str:
         return value.strip().upper()
 
+    @field_validator("card_design_key")
+    @classmethod
+    def validate_card_design_key(cls, value: str) -> str:
+        allowed = {
+            "classic_green_v1",
+            "prestige_clean_v1",
+            "nova_modern_v1",
+        }
+        normalized = value.strip()
+        if normalized not in allowed:
+            raise ValueError("Diseño de carnet no válido.")
+        return normalized
+
 
 class CenterCreate(CenterBase):
     pass
@@ -143,6 +160,10 @@ class CenterUpdate(BaseModel):
     accent_color: str | None = None
     text_color: str | None = None
     background_color: str | None = None
+
+    # Configuración de diseño del carnet
+    card_design_key: str | None = None
+    show_full_card_identity: bool | None = None
 
     # Identidad institucional general
     philosophy: str | None = None
@@ -242,6 +263,22 @@ class CenterUpdate(BaseModel):
         if value is None:
             return None
         return value.strip().upper()
+
+    @field_validator("card_design_key")
+    @classmethod
+    def validate_card_design_key(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+
+        allowed = {
+            "classic_green_v1",
+            "prestige_clean_v1",
+            "nova_modern_v1",
+        }
+        normalized = value.strip()
+        if normalized not in allowed:
+            raise ValueError("Diseño de carnet no válido.")
+        return normalized
 
 
 class CenterResponse(CenterBase):
