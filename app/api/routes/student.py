@@ -123,6 +123,50 @@ def _ensure_student_center_access(current_user: User, student: Student) -> None:
         )
 
 
+def _build_students_query(
+    db: Session,
+    center_id: int | None = None,
+    school_year_id: int | None = None,
+    grade: str | None = None,
+    section: str | None = None,
+    is_active: bool | None = None,
+):
+    query = db.query(Student)
+
+    if center_id is not None:
+        query = query.filter(Student.center_id == center_id)
+
+    if school_year_id is not None:
+        query = query.filter(Student.school_year_id == school_year_id)
+
+    if grade:
+        query = query.filter(Student.grade == grade)
+
+    if section:
+        query = query.filter(Student.section == section)
+
+    if is_active is not None:
+        query = query.filter(Student.is_active == is_active)
+
+    return query.order_by(
+        Student.grade.asc(),
+        Student.section.asc(),
+        Student.first_name.asc(),
+        Student.last_name.asc(),
+        Student.id.asc(),
+    )
+
+
+def _serialize_public_student(student: Student) -> dict:
+    return {
+        "full_name": f"{student.first_name} {student.last_name}".strip(),
+        "grade": student.grade,
+        "section": student.section,
+        "gender": student.gender,
+        "is_active": student.is_active,
+    }
+
+
 @router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
 def create_student(
     payload: StudentCreate,
@@ -265,34 +309,42 @@ def list_students(
 ):
     effective_center_id = resolve_center_scope(current_user, center_id)
 
-    query = db.query(Student)
+    students = _build_students_query(
+        db=db,
+        center_id=effective_center_id,
+        school_year_id=school_year_id,
+        grade=grade,
+        section=section,
+        is_active=is_active,
+    ).all()
 
-    if effective_center_id is not None:
-        query = query.filter(Student.center_id == effective_center_id)
-
-    if school_year_id is not None:
-        query = query.filter(Student.school_year_id == school_year_id)
-
-    if grade:
-        query = query.filter(Student.grade == grade)
-
-    if section:
-        query = query.filter(Student.section == section)
-
-    if is_active is not None:
-        query = query.filter(Student.is_active == is_active)
-
-    students = (
-        query.order_by(
-            Student.grade.asc(),
-            Student.section.asc(),
-            Student.first_name.asc(),
-            Student.last_name.asc(),
-            Student.id.asc(),
-        )
-        .all()
-    )
     return students
+
+
+@router.get("/public")
+def list_students_public(
+    center_id: int | None = Query(default=None),
+    school_year_id: int | None = Query(default=None),
+    grade: str | None = Query(default=None),
+    section: str | None = Query(default=None),
+    is_active: bool | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(
+        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO, UserRole.CONSULTA)
+    ),
+):
+    effective_center_id = resolve_center_scope(current_user, center_id)
+
+    students = _build_students_query(
+        db=db,
+        center_id=effective_center_id,
+        school_year_id=school_year_id,
+        grade=grade,
+        section=section,
+        is_active=is_active,
+    ).all()
+
+    return [_serialize_public_student(student) for student in students]
 
 
 @router.get("/{student_id}", response_model=StudentResponse)

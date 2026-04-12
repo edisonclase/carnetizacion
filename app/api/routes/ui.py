@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException, Request, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
+from fastapi import Request
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
@@ -13,6 +14,22 @@ from app.services.pdf_service import render_pdf_from_html
 router = APIRouter(tags=["UI"])
 
 templates = Jinja2Templates(directory="app/ui/templates")
+
+
+CARD_DESIGN_TEMPLATES = {
+    "classic_green_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+    },
+    "prestige_clean_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+    },
+    "nova_modern_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+    },
+}
 
 
 def _normalize_school_year_name(value: str | None) -> str:
@@ -54,7 +71,76 @@ def _get_latest_card_for_student(db: Session, student_id: int) -> Card | None:
     )
 
 
+def _resolve_card_design_templates(center: Center | None) -> dict:
+    design_key = (
+        center.card_design_key
+        if center and getattr(center, "card_design_key", None)
+        else "classic_green_v1"
+    )
+    return CARD_DESIGN_TEMPLATES.get(
+        design_key,
+        CARD_DESIGN_TEMPLATES["classic_green_v1"],
+    )
+
+
+def _resolve_card_text(
+    center: Center | None,
+    full_text: str | None,
+    short_text: str | None,
+    fallback_text: str,
+    prefer_full: bool,
+) -> str:
+    if prefer_full and full_text:
+        return full_text
+    if short_text:
+        return short_text
+    if full_text:
+        return full_text
+    return fallback_text
+
+
 def _build_center_theme(center: Center | None) -> dict:
+    prefer_full_identity = (
+        bool(center.show_full_card_identity)
+        if center and hasattr(center, "show_full_card_identity")
+        else True
+    )
+
+    philosophy = _resolve_card_text(
+        center=center,
+        full_text=center.philosophy if center else None,
+        short_text=center.card_philosophy if center else None,
+        fallback_text="Formar ciudadanos íntegros, críticos y comprometidos con su comunidad.",
+        prefer_full=prefer_full_identity,
+    )
+    mission = _resolve_card_text(
+        center=center,
+        full_text=center.mission if center else None,
+        short_text=center.card_mission if center else None,
+        fallback_text="Ofrecer una educación de calidad con enfoque humano, técnico y ético.",
+        prefer_full=prefer_full_identity,
+    )
+    vision = _resolve_card_text(
+        center=center,
+        full_text=center.vision if center else None,
+        short_text=center.card_vision if center else None,
+        fallback_text="Ser un centro educativo modelo que ofrezca un servicio de alta calidad.",
+        prefer_full=prefer_full_identity,
+    )
+    values = _resolve_card_text(
+        center=center,
+        full_text=center.values if center else None,
+        short_text=center.card_values if center else None,
+        fallback_text="Respeto, disciplina, responsabilidad, servicio y honestidad.",
+        prefer_full=prefer_full_identity,
+    )
+
+    design_key = (
+        center.card_design_key
+        if center and getattr(center, "card_design_key", None)
+        else "classic_green_v1"
+    )
+
     return {
         "center_name": center.name if center else "Centro educativo",
         "center_logo_url": center.logo_url if center and center.logo_url else None,
@@ -75,47 +161,17 @@ def _build_center_theme(center: Center | None) -> dict:
         ),
         "phone": center.phone if center and center.phone else None,
         "email": center.email if center and center.email else None,
-        "philosophy": (
-            center.card_philosophy
-            if center and center.card_philosophy
-            else (
-                center.philosophy
-                if center and center.philosophy
-                else "Formar ciudadanos íntegros, críticos y comprometidos con su comunidad."
-            )
-        ),
-        "mission": (
-            center.card_mission
-            if center and center.card_mission
-            else (
-                center.mission
-                if center and center.mission
-                else "Ofrecer una educación de calidad con enfoque humano, técnico y ético."
-            )
-        ),
-        "vision": (
-            center.card_vision
-            if center and center.card_vision
-            else (
-                center.vision
-                if center and center.vision
-                else "Ser un centro educativo modelo que ofrezca un servicio de alta calidad."
-            )
-        ),
-        "values": (
-            center.card_values
-            if center and center.card_values
-            else (
-                center.values
-                if center and center.values
-                else "Respeto, disciplina, responsabilidad, servicio y honestidad."
-            )
-        ),
+        "philosophy": philosophy,
+        "mission": mission,
+        "vision": vision,
+        "values": values,
         "card_footer_text": (
             center.card_footer_text
             if center and center.card_footer_text
             else "by Aula Nova"
         ),
+        "card_design_key": design_key,
+        "show_full_card_identity": prefer_full_identity,
     }
 
 
@@ -303,6 +359,7 @@ def student_card_front(
 ):
     student = _get_student_or_404(db, student_id)
     center = db.query(Center).filter(Center.id == student.center_id).first()
+    templates_for_design = _resolve_card_design_templates(center)
 
     context = {
         "request": request,
@@ -312,7 +369,7 @@ def student_card_front(
 
     return templates.TemplateResponse(
         request=request,
-        name="student_card_front.html",
+        name=templates_for_design["front"],
         context=context,
     )
 
@@ -325,6 +382,7 @@ def student_card_back(
 ):
     student = _get_student_or_404(db, student_id)
     center = db.query(Center).filter(Center.id == student.center_id).first()
+    templates_for_design = _resolve_card_design_templates(center)
 
     context = {
         "request": request,
@@ -334,7 +392,7 @@ def student_card_back(
 
     return templates.TemplateResponse(
         request=request,
-        name="student_card_back.html",
+        name=templates_for_design["back"],
         context=context,
     )
 
@@ -458,7 +516,8 @@ def edit_student_view(
             "student_id": student_id,
         },
     )
-    
+
+
 @router.get("/students/cards/print-selected", response_class=HTMLResponse)
 def student_cards_print_selected(
     request: Request,

@@ -20,6 +20,20 @@ class Center(Base):
     text_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
     background_color: Mapped[str | None] = mapped_column(String(20), nullable=True)
 
+    # Configuración de diseño del carnet
+    card_design_key: Mapped[str] = mapped_column(
+        String(100),
+        nullable=False,
+        default="classic_green_v1",
+        server_default="classic_green_v1",
+    )
+    show_full_card_identity: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
+    )
+
     # Identidad institucional general
     philosophy: Mapped[str | None] = mapped_column(Text, nullable=True)
     mission: Mapped[str | None] = mapped_column(Text, nullable=True)

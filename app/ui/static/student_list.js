@@ -16,10 +16,13 @@ const selectedCount = document.getElementById("selectedCount");
 const alertBox = document.getElementById("alertBox");
 const bulkActionsCard = document.getElementById("bulkActionsCard");
 const thCheck = document.getElementById("thCheck");
+const thActions = document.getElementById("thActions");
 const logoutBtn = document.getElementById("logoutBtn");
 const headerUserChip = document.getElementById("headerUserChip");
 const navRegisterStudentLink = document.getElementById("navRegisterStudentLink");
 const navDocsStudentLink = document.getElementById("navDocsStudentLink");
+const pageSubtitle = document.getElementById("pageSubtitle");
+const tableModeLabel = document.getElementById("tableModeLabel");
 
 let students = [];
 let filteredStudents = [];
@@ -84,6 +87,10 @@ function updateUrlWithFilters() {
     window.history.replaceState({}, "", newUrl);
 }
 
+function isConsultaRole(role) {
+    return String(role || "").toLowerCase() === "consulta";
+}
+
 function getStudentsUrl() {
     const params = new URLSearchParams();
 
@@ -92,7 +99,8 @@ function getStudentsUrl() {
     if (gradeFilter.value) params.set("grade", gradeFilter.value);
     if (sectionFilter.value) params.set("section", sectionFilter.value);
 
-    return `/students/${params.toString() ? `?${params.toString()}` : ""}`;
+    const endpoint = isConsultaRole(currentUser?.role) ? "/students/public" : "/students/";
+    return `${endpoint}${params.toString() ? `?${params.toString()}` : ""}`;
 }
 
 function configureRoleUI(user) {
@@ -106,9 +114,22 @@ function configureRoleUI(user) {
         navDocsStudentLink.style.display = "none";
     }
 
-    if (!canPrint(user.role)) {
+    if (isConsultaRole(user.role)) {
+        pageSubtitle.textContent = "Consulta protegida de estudiantes sin acceso a carnet, impresión ni edición.";
+        tableModeLabel.textContent = "Listado de solo lectura";
         bulkActionsCard.style.display = "none";
         thCheck.style.display = "none";
+        if (thActions) {
+            thActions.textContent = "Acceso";
+        }
+    } else {
+        pageSubtitle.textContent = "Consulta, filtro, selección múltiple e impresión de carnets.";
+        tableModeLabel.textContent = "Listado operativo con acciones rápidas";
+
+        if (!canPrint(user.role)) {
+            bulkActionsCard.style.display = "none";
+            thCheck.style.display = "none";
+        }
     }
 
     if (logoutBtn) {
@@ -242,8 +263,10 @@ function renderTable(data) {
                 <td colspan="8" class="empty-row">No se encontraron estudiantes con esos filtros.</td>
             </tr>
         `;
-        selectAllCheckbox.checked = false;
-        selectAllCheckbox.indeterminate = false;
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
         return;
     }
 
@@ -251,57 +274,79 @@ function renderTable(data) {
         const row = document.createElement("tr");
         const statusClass = student.is_active ? "status-active" : "status-inactive";
         const statusLabel = student.is_active ? "Activo" : "Inactivo";
-        const fullName = `${student.first_name ?? ""} ${student.last_name ?? ""}`.trim();
-        const isChecked = selectedStudents.has(String(student.id));
 
-        const checkboxCell = canPrint(currentUser.role)
-            ? `
+        if (isConsultaRole(currentUser.role)) {
+            const fullName = `${student.full_name ?? ""}`.trim();
+
+            row.innerHTML = `
+                <td></td>
+                <td>-</td>
+                <td>${escapeHtml(fullName || "-")}</td>
+                <td>-</td>
+                <td>${escapeHtml(student.grade ?? "-")}</td>
+                <td>${escapeHtml(student.section ?? "-")}</td>
                 <td>
-                    <input
-                        type="checkbox"
-                        class="studentCheck"
-                        value="${student.id}"
-                        ${isChecked ? "checked" : ""}
-                        aria-label="Seleccionar estudiante ${escapeHtml(fullName)}"
-                    >
+                    <span class="status-badge ${statusClass}">${statusLabel}</span>
                 </td>
-            `
-            : `<td></td>`;
+                <td>
+                    <div class="action-stack">
+                        <span class="muted-action">Solo consulta</span>
+                    </div>
+                </td>
+            `;
+        } else {
+            const fullName = `${student.first_name ?? ""} ${student.last_name ?? ""}`.trim();
+            const isChecked = selectedStudents.has(String(student.id));
 
-        const actions = [];
+            const checkboxCell = canPrint(currentUser.role)
+                ? `
+                    <td>
+                        <input
+                            type="checkbox"
+                            class="studentCheck"
+                            value="${student.id}"
+                            ${isChecked ? "checked" : ""}
+                            aria-label="Seleccionar estudiante ${escapeHtml(fullName)}"
+                        >
+                    </td>
+                `
+                : `<td></td>`;
 
-        actions.push(
-            `<button type="button" class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>`
-        );
+            const actions = [];
 
-        if (canEdit(currentUser.role)) {
             actions.push(
-                `<button type="button" class="btn btn-neutral" onclick="editStudent(${student.id})">Editar</button>`
+                `<button type="button" class="btn btn-primary" onclick="viewFront(${student.id})">Ver</button>`
             );
-        }
 
-        if (canPrint(currentUser.role)) {
-            actions.push(
-                `<button type="button" class="btn btn-success" onclick="printStudent(${student.id})">Imprimir</button>`
-            );
-        }
+            if (canEdit(currentUser.role)) {
+                actions.push(
+                    `<button type="button" class="btn btn-neutral" onclick="editStudent(${student.id})">Editar</button>`
+                );
+            }
 
-        row.innerHTML = `
-            ${checkboxCell}
-            <td>${escapeHtml(student.student_code ?? "-")}</td>
-            <td>${escapeHtml(fullName || "-")}</td>
-            <td>${escapeHtml(student.minerd_id ?? "-")}</td>
-            <td>${escapeHtml(student.grade ?? "-")}</td>
-            <td>${escapeHtml(student.section ?? "-")}</td>
-            <td>
-                <span class="status-badge ${statusClass}">${statusLabel}</span>
-            </td>
-            <td>
-                <div class="action-stack">
-                    ${actions.join("")}
-                </div>
-            </td>
-        `;
+            if (canPrint(currentUser.role)) {
+                actions.push(
+                    `<button type="button" class="btn btn-success" onclick="printStudent(${student.id})">Imprimir</button>`
+                );
+            }
+
+            row.innerHTML = `
+                ${checkboxCell}
+                <td>${escapeHtml(student.student_code ?? "-")}</td>
+                <td>${escapeHtml(fullName || "-")}</td>
+                <td>${escapeHtml(student.minerd_id ?? "-")}</td>
+                <td>${escapeHtml(student.grade ?? "-")}</td>
+                <td>${escapeHtml(student.section ?? "-")}</td>
+                <td>
+                    <span class="status-badge ${statusClass}">${statusLabel}</span>
+                </td>
+                <td>
+                    <div class="action-stack">
+                        ${actions.join("")}
+                    </div>
+                </td>
+            `;
+        }
 
         tableBody.appendChild(row);
     });
@@ -333,6 +378,10 @@ function syncVisibleCheckboxesWithSelection() {
 }
 
 function getVisibleStudentIds() {
+    if (isConsultaRole(currentUser?.role)) {
+        return [];
+    }
+
     return filteredStudents.map((student) => String(student.id));
 }
 
@@ -342,6 +391,18 @@ function getSelectedVisibleStudentIds() {
 }
 
 function updateSelectedState() {
+    if (isConsultaRole(currentUser?.role)) {
+        selectedCount.textContent = "0 seleccionado(s)";
+        printSelectedBtn.disabled = true;
+        clearSelectedBtn.disabled = true;
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+        return;
+    }
+
     const visibleIds = getVisibleStudentIds();
     const selectedVisibleIds = getSelectedVisibleStudentIds();
 
@@ -391,6 +452,12 @@ async function applyServerFilters() {
 }
 
 selectAllCheckbox.addEventListener("change", () => {
+    if (isConsultaRole(currentUser?.role)) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
+        return;
+    }
+
     const visibleIds = getVisibleStudentIds();
 
     if (selectAllCheckbox.checked) {
@@ -404,6 +471,11 @@ selectAllCheckbox.addEventListener("change", () => {
 });
 
 printSelectedBtn.addEventListener("click", () => {
+    if (isConsultaRole(currentUser?.role)) {
+        showAlert("Este usuario no tiene permiso para imprimir carnets.", "error");
+        return;
+    }
+
     const selected = getSelectedVisibleStudentIds();
 
     if (selected.length === 0) {
@@ -422,14 +494,29 @@ clearSelectedBtn.addEventListener("click", () => {
 });
 
 function printStudent(id) {
+    if (isConsultaRole(currentUser?.role)) {
+        showAlert("Este usuario no tiene permiso para imprimir carnets.", "error");
+        return;
+    }
+
     window.open(`/admin/students/${id}/print`, "_blank");
 }
 
 function viewFront(id) {
+    if (isConsultaRole(currentUser?.role)) {
+        showAlert("Este usuario no tiene permiso para visualizar el carnet.", "error");
+        return;
+    }
+
     window.open(`/students/${id}/card/front`, "_blank");
 }
 
 function editStudent(id) {
+    if (isConsultaRole(currentUser?.role)) {
+        showAlert("Este usuario no tiene permiso para editar estudiantes.", "error");
+        return;
+    }
+
     window.location.href = `/admin/students/${id}/edit`;
 }
 

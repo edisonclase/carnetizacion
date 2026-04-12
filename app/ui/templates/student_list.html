@@ -27,7 +27,7 @@
             <header class="page-header">
                 <div>
                     <h2>Listado Interno de Estudiantes</h2>
-                    <p>Consulta, filtro, selección múltiple e impresión de carnets.</p>
+                    <p id="pageSubtitle">Consulta, filtro, selección múltiple e impresión de carnets.</p>
                 </div>
 
                 <div class="header-user-actions">
@@ -107,7 +107,7 @@
             <section class="list-card">
                 <div class="card-title-row">
                     <h3>Estudiantes registrados</h3>
-                    <span>Listado operativo con acciones rápidas</span>
+                    <span id="tableModeLabel">Listado operativo con acciones rápidas</span>
                 </div>
 
                 <div class="table-wrapper">
@@ -115,13 +115,13 @@
                         <thead>
                             <tr>
                                 <th class="th-check" id="thCheck"></th>
-                                <th>Código</th>
+                                <th id="thCode">Código</th>
                                 <th>Nombre</th>
-                                <th>MINERD</th>
+                                <th id="thMinerd">MINERD</th>
                                 <th>Curso</th>
                                 <th>Sección</th>
                                 <th>Estado</th>
-                                <th>Acciones</th>
+                                <th id="thActions">Acciones</th>
                             </tr>
                         </thead>
                         <tbody id="studentsTable">
