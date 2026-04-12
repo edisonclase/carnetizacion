@@ -63,9 +63,7 @@ const designLabels = {
 let alertTimeoutId = null;
 
 function showAlert(message, type = "success") {
-  if (alertTimeoutId) {
-    clearTimeout(alertTimeoutId);
-  }
+  if (alertTimeoutId) clearTimeout(alertTimeoutId);
 
   alertBox.textContent = message;
   alertBox.className = `alert-box ${type}`;
@@ -123,20 +121,6 @@ function syncTextFromPicker(inputId, pickerId) {
 
   input.value = picker.value;
   renderPreview();
-}
-
-function applyDesignClass(cardEl, designKey) {
-  if (!cardEl) return;
-
-  cardEl.classList.remove("preview-classic", "preview-prestige", "preview-modern");
-
-  if (designKey === "classic_green_v1") {
-    cardEl.classList.add("preview-classic");
-  } else if (designKey === "prestige_clean_v1") {
-    cardEl.classList.add("preview-prestige");
-  } else {
-    cardEl.classList.add("preview-modern");
-  }
 }
 
 function fillForm(data) {
@@ -230,112 +214,401 @@ function validateForm(data) {
   return null;
 }
 
+function setBaseCardTheme(card, { backgroundColor, textColor, accentColor }) {
+  if (!card) return;
+  card.style.background = backgroundColor;
+  card.style.color = textColor;
+  card.style.border = `1.5px solid ${accentColor}`;
+  card.style.borderRadius = "18px";
+  card.style.position = "relative";
+  card.style.overflow = "hidden";
+}
+
+function setTopBand(band, secondaryColor, primaryColor, accentColor) {
+  if (!band) return;
+  band.style.position = "absolute";
+  band.style.inset = "0 0 auto 0";
+  band.style.height = "12px";
+  band.style.background = `linear-gradient(90deg, ${secondaryColor}, ${primaryColor}, ${accentColor})`;
+}
+
+function styleClassicPreview(elements, theme) {
+  const {
+    frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
+    frontBody, photo, studentName, infoGrid, qrWrap,
+    missionSection, visionSection, valuesSection
+  } = elements;
+
+  frontCard.style.width = "255px";
+  frontCard.style.height = "375px";
+  backCard.style.width = "255px";
+  backCard.style.height = "300px";
+
+  frontCard.style.boxShadow = "0 12px 24px rgba(15, 23, 42, 0.10)";
+  backCard.style.boxShadow = "0 12px 24px rgba(15, 23, 42, 0.10)";
+
+  frontDecor.style.display = "block";
+  backDecor.style.display = "block";
+
+  frontDecor.style.position = "absolute";
+  frontDecor.style.right = "-50px";
+  frontDecor.style.bottom = "-20px";
+  frontDecor.style.width = "170px";
+  frontDecor.style.height = "120px";
+  frontDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.16))`;
+  frontDecor.style.transform = "rotate(-18deg)";
+  frontDecor.style.borderRadius = "26px";
+
+  backDecor.style.position = "absolute";
+  backDecor.style.right = "-50px";
+  backDecor.style.bottom = "-10px";
+  backDecor.style.width = "170px";
+  backDecor.style.height = "110px";
+  backDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.16))`;
+  backDecor.style.transform = "rotate(-18deg)";
+  backDecor.style.borderRadius = "26px";
+
+  frontHeader.style.position = "relative";
+  frontHeader.style.zIndex = "2";
+  frontHeader.style.padding = "18px 14px 6px";
+  frontHeader.style.display = "flex";
+  frontHeader.style.alignItems = "center";
+  frontHeader.style.gap = "10px";
+
+  backHeader.style.position = "relative";
+  backHeader.style.zIndex = "2";
+  backHeader.style.padding = "18px 14px 6px";
+  backHeader.style.textAlign = "center";
+
+  frontBody.style.position = "relative";
+  frontBody.style.zIndex = "2";
+  frontBody.style.padding = "8px 14px 12px";
+  frontBody.style.display = "flex";
+  frontBody.style.flexDirection = "column";
+  frontBody.style.alignItems = "center";
+  frontBody.style.gap = "10px";
+
+  photo.style.width = "86px";
+  photo.style.height = "86px";
+  photo.style.borderRadius = "50%";
+  photo.style.border = `4px solid ${theme.primaryColor}`;
+  photo.style.background = "#dfe7f1";
+  photo.style.display = "flex";
+  photo.style.alignItems = "center";
+  photo.style.justifyContent = "center";
+  photo.style.color = "#64748b";
+  photo.style.fontSize = "13px";
+  photo.style.fontWeight = "700";
+
+  studentName.style.textAlign = "center";
+  studentName.style.fontWeight = "800";
+  studentName.style.fontSize = "16px";
+  studentName.style.lineHeight = "1.1";
+  studentName.style.color = "#0f172a";
+
+  infoGrid.style.width = "100%";
+  infoGrid.style.background = "rgba(248,250,252,0.92)";
+  infoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
+  infoGrid.style.borderRadius = "14px";
+  infoGrid.style.padding = "10px 12px";
+  infoGrid.style.fontSize = "11px";
+  infoGrid.style.lineHeight = "1.55";
+  infoGrid.style.color = "#334155";
+
+  qrWrap.style.display = "flex";
+  qrWrap.style.flexDirection = "column";
+  qrWrap.style.alignItems = "center";
+  qrWrap.style.gap = "4px";
+
+  [missionSection, visionSection, valuesSection].forEach((section) => {
+    section.style.background = "rgba(255,255,255,0.90)";
+    section.style.border = "1px solid rgba(15,23,42,0.08)";
+    section.style.borderRadius = "12px";
+    section.style.padding = "10px";
+    section.style.marginBottom = "8px";
+  });
+}
+
+function stylePrestigePreview(elements, theme) {
+  const {
+    frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
+    frontBody, photo, studentName, infoGrid, qrWrap,
+    missionSection, visionSection, valuesSection
+  } = elements;
+
+  frontCard.style.width = "255px";
+  frontCard.style.height = "375px";
+  backCard.style.width = "255px";
+  backCard.style.height = "300px";
+
+  frontCard.style.boxShadow = "0 16px 30px rgba(15, 23, 42, 0.08)";
+  backCard.style.boxShadow = "0 16px 30px rgba(15, 23, 42, 0.08)";
+
+  frontDecor.style.display = "none";
+  backDecor.style.display = "none";
+
+  frontHeader.style.position = "relative";
+  frontHeader.style.zIndex = "2";
+  frontHeader.style.padding = "18px 14px 10px";
+  frontHeader.style.display = "flex";
+  frontHeader.style.alignItems = "center";
+  frontHeader.style.gap = "10px";
+  frontHeader.style.borderBottom = "1px solid rgba(15,23,42,0.08)";
+
+  backHeader.style.position = "relative";
+  backHeader.style.zIndex = "2";
+  backHeader.style.padding = "18px 14px 10px";
+  backHeader.style.textAlign = "center";
+  backHeader.style.borderBottom = "1px solid rgba(15,23,42,0.08)";
+
+  frontBody.style.position = "relative";
+  frontBody.style.zIndex = "2";
+  frontBody.style.padding = "10px 16px 12px";
+  frontBody.style.display = "flex";
+  frontBody.style.flexDirection = "column";
+  frontBody.style.alignItems = "center";
+  frontBody.style.gap = "12px";
+
+  photo.style.width = "80px";
+  photo.style.height = "80px";
+  photo.style.borderRadius = "18px";
+  photo.style.border = `2px solid ${theme.primaryColor}`;
+  photo.style.background = "#eef2f8";
+  photo.style.display = "flex";
+  photo.style.alignItems = "center";
+  photo.style.justifyContent = "center";
+  photo.style.color = "#64748b";
+  photo.style.fontSize = "13px";
+  photo.style.fontWeight = "700";
+
+  studentName.style.textAlign = "center";
+  studentName.style.fontWeight = "800";
+  studentName.style.fontSize = "15px";
+  studentName.style.lineHeight = "1.1";
+  studentName.style.color = "#0f172a";
+  studentName.style.letterSpacing = "0.01em";
+
+  infoGrid.style.width = "100%";
+  infoGrid.style.background = "rgba(255,255,255,0.96)";
+  infoGrid.style.border = "1px solid rgba(15,23,42,0.06)";
+  infoGrid.style.borderRadius = "10px";
+  infoGrid.style.padding = "10px 12px";
+  infoGrid.style.fontSize = "10.5px";
+  infoGrid.style.lineHeight = "1.5";
+  infoGrid.style.color = "#334155";
+
+  qrWrap.style.display = "flex";
+  qrWrap.style.flexDirection = "column";
+  qrWrap.style.alignItems = "center";
+  qrWrap.style.gap = "4px";
+
+  [missionSection, visionSection, valuesSection].forEach((section) => {
+    section.style.background = "rgba(255,255,255,0.98)";
+    section.style.border = "1px solid rgba(15,23,42,0.06)";
+    section.style.borderRadius = "10px";
+    section.style.padding = "9px 10px";
+    section.style.marginBottom = "8px";
+  });
+}
+
+function styleModernPreview(elements, theme) {
+  const {
+    frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
+    frontBody, photo, studentName, infoGrid, qrWrap,
+    missionSection, visionSection, valuesSection
+  } = elements;
+
+  frontCard.style.width = "255px";
+  frontCard.style.height = "375px";
+  backCard.style.width = "255px";
+  backCard.style.height = "300px";
+
+  frontCard.style.boxShadow = "0 18px 36px rgba(15, 23, 42, 0.12)";
+  backCard.style.boxShadow = "0 18px 36px rgba(15, 23, 42, 0.12)";
+
+  frontDecor.style.display = "block";
+  backDecor.style.display = "block";
+
+  frontDecor.style.position = "absolute";
+  frontDecor.style.right = "-34px";
+  frontDecor.style.bottom = "-18px";
+  frontDecor.style.width = "160px";
+  frontDecor.style.height = "120px";
+  frontDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.10), rgba(11,61,36,0.24))`;
+  frontDecor.style.transform = "rotate(-36deg)";
+  frontDecor.style.borderRadius = "18px";
+
+  backDecor.style.position = "absolute";
+  backDecor.style.right = "-30px";
+  backDecor.style.bottom = "-10px";
+  backDecor.style.width = "150px";
+  backDecor.style.height = "110px";
+  backDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.10), rgba(11,61,36,0.24))`;
+  backDecor.style.transform = "rotate(-36deg)";
+  backDecor.style.borderRadius = "18px";
+
+  frontHeader.style.position = "relative";
+  frontHeader.style.zIndex = "2";
+  frontHeader.style.padding = "18px 14px 8px";
+  frontHeader.style.display = "flex";
+  frontHeader.style.alignItems = "center";
+  frontHeader.style.gap = "10px";
+
+  backHeader.style.position = "relative";
+  backHeader.style.zIndex = "2";
+  backHeader.style.padding = "18px 14px 8px";
+  backHeader.style.textAlign = "center";
+
+  frontBody.style.position = "relative";
+  frontBody.style.zIndex = "2";
+  frontBody.style.padding = "10px 14px 12px";
+  frontBody.style.display = "grid";
+  frontBody.style.gridTemplateColumns = "88px 1fr";
+  frontBody.style.gridTemplateRows = "auto auto auto";
+  frontBody.style.columnGap = "10px";
+  frontBody.style.rowGap = "8px";
+  frontBody.style.alignItems = "center";
+
+  photo.style.gridColumn = "1 / 2";
+  photo.style.gridRow = "1 / 3";
+  photo.style.width = "86px";
+  photo.style.height = "86px";
+  photo.style.borderRadius = "50%";
+  photo.style.border = `4px solid ${theme.primaryColor}`;
+  photo.style.background = "#dfe7f1";
+  photo.style.display = "flex";
+  photo.style.alignItems = "center";
+  photo.style.justifyContent = "center";
+  photo.style.color = "#64748b";
+  photo.style.fontSize = "13px";
+  photo.style.fontWeight = "700";
+
+  studentName.style.gridColumn = "2 / 3";
+  studentName.style.gridRow = "1 / 2";
+  studentName.style.textAlign = "left";
+  studentName.style.fontWeight = "800";
+  studentName.style.fontSize = "15px";
+  studentName.style.lineHeight = "1.05";
+  studentName.style.color = "#0f172a";
+
+  infoGrid.style.gridColumn = "2 / 3";
+  infoGrid.style.gridRow = "2 / 4";
+  infoGrid.style.width = "100%";
+  infoGrid.style.background = "rgba(248,250,252,0.90)";
+  infoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
+  infoGrid.style.borderRadius = "14px";
+  infoGrid.style.padding = "10px 12px";
+  infoGrid.style.fontSize = "10.5px";
+  infoGrid.style.lineHeight = "1.5";
+  infoGrid.style.color = "#334155";
+  infoGrid.style.backdropFilter = "blur(4px)";
+
+  qrWrap.style.gridColumn = "1 / 2";
+  qrWrap.style.gridRow = "3 / 4";
+  qrWrap.style.display = "flex";
+  qrWrap.style.flexDirection = "column";
+  qrWrap.style.alignItems = "center";
+  qrWrap.style.justifyContent = "flex-end";
+  qrWrap.style.gap = "4px";
+
+  [missionSection, visionSection, valuesSection].forEach((section) => {
+    section.style.background = "rgba(255,255,255,0.88)";
+    section.style.border = "1px solid rgba(15,23,42,0.08)";
+    section.style.borderRadius = "12px";
+    section.style.padding = "9px 10px";
+    section.style.marginBottom = "8px";
+    section.style.backdropFilter = "blur(3px)";
+  });
+}
+
+function styleSharedPreviewText() {
+  const headerText = document.querySelectorAll(".mini-header-text h4");
+  const headerMeta = document.querySelectorAll(".mini-header-text p");
+  const headerLabel = document.getElementById("previewDesignName");
+  const backTitle = document.querySelectorAll(".mini-back-section h5");
+  const backText = document.querySelectorAll(".mini-back-section p");
+
+  headerText.forEach((el) => {
+    el.style.margin = "0";
+    el.style.fontSize = "11px";
+    el.style.fontWeight = "800";
+    el.style.lineHeight = "1.05";
+  });
+
+  headerMeta.forEach((el) => {
+    el.style.margin = "2px 0 0";
+    el.style.fontSize = "8px";
+    el.style.lineHeight = "1.2";
+  });
+
+  if (headerLabel) {
+    headerLabel.style.display = "block";
+    headerLabel.style.marginTop = "3px";
+    headerLabel.style.fontSize = "10px";
+    headerLabel.style.fontWeight = "700";
+  }
+
+  backTitle.forEach((el) => {
+    el.style.margin = "0 0 4px";
+    el.style.fontSize = "10px";
+    el.style.fontWeight = "800";
+  });
+
+  backText.forEach((el) => {
+    el.style.margin = "0";
+    el.style.fontSize = "8px";
+    el.style.lineHeight = "1.35";
+  });
+}
+
 function renderPreview() {
   const data = getFormData();
 
-  const primaryColor = data.primary_color || defaultTheme.primary_color;
-  const secondaryColor = data.secondary_color || defaultTheme.secondary_color;
-  const accentColor = data.accent_color || defaultTheme.accent_color;
-  const textColor = data.text_color || defaultTheme.text_color;
-  const backgroundColor = data.background_color || defaultTheme.background_color;
-  const footerText = data.card_footer_text || defaultTheme.card_footer_text;
-  const useFullIdentity = data.show_full_card_identity === true;
-  const designKey = data.card_design_key || defaultTheme.card_design_key;
+  const theme = {
+    primaryColor: data.primary_color || defaultTheme.primary_color,
+    secondaryColor: data.secondary_color || defaultTheme.secondary_color,
+    accentColor: data.accent_color || defaultTheme.accent_color,
+    textColor: data.text_color || defaultTheme.text_color,
+    backgroundColor: data.background_color || defaultTheme.background_color,
+    footerText: data.card_footer_text || defaultTheme.card_footer_text,
+    designKey: data.card_design_key || defaultTheme.card_design_key,
+    useFullIdentity: data.show_full_card_identity === true,
+  };
 
-  const frontCard = document.getElementById("previewFrontCard");
-  const backCard = document.getElementById("previewBackCard");
-  const frontHeader = document.getElementById("previewFrontHeader");
-  const backHeader = document.getElementById("previewBackHeader");
-  const frontFooter = document.getElementById("previewFrontFooter");
-  const backFooter = document.getElementById("previewBackFooter");
-  const topBand = document.getElementById("previewTopBand");
-  const backTopBand = document.getElementById("previewBackTopBand");
-  const backBody = document.getElementById("previewBackBody");
-  const frontDecor = document.getElementById("previewFrontDecor");
-  const backDecor = document.getElementById("previewBackDecor");
-  const frontInfoGrid = document.getElementById("previewFrontInfoGrid");
-  const frontName = document.getElementById("previewStudentName");
-  const frontBody = document.getElementById("previewFrontBody");
+  const elements = {
+    frontCard: document.getElementById("previewFrontCard"),
+    backCard: document.getElementById("previewBackCard"),
+    frontHeader: document.getElementById("previewFrontHeader"),
+    backHeader: document.getElementById("previewBackHeader"),
+    frontFooter: document.getElementById("previewFrontFooter"),
+    backFooter: document.getElementById("previewBackFooter"),
+    topBand: document.getElementById("previewTopBand"),
+    backTopBand: document.getElementById("previewBackTopBand"),
+    frontDecor: document.getElementById("previewFrontDecor"),
+    backDecor: document.getElementById("previewBackDecor"),
+    frontBody: document.getElementById("previewFrontBody"),
+    photo: document.getElementById("previewPhoto"),
+    studentName: document.getElementById("previewStudentName"),
+    infoGrid: document.getElementById("previewFrontInfoGrid"),
+    qrWrap: document.getElementById("previewQrWrap"),
+    backBody: document.getElementById("previewBackBody"),
+    missionSection: document.getElementById("previewMissionSection"),
+    visionSection: document.getElementById("previewVisionSection"),
+    valuesSection: document.getElementById("previewValuesSection"),
+  };
 
-  applyDesignClass(frontCard, designKey);
-  applyDesignClass(backCard, designKey);
+  setBaseCardTheme(elements.frontCard, theme);
+  setBaseCardTheme(elements.backCard, theme);
+  setTopBand(elements.topBand, theme.secondaryColor, theme.primaryColor, theme.accentColor);
+  setTopBand(elements.backTopBand, theme.secondaryColor, theme.primaryColor, theme.accentColor);
+  styleSharedPreviewText();
 
-  [frontCard, backCard].forEach((card) => {
-    card.style.background = backgroundColor;
-    card.style.color = textColor;
-    card.style.borderColor = accentColor;
-    card.style.boxShadow = "0 10px 26px rgba(15, 23, 42, 0.10)";
-  });
-
-  [topBand, backTopBand].forEach((band) => {
-    if (!band) return;
-    band.style.background = `linear-gradient(90deg, ${secondaryColor}, ${primaryColor}, ${accentColor})`;
-  });
-
-  [frontFooter, backFooter].forEach((footer) => {
-    if (!footer) return;
-    footer.textContent = footerText;
-    footer.style.color = "#5b6777";
-  });
-
-  if (frontHeader) {
-    frontHeader.style.color = textColor;
-  }
-
-  if (backHeader) {
-    backHeader.style.color = textColor;
-  }
-
-  if (frontDecor) {
-    frontDecor.style.display = designKey === "nova_modern_v1" ? "block" : "none";
-    frontDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.20))`;
-  }
-
-  if (backDecor) {
-    backDecor.style.display = designKey === "nova_modern_v1" ? "block" : "none";
-    backDecor.style.background = `linear-gradient(135deg, rgba(31,143,74,0.08), rgba(11,61,36,0.20))`;
-  }
-
-  if (designKey === "classic_green_v1") {
-    if (frontBody) frontBody.style.alignItems = "stretch";
-    if (frontName) {
-      frontName.style.textAlign = "center";
-      frontName.style.fontSize = "13px";
-      frontName.style.fontWeight = "800";
-    }
-    if (frontInfoGrid) {
-      frontInfoGrid.style.background = "rgba(248,250,252,0.92)";
-      frontInfoGrid.style.borderRadius = "12px";
-      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
-    }
-  }
-
-  if (designKey === "prestige_clean_v1") {
-    if (frontBody) frontBody.style.alignItems = "stretch";
-    if (frontName) {
-      frontName.style.textAlign = "center";
-      frontName.style.fontSize = "14px";
-      frontName.style.fontWeight = "800";
-    }
-    if (frontInfoGrid) {
-      frontInfoGrid.style.background = "rgba(255,255,255,0.96)";
-      frontInfoGrid.style.borderRadius = "10px";
-      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.06)";
-    }
-  }
-
-  if (designKey === "nova_modern_v1") {
-    if (frontBody) frontBody.style.alignItems = "stretch";
-    if (frontName) {
-      frontName.style.textAlign = "center";
-      frontName.style.fontSize = "14px";
-      frontName.style.fontWeight = "800";
-    }
-    if (frontInfoGrid) {
-      frontInfoGrid.style.background = "rgba(248,250,252,0.90)";
-      frontInfoGrid.style.borderRadius = "14px";
-      frontInfoGrid.style.border = "1px solid rgba(15,23,42,0.08)";
-    }
+  if (theme.designKey === "prestige_clean_v1") {
+    stylePrestigePreview(elements, theme);
+  } else if (theme.designKey === "nova_modern_v1") {
+    styleModernPreview(elements, theme);
+  } else {
+    styleClassicPreview(elements, theme);
   }
 
   document.getElementById("previewCenterNameFront").textContent =
@@ -348,35 +621,44 @@ function renderPreview() {
   document.getElementById("previewContactLine").textContent =
     contactParts.length > 0 ? contactParts.join(" · ") : "Teléfono · correo";
 
-  document.getElementById("previewDesignName").textContent =
-    designLabels[designKey] || "Classic Green v1";
+  const designName = document.getElementById("previewDesignName");
+  designName.textContent = designLabels[theme.designKey] || "Classic Green v1";
+  designName.style.color = theme.designKey === "prestige_clean_v1" ? "#334155" : theme.primaryColor;
 
   document.getElementById("previewMission").textContent =
-    useFullIdentity
+    theme.useFullIdentity
       ? (data.mission || "Texto institucional completo.")
       : (data.card_mission || data.mission || "Texto corto de misión.");
 
   document.getElementById("previewVision").textContent =
-    useFullIdentity
+    theme.useFullIdentity
       ? (data.vision || "Texto institucional completo.")
       : (data.card_vision || data.vision || "Texto corto de visión.");
 
   document.getElementById("previewValues").textContent =
-    useFullIdentity
+    theme.useFullIdentity
       ? (data.values || "Texto institucional completo.")
       : (data.card_values || data.values || "Texto corto de valores.");
 
-  if (backBody) {
-    backBody.classList.toggle("preview-long", useFullIdentity);
-    backBody.classList.toggle("preview-short", !useFullIdentity);
-  }
+  [elements.frontFooter, elements.backFooter].forEach((footer) => {
+    footer.textContent = theme.footerText;
+    footer.style.textAlign = "center";
+    footer.style.fontSize = "9px";
+    footer.style.color = "#5b6777";
+    footer.style.padding = "6px 8px 8px";
+    footer.style.position = "relative";
+    footer.style.zIndex = "2";
+  });
+
+  elements.backBody.classList.toggle("preview-long", theme.useFullIdentity);
+  elements.backBody.classList.toggle("preview-short", !theme.useFullIdentity);
 
   document.querySelectorAll(".mini-back-section h5").forEach((title) => {
     title.style.textAlign = "center";
   });
 
   document.querySelectorAll(".mini-back-section p").forEach((paragraph) => {
-    paragraph.style.textAlign = useFullIdentity ? "left" : "center";
+    paragraph.style.textAlign = theme.useFullIdentity ? "left" : "center";
   });
 
   const logo = document.getElementById("previewLogo");
@@ -391,6 +673,41 @@ function renderPreview() {
     logo.classList.add("hidden");
     logoPlaceholder.style.display = "block";
   }
+
+  const logoWraps = document.querySelectorAll(".mini-logo-wrap");
+  logoWraps.forEach((wrap) => {
+    wrap.style.width = "38px";
+    wrap.style.height = "38px";
+    wrap.style.borderRadius = theme.designKey === "prestige_clean_v1" ? "12px" : "10px";
+    wrap.style.background = "#ffffff";
+    wrap.style.border = "1px solid rgba(0,0,0,0.08)";
+    wrap.style.display = "flex";
+    wrap.style.alignItems = "center";
+    wrap.style.justifyContent = "center";
+    wrap.style.overflow = "hidden";
+    wrap.style.flexShrink = "0";
+  });
+
+  if (logo) {
+    logo.style.width = "100%";
+    logo.style.height = "100%";
+    logo.style.objectFit = "contain";
+  }
+
+  if (logoPlaceholder) {
+    logoPlaceholder.style.width = "100%";
+    logoPlaceholder.style.height = "100%";
+    logoPlaceholder.style.background = "#e8eef7";
+  }
+
+  elements.backHeader.style.textAlign = "center";
+  elements.backHeader.style.padding = "18px 14px 8px";
+  elements.backHeader.style.position = "relative";
+  elements.backHeader.style.zIndex = "2";
+
+  document.getElementById("previewCenterNameBack").style.margin = "0";
+  document.getElementById("previewCenterNameBack").style.fontSize = "12px";
+  document.getElementById("previewCenterNameBack").style.fontWeight = "800";
 }
 
 async function loadCenterData() {
