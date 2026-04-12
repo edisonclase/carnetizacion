@@ -214,16 +214,29 @@ async function fetchJson(url) {
     return response.json();
 }
 
+function canManageCenterCardSettings(role) {
+    const normalized = String(role || "").toLowerCase();
+    return normalized === "super_admin" || normalized === "admin_centro";
+}
+
+function canUsePrintActions(role) {
+    const normalized = String(role || "").toLowerCase();
+    return normalized === "super_admin" || normalized === "admin_centro" || normalized === "registro";
+}
+
 function configureRoleUI(user) {
     document.getElementById("currentUserName").textContent = user.full_name;
     document.getElementById("currentUserRole").textContent = roleLabel(user.role);
 
     const navStudentsLink = document.getElementById("navStudentsLink");
     const navRegisterLink = document.getElementById("navRegisterLink");
+    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
     const moduleAccessCard = document.getElementById("moduleAccessCard");
     const moduleStudentsList = document.getElementById("moduleStudentsList");
     const moduleStudentRegister = document.getElementById("moduleStudentRegister");
+    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
     const navDocsLink = document.getElementById("navDocsLink");
+    const printActionsCard = document.getElementById("printActionsCard");
 
     if (canViewStudents(user.role)) {
         navStudentsLink.classList.remove("hidden");
@@ -235,6 +248,16 @@ function configureRoleUI(user) {
         navRegisterLink.classList.remove("hidden");
         moduleAccessCard.classList.remove("hidden");
         moduleStudentRegister.classList.remove("hidden");
+    }
+
+    if (canManageCenterCardSettings(user.role)) {
+        moduleAccessCard.classList.remove("hidden");
+        navCenterSettingsLink.classList.remove("hidden");
+        moduleCenterSettings.classList.remove("hidden");
+    }
+
+    if (!canUsePrintActions(user.role) && printActionsCard) {
+        printActionsCard.style.display = "none";
     }
 
     if (user.role !== "super_admin") {
@@ -258,6 +281,53 @@ function filterSchoolYearsByCenter(centerId) {
     schoolYearSelect.innerHTML = filtered.map(item => `
         <option value="${item.id}">${item.name}</option>
     `).join("");
+}
+
+function updateCenterSettingsLinks() {
+    const centerId = document.getElementById("centerId")?.value;
+    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
+    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
+
+    if (!centerId) {
+        if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", "#");
+        if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", "#");
+        return;
+    }
+
+    const href = `/admin/centers/${centerId}/settings`;
+
+    if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
+    if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
+}
+
+function fillStudentSummary(summary) {
+    fillMetric("metricStudentsTotal", summary.total_students ?? 0);
+
+    const byGender = summary.by_gender || {};
+    const male = byGender.M || byGender.Masculino || byGender.masculino || 0;
+    const female = byGender.F || byGender.Femenino || byGender.femenino || 0;
+
+    let other = 0;
+    Object.entries(byGender).forEach(([key, value]) => {
+        const normalized = String(key).toLowerCase();
+        if (normalized !== "m" && normalized !== "masculino" && normalized !== "f" && normalized !== "femenino") {
+            other += Number(value || 0);
+        }
+    });
+
+    fillMetric("metricStudentsMale", male);
+    fillMetric("metricStudentsFemale", female);
+    fillMetric("metricStudentsOther", other);
+
+    const printGradeSelect = document.getElementById("printGradeSelect");
+    if (!printGradeSelect) return;
+
+    const grades = Object.keys(summary.by_grade || {});
+    printGradeSelect.innerHTML = `<option value="">Seleccione un curso</option>`;
+
+    grades.forEach((grade) => {
+        printGradeSelect.innerHTML += `<option value="${grade}">${grade}</option>`;
+    });
 }
 
 async function loadCenters() {
@@ -288,6 +358,8 @@ async function loadCenters() {
             centerSelect.value = String(ownCenter.id);
             centerSelect.disabled = true;
         }
+
+        updateCenterSettingsLinks();
     } catch (error) {
         centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
     }
@@ -311,6 +383,17 @@ async function loadSchoolYears() {
     }
 }
 
+async function loadStudentSummary(centerId, schoolYearId) {
+    const params = new URLSearchParams();
+
+    if (centerId) params.set("center_id", centerId);
+    if (schoolYearId) params.set("school_year_id", schoolYearId);
+
+    const summaryUrl = `/reports/students/summary?${params.toString()}`;
+    const summary = await fetchJson(summaryUrl);
+    fillStudentSummary(summary);
+}
+
 async function loadDashboard() {
     const centerId = document.getElementById("centerId").value;
     const schoolYearId = document.getElementById("schoolYearId").value;
@@ -332,6 +415,8 @@ async function loadDashboard() {
             fetchJson(dailyUrl),
             fetchJson(groupedUrl),
         ]);
+
+        await loadStudentSummary(centerId, schoolYearId);
 
         fillMetric("metricPresent", dailyReport.total_present);
         fillMetric("metricLate", dailyReport.total_late);
@@ -364,7 +449,43 @@ async function loadDashboard() {
         });
         renderCourseChart([]);
         renderGenderChart([]);
+        fillStudentSummary({
+            total_students: 0,
+            by_gender: {},
+            by_grade: {},
+        });
     }
+}
+
+function printAllCards() {
+    const centerId = document.getElementById("centerId").value;
+    const schoolYearId = document.getElementById("schoolYearId").value;
+
+    if (!centerId || !schoolYearId) {
+        alert("Debes seleccionar centro y año escolar.");
+        return;
+    }
+
+    window.open(
+        `/students/cards/print-sheet?center_id=${centerId}&school_year_id=${schoolYearId}`,
+        "_blank"
+    );
+}
+
+function printCardsByGrade() {
+    const centerId = document.getElementById("centerId").value;
+    const schoolYearId = document.getElementById("schoolYearId").value;
+    const grade = document.getElementById("printGradeSelect").value;
+
+    if (!centerId || !schoolYearId || !grade) {
+        alert("Debes seleccionar centro, año escolar y curso.");
+        return;
+    }
+
+    window.open(
+        `/students/cards/print-sheet?center_id=${centerId}&school_year_id=${schoolYearId}&grade=${encodeURIComponent(grade)}`,
+        "_blank"
+    );
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -380,12 +501,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (centerSelect) {
             centerSelect.addEventListener("change", () => {
                 filterSchoolYearsByCenter(centerSelect.value);
+                updateCenterSettingsLinks();
             });
         }
 
         const button = document.getElementById("loadDashboardBtn");
         if (button) {
             button.addEventListener("click", loadDashboard);
+        }
+
+        const printAllBtn = document.getElementById("printAllBtn");
+        if (printAllBtn) {
+            printAllBtn.addEventListener("click", printAllCards);
+        }
+
+        const printByGradeBtn = document.getElementById("printByGradeBtn");
+        if (printByGradeBtn) {
+            printByGradeBtn.addEventListener("click", printCardsByGrade);
         }
 
         const logoutBtn = document.getElementById("logoutBtn");

@@ -18,6 +18,7 @@
                 <a href="/dashboard" class="active">Dashboard</a>
                 <a href="/admin/students" id="navStudentsLink" class="hidden">Listado de estudiantes</a>
                 <a href="/admin/students/register" id="navRegisterLink" class="hidden">Registrar estudiante</a>
+                <a href="#" id="navCenterSettingsLink" class="hidden">Configuración de carnet</a>
                 <a href="/docs" id="navDocsLink" target="_blank">API Docs</a>
             </nav>
         </aside>
@@ -55,6 +56,11 @@
                     <a href="/admin/students/register" id="moduleStudentRegister" class="module-card hidden">
                         <strong>Registro de estudiantes</strong>
                         <span>Creación de estudiantes, tutor y flujo de carnetización.</span>
+                    </a>
+
+                    <a href="#" id="moduleCenterSettings" class="module-card hidden">
+                        <strong>Configuración de carnet por centro</strong>
+                        <span>Colores, textos institucionales y selección del diseño del carnet.</span>
                     </a>
                 </div>
             </section>
@@ -116,6 +122,54 @@
                     <span class="metric-label">Salidas</span>
                     <strong id="metricExits">0</strong>
                 </article>
+            </section>
+
+            <section class="metrics-grid">
+                <article class="metric-card">
+                    <span class="metric-label">Total estudiantes</span>
+                    <strong id="metricStudentsTotal">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Sexo M</span>
+                    <strong id="metricStudentsMale">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Sexo F</span>
+                    <strong id="metricStudentsFemale">0</strong>
+                </article>
+
+                <article class="metric-card">
+                    <span class="metric-label">Otros / No especificado</span>
+                    <strong id="metricStudentsOther">0</strong>
+                </article>
+            </section>
+
+            <section class="filters-card" id="printActionsCard">
+                <div class="module-access-header">
+                    <div>
+                        <h3>Impresión rápida de carnets</h3>
+                        <p>Acciones disponibles para usuarios con permisos operativos.</p>
+                    </div>
+                </div>
+
+                <div class="filters-grid">
+                    <div class="field">
+                        <label for="printGradeSelect">Curso para imprimir</label>
+                        <select id="printGradeSelect">
+                            <option value="">Seleccione un curso</option>
+                        </select>
+                    </div>
+
+                    <div class="field field-actions">
+                        <button id="printByGradeBtn" type="button">Imprimir por curso</button>
+                    </div>
+
+                    <div class="field field-actions">
+                        <button id="printAllBtn" type="button">Imprimir todo el centro</button>
+                    </div>
+                </div>
             </section>
 
             <section class="charts-section">
