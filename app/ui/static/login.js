@@ -1,8 +1,8 @@
 const loginForm = document.getElementById("loginForm");
 const loginAlert = document.getElementById("loginAlert");
 const loginBtn = document.getElementById("loginBtn");
+const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
-const togglePasswordBtn = document.getElementById("togglePasswordBtn");
 
 function showLoginError(message) {
     loginAlert.textContent = message;
@@ -18,48 +18,25 @@ function getDashboardRouteForUser() {
     return "/dashboard";
 }
 
-function syncPasswordToggleState() {
-    const isVisible = passwordInput.type === "text";
+document.addEventListener("DOMContentLoaded", () => {
+    hideLoginError();
 
-    togglePasswordBtn.setAttribute("aria-pressed", String(isVisible));
-    togglePasswordBtn.setAttribute(
-        "aria-label",
-        isVisible ? "Ocultar contraseña" : "Mostrar contraseña"
-    );
-    togglePasswordBtn.setAttribute(
-        "title",
-        isVisible ? "Ocultar contraseña" : "Mostrar contraseña"
-    );
-    togglePasswordBtn.textContent = isVisible ? "🙈" : "👁️";
-}
+    clearSession();
 
-function togglePasswordVisibility() {
-    passwordInput.type = passwordInput.type === "password" ? "text" : "password";
-    syncPasswordToggleState();
-}
+    loginForm.reset();
+    emailInput.value = "";
+    passwordInput.value = "";
 
-document.addEventListener("DOMContentLoaded", async () => {
-    syncPasswordToggleState();
-
-    togglePasswordBtn.addEventListener("click", togglePasswordVisibility);
-
-    const token = getAccessToken();
-
-    if (token) {
-        try {
-            await fetchCurrentUser();
-            window.location.href = getDashboardRouteForUser();
-            return;
-        } catch (error) {
-            clearSession();
-        }
-    }
+    window.setTimeout(() => {
+        emailInput.value = "";
+        passwordInput.value = "";
+    }, 0);
 
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         hideLoginError();
 
-        const email = document.getElementById("email").value.trim().toLowerCase();
+        const email = emailInput.value.trim().toLowerCase();
         const password = passwordInput.value;
 
         if (!email || !password) {
@@ -94,6 +71,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             window.location.href = getDashboardRouteForUser();
         } catch (error) {
             showLoginError(error.message || "Credenciales inválidas.");
+            passwordInput.value = "";
         } finally {
             loginBtn.disabled = false;
             loginBtn.textContent = "Iniciar sesión";

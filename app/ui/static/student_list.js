@@ -21,8 +21,6 @@ const headerUserChip = document.getElementById("headerUserChip");
 const navRegisterStudentLink = document.getElementById("navRegisterStudentLink");
 const navDocsStudentLink = document.getElementById("navDocsStudentLink");
 
-const STORAGE_KEY = "nova_id_selected_students";
-
 let students = [];
 let filteredStudents = [];
 let centers = [];
@@ -63,35 +61,6 @@ function escapeHtml(value) {
         .replaceAll(">", "&gt;")
         .replaceAll('"', "&quot;")
         .replaceAll("'", "&#039;");
-}
-
-function loadSelectionFromStorage() {
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) {
-            selectedStudents = new Set();
-            return;
-        }
-
-        const parsed = JSON.parse(raw);
-        if (!Array.isArray(parsed)) {
-            selectedStudents = new Set();
-            return;
-        }
-
-        selectedStudents = new Set(parsed.map(String));
-    } catch (error) {
-        console.error("No se pudo leer la selección guardada.", error);
-        selectedStudents = new Set();
-    }
-}
-
-function saveSelectionToStorage() {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(Array.from(selectedStudents)));
-    } catch (error) {
-        console.error("No se pudo guardar la selección.", error);
-    }
 }
 
 function setFiltersFromUrl() {
@@ -354,7 +323,6 @@ function handleStudentCheckboxChange(event) {
         selectedStudents.delete(id);
     }
 
-    saveSelectionToStorage();
     updateSelectedState();
 }
 
@@ -377,9 +345,9 @@ function updateSelectedState() {
     const visibleIds = getVisibleStudentIds();
     const selectedVisibleIds = getSelectedVisibleStudentIds();
 
-    selectedCount.textContent = `${selectedStudents.size} seleccionado(s)`;
-    printSelectedBtn.disabled = selectedStudents.size === 0;
-    clearSelectedBtn.disabled = selectedStudents.size === 0;
+    selectedCount.textContent = `${selectedVisibleIds.length} seleccionado(s)`;
+    printSelectedBtn.disabled = selectedVisibleIds.length === 0;
+    clearSelectedBtn.disabled = selectedVisibleIds.length === 0;
 
     if (!canPrint(currentUser.role)) {
         return;
@@ -407,11 +375,14 @@ function updateSelectedState() {
     selectAllCheckbox.indeterminate = true;
 }
 
-function clearAllSelection() {
+function clearAllSelection(showMessage = false) {
     selectedStudents.clear();
-    saveSelectionToStorage();
     syncVisibleCheckboxesWithSelection();
     updateSelectedState();
+
+    if (showMessage) {
+        showAlert("La selección fue limpiada.", "success");
+    }
 }
 
 async function applyServerFilters() {
@@ -428,16 +399,15 @@ selectAllCheckbox.addEventListener("change", () => {
         visibleIds.forEach((id) => selectedStudents.delete(String(id)));
     }
 
-    saveSelectionToStorage();
     syncVisibleCheckboxesWithSelection();
     updateSelectedState();
 });
 
 printSelectedBtn.addEventListener("click", () => {
-    const selected = Array.from(selectedStudents);
+    const selected = getSelectedVisibleStudentIds();
 
     if (selected.length === 0) {
-        showAlert("Selecciona al menos un estudiante.", "error");
+        showAlert("Selecciona al menos un estudiante visible.", "error");
         return;
     }
 
@@ -448,8 +418,7 @@ printSelectedBtn.addEventListener("click", () => {
 });
 
 clearSelectedBtn.addEventListener("click", () => {
-    clearAllSelection();
-    showAlert("La selección fue limpiada.", "success");
+    clearAllSelection(true);
 });
 
 function printStudent(id) {
@@ -467,6 +436,7 @@ function editStudent(id) {
 filterBtn.addEventListener("click", async () => {
     try {
         hideAlert();
+        clearAllSelection();
         await applyServerFilters();
     } catch (error) {
         showAlert("No se pudieron aplicar los filtros.", "error");
@@ -487,6 +457,7 @@ clearBtn.addEventListener("click", async () => {
         sectionFilter.value = "";
 
         filterSchoolYearsByCenter(centerFilter.value);
+        clearAllSelection();
 
         hideAlert();
         await applyServerFilters();
@@ -500,12 +471,14 @@ centerFilter.addEventListener("change", () => {
     yearFilter.value = "";
     gradeFilter.value = "";
     sectionFilter.value = "";
+    clearAllSelection();
     filterSchoolYearsByCenter(centerFilter.value);
 });
 
 yearFilter.addEventListener("change", () => {
     gradeFilter.value = "";
     sectionFilter.value = "";
+    clearAllSelection();
 });
 
 gradeFilter.addEventListener("change", () => {
@@ -530,16 +503,23 @@ gradeFilter.addEventListener("change", () => {
     } else {
         sectionFilter.value = "";
     }
+
+    clearAllSelection();
+});
+
+sectionFilter.addEventListener("change", () => {
+    clearAllSelection();
 });
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         hideAlert();
+        selectedStudents = new Set();
         currentUser = await requireAuth(["super_admin", "registro", "consulta"]);
         configureRoleUI(currentUser);
-        loadSelectionFromStorage();
         await loadFilters();
         await loadStudents();
+        clearAllSelection();
     } catch (error) {
         console.error(error);
     }
