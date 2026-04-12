@@ -17,6 +17,8 @@ const fieldIds = [
   "accent_color",
   "text_color",
   "background_color",
+  "card_design_key",
+  "show_full_card_identity",
   "philosophy",
   "mission",
   "vision",
@@ -50,6 +52,14 @@ const defaultTheme = {
   text_color: "#1e293b",
   background_color: "#ffffff",
   card_footer_text: "by Aula Nova",
+  card_design_key: "classic_green_v1",
+  show_full_card_identity: "true",
+};
+
+const designLabels = {
+  classic_green_v1: "Carnet Estudiantil · Classic Green v1",
+  prestige_clean_v1: "Carnet Estudiantil · Prestige Clean v1",
+  nova_modern_v1: "Carnet Estudiantil · Nova Modern v1",
 };
 
 let alertTimeoutId = null;
@@ -130,6 +140,16 @@ function fillForm(data) {
       return;
     }
 
+    if (id === "show_full_card_identity") {
+      field.value = String(data[id] ?? true);
+      return;
+    }
+
+    if (id === "card_design_key") {
+      field.value = data[id] || defaultTheme.card_design_key;
+      return;
+    }
+
     field.value = normalizeValue(data[id]);
   });
 
@@ -159,6 +179,8 @@ function getFormData() {
     accent_color: getField("accent_color").value.trim() || null,
     text_color: getField("text_color").value.trim() || null,
     background_color: getField("background_color").value.trim() || null,
+    card_design_key: getField("card_design_key").value || defaultTheme.card_design_key,
+    show_full_card_identity: getField("show_full_card_identity").value === "true",
     philosophy: getField("philosophy").value.trim() || null,
     mission: getField("mission").value.trim() || null,
     vision: getField("vision").value.trim() || null,
@@ -212,6 +234,7 @@ function renderPreview() {
   const textColor = data.text_color || defaultTheme.text_color;
   const backgroundColor = data.background_color || defaultTheme.background_color;
   const footerText = data.card_footer_text || defaultTheme.card_footer_text;
+  const useFullIdentity = data.show_full_card_identity === true;
 
   const frontCard = document.getElementById("previewFrontCard");
   const backCard = document.getElementById("previewBackCard");
@@ -219,6 +242,7 @@ function renderPreview() {
   const backHeader = document.getElementById("previewBackHeader");
   const frontFooter = document.getElementById("previewFrontFooter");
   const backFooter = document.getElementById("previewBackFooter");
+  const previewDesignName = document.getElementById("previewDesignName");
 
   frontCard.style.background = backgroundColor;
   frontCard.style.color = textColor;
@@ -251,14 +275,28 @@ function renderPreview() {
   document.getElementById("previewContactLine").textContent =
     contactParts.length > 0 ? contactParts.join(" · ") : "Teléfono · correo";
 
+  previewDesignName.textContent =
+    designLabels[data.card_design_key] || "Carnet Estudiantil";
+
   document.getElementById("previewPhilosophy").textContent =
-    data.card_philosophy || data.philosophy || "Texto corto de filosofía.";
+    useFullIdentity
+      ? (data.philosophy || "Texto institucional completo.")
+      : (data.card_philosophy || data.philosophy || "Texto corto de filosofía.");
+
   document.getElementById("previewMission").textContent =
-    data.card_mission || data.mission || "Texto corto de misión.";
+    useFullIdentity
+      ? (data.mission || "Texto institucional completo.")
+      : (data.card_mission || data.mission || "Texto corto de misión.");
+
   document.getElementById("previewVision").textContent =
-    data.card_vision || data.vision || "Texto corto de visión.";
+    useFullIdentity
+      ? (data.vision || "Texto institucional completo.")
+      : (data.card_vision || data.vision || "Texto corto de visión.");
+
   document.getElementById("previewValues").textContent =
-    data.card_values || data.values || "Texto corto de valores.";
+    useFullIdentity
+      ? (data.values || "Texto institucional completo.")
+      : (data.card_values || data.values || "Texto corto de valores.");
 
   const logo = document.getElementById("previewLogo");
   const logoPlaceholder = document.getElementById("previewLogoPlaceholder");
@@ -293,7 +331,7 @@ async function loadCenterData() {
     showAlert(error.message || "Ocurrió un error al cargar los datos.", "error");
   } finally {
     reloadBtn.disabled = false;
-    reloadBtn.textContent = "Recargar datos";
+    reloadBtn.textContent = "Recargar";
   }
 }
 

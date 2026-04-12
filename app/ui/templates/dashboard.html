@@ -26,8 +26,9 @@
         <main class="main-content">
             <header class="topbar">
                 <div>
+                    <span class="page-eyebrow">Panel ejecutivo</span>
                     <h2>Dashboard Institucional</h2>
-                    <p>Asistencia, matrícula y estadísticas operativas</p>
+                    <p>Asistencia, matrícula y estadísticas operativas del centro educativo.</p>
                 </div>
 
                 <div class="topbar-right">
@@ -50,7 +51,7 @@
                 <div class="module-grid">
                     <a href="/admin/students" id="moduleStudentsList" class="module-card hidden">
                         <strong>Listado de estudiantes</strong>
-                        <span>Consulta y acciones operativas sobre los estudiantes.</span>
+                        <span>Consulta institucional del registro estudiantil.</span>
                     </a>
 
                     <a href="/admin/students/register" id="moduleStudentRegister" class="module-card hidden">
@@ -60,12 +61,19 @@
 
                     <a href="#" id="moduleCenterSettings" class="module-card hidden">
                         <strong>Configuración de carnet por centro</strong>
-                        <span>Colores, textos institucionales y diseño del carnet.</span>
+                        <span>Diseño, colores, identidad institucional y reverso del carnet.</span>
                     </a>
                 </div>
             </section>
 
-            <section class="filters-card">
+            <section class="filters-card filter-panel">
+                <div class="section-heading">
+                    <div>
+                        <h3>Filtros del dashboard</h3>
+                        <p>Selecciona el contexto del reporte para cargar las estadísticas del día.</p>
+                    </div>
+                </div>
+
                 <div class="filters-grid">
                     <div class="field">
                         <label for="centerId">Centro</label>
@@ -92,8 +100,8 @@
                 </div>
             </section>
 
-            <section class="metrics-grid">
-                <article class="metric-card metric-card-breakdown">
+            <section class="metrics-grid metrics-grid-main">
+                <article class="metric-card metric-card-breakdown metric-present">
                     <span class="metric-label">Presentes</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="presentMale">0</strong></div>
@@ -102,7 +110,7 @@
                     </div>
                 </article>
 
-                <article class="metric-card metric-card-breakdown">
+                <article class="metric-card metric-card-breakdown metric-late">
                     <span class="metric-label">Tardanzas</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="lateMale">0</strong></div>
@@ -111,7 +119,7 @@
                     </div>
                 </article>
 
-                <article class="metric-card metric-card-breakdown">
+                <article class="metric-card metric-card-breakdown metric-absent">
                     <span class="metric-label">Ausentes</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="absentMale">0</strong></div>
@@ -120,7 +128,7 @@
                     </div>
                 </article>
 
-                <article class="metric-card metric-card-breakdown">
+                <article class="metric-card metric-card-breakdown metric-excuse">
                     <span class="metric-label">Con excusa</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="excuseMale">0</strong></div>
@@ -129,7 +137,7 @@
                     </div>
                 </article>
 
-                <article class="metric-card metric-card-breakdown">
+                <article class="metric-card metric-card-breakdown metric-general">
                     <span class="metric-label">Total general</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="generalMale">0</strong></div>
@@ -138,7 +146,7 @@
                     </div>
                 </article>
 
-                <article class="metric-card metric-card-breakdown">
+                <article class="metric-card metric-card-breakdown metric-enrollment">
                     <span class="metric-label">Matrícula actual</span>
                     <div class="metric-breakdown">
                         <div><span>Masculino</span><strong id="enrollmentMale">0</strong></div>
@@ -148,59 +156,49 @@
                 </article>
             </section>
 
-            <section class="metrics-grid">
-                <article class="metric-card">
+            <section class="metrics-grid metrics-grid-secondary">
+                <article class="metric-card metric-card-simple">
                     <span class="metric-label">Entradas</span>
                     <strong id="metricEntries">0</strong>
                 </article>
 
-                <article class="metric-card">
+                <article class="metric-card metric-card-simple">
                     <span class="metric-label">Salidas</span>
                     <strong id="metricExits">0</strong>
                 </article>
             </section>
 
-            <section class="filters-card" id="printActionsCard">
-                <div class="module-access-header">
-                    <div>
-                        <h3>Impresión rápida de carnets</h3>
-                        <p>Acciones disponibles para usuarios con permisos operativos.</p>
-                    </div>
-                </div>
-
-                <div class="filters-grid">
-                    <div class="field">
-                        <label for="printGradeSelect">Curso para imprimir</label>
-                        <select id="printGradeSelect">
-                            <option value="">Seleccione un curso</option>
-                        </select>
-                    </div>
-
-                    <div class="field field-actions">
-                        <button id="printByGradeBtn" type="button">Imprimir por curso</button>
-                    </div>
-
-                    <div class="field field-actions">
-                        <button id="printAllBtn" type="button">Imprimir todo el centro</button>
-                    </div>
-                </div>
-            </section>
-
             <section class="charts-section">
                 <div class="chart-card">
-                    <h3>Estados del día por sexo</h3>
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Estados del día por sexo</h3>
+                            <p>Comparativo visual de presentes, tardanzas, ausencias y excusas.</p>
+                        </div>
+                    </div>
                     <canvas id="statusGenderChart"></canvas>
                 </div>
 
                 <div class="chart-card">
-                    <h3>Matrícula actual por sexo</h3>
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Matrícula actual por sexo</h3>
+                            <p>Distribución actual de estudiantes según matrícula registrada.</p>
+                        </div>
+                    </div>
                     <canvas id="enrollmentGenderChart"></canvas>
                 </div>
             </section>
 
             <section class="status-grid">
                 <article class="status-card">
-                    <h3>Estado del día</h3>
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Estado del día</h3>
+                            <p>Indicadores de contexto para interpretar la asistencia cargada.</p>
+                        </div>
+                    </div>
+
                     <div class="status-list">
                         <div><span>Día laborable</span><strong id="flagWorkday">-</strong></div>
                         <div><span>Hubo actividad</span><strong id="flagActivity">-</strong></div>
@@ -210,7 +208,12 @@
                 </article>
 
                 <article class="status-card">
-                    <h3>Resumen general</h3>
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Resumen general</h3>
+                            <p>Lectura rápida del comportamiento del día.</p>
+                        </div>
+                    </div>
                     <div id="generalMessage" class="general-message">
                         Selecciona centro, año escolar y fecha para cargar los datos.
                     </div>
@@ -220,8 +223,12 @@
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
-                        <h3>Resumen por curso y sexo</h3>
+                        <div>
+                            <h3>Resumen por curso y sexo</h3>
+                            <p>Desglose de matrícula, asistencia, tardanzas, ausencias y excusas por curso y sección.</p>
+                        </div>
                     </div>
+
                     <div class="table-wrapper">
                         <table>
                             <thead>
@@ -258,8 +265,12 @@
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
-                        <h3>Detalle diario</h3>
+                        <div>
+                            <h3>Detalle diario</h3>
+                            <p>Listado detallado del comportamiento de asistencia registrado para la fecha seleccionada.</p>
+                        </div>
                     </div>
+
                     <div class="table-wrapper">
                         <table>
                             <thead>

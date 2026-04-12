@@ -19,7 +19,7 @@ function setDefaultDate() {
 }
 
 function statusBadge(status) {
-    const normalized = (status || "").toLowerCase();
+    const normalized = String(status || "").toLowerCase();
 
     if (normalized === "present") {
         return `<span class="badge badge-present">Presente</span>`;
@@ -36,7 +36,9 @@ function statusBadge(status) {
 
 function setText(id, value) {
     const el = document.getElementById(id);
-    if (el) el.textContent = value ?? 0;
+    if (el) {
+        el.textContent = value ?? 0;
+    }
 }
 
 function fillFlag(id, value) {
@@ -276,7 +278,8 @@ function renderStatusGenderChart(breakdown) {
                         breakdown.excuse.M,
                     ],
                     backgroundColor: "#2563eb",
-                    borderRadius: 8,
+                    borderRadius: 10,
+                    maxBarThickness: 42,
                 },
                 {
                     label: "Femenino",
@@ -287,18 +290,25 @@ function renderStatusGenderChart(breakdown) {
                         breakdown.excuse.F,
                     ],
                     backgroundColor: "#ec4899",
-                    borderRadius: 8,
+                    borderRadius: 10,
+                    maxBarThickness: 42,
                 },
             ],
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
                 legend: {
                     position: "top",
                 },
-                title: {
-                    display: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0,
+                    },
                 },
             },
         },
@@ -321,12 +331,15 @@ function renderEnrollmentGenderChart(enrollment) {
                 {
                     data: [enrollment.M, enrollment.F],
                     backgroundColor: ["#2563eb", "#ec4899"],
-                    borderWidth: 1,
+                    borderWidth: 0,
+                    hoverOffset: 8,
                 },
             ],
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
+            cutout: "62%",
             plugins: {
                 legend: {
                     position: "top",
@@ -380,11 +393,6 @@ function canManageCenterCardSettings(role) {
     return normalized === "super_admin" || normalized === "admin_centro";
 }
 
-function canUsePrintActions(role) {
-    const normalized = String(role || "").toLowerCase();
-    return normalized === "super_admin" || normalized === "admin_centro" || normalized === "registro";
-}
-
 function configureRoleUI(user) {
     document.getElementById("currentUserName").textContent = user.full_name;
     document.getElementById("currentUserRole").textContent = roleLabel(user.role);
@@ -397,7 +405,6 @@ function configureRoleUI(user) {
     const moduleStudentRegister = document.getElementById("moduleStudentRegister");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
     const navDocsLink = document.getElementById("navDocsLink");
-    const printActionsCard = document.getElementById("printActionsCard");
 
     if (canViewStudents(user.role)) {
         navStudentsLink.classList.remove("hidden");
@@ -412,16 +419,12 @@ function configureRoleUI(user) {
     }
 
     if (canManageCenterCardSettings(user.role)) {
-        moduleAccessCard.classList.remove("hidden");
         navCenterSettingsLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
         moduleCenterSettings.classList.remove("hidden");
     }
 
-    if (!canUsePrintActions(user.role) && printActionsCard) {
-        printActionsCard.style.display = "none";
-    }
-
-    if (user.role !== "super_admin") {
+    if (String(user.role).toLowerCase() !== "super_admin") {
         navDocsLink.classList.add("hidden");
     }
 }
@@ -445,24 +448,13 @@ function filterSchoolYearsByCenter(centerId) {
 }
 
 function updateCenterSettingsLinks() {
-    const centerId = document.getElementById("centerId")?.value;
+    const selectedCenterId = document.getElementById("centerId")?.value;
     const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
-
-    const href = centerId ? `/admin/centers/${centerId}/settings` : "#";
+    const href = selectedCenterId ? `/admin/centers/${selectedCenterId}/settings` : "#";
 
     if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
     if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
-}
-
-function fillPrintGradeOptions(summary) {
-    const select = document.getElementById("printGradeSelect");
-    if (!select) return;
-
-    select.innerHTML = `<option value="">Seleccione un curso</option>`;
-    Object.keys(summary.by_grade || {}).forEach((grade) => {
-        select.innerHTML += `<option value="${grade}">${grade}</option>`;
-    });
 }
 
 async function loadCenters() {
@@ -518,22 +510,62 @@ async function loadSchoolYears() {
     }
 }
 
+function resetDashboardVisuals() {
+    fillAttendanceCards({
+        present: { M: 0, F: 0, T: 0 },
+        late: { M: 0, F: 0, T: 0 },
+        absent: { M: 0, F: 0, T: 0 },
+        excuse: { M: 0, F: 0, T: 0 },
+        general: { M: 0, F: 0, T: 0 },
+    });
+
+    fillEnrollmentCards({ M: 0, F: 0, T: 0 });
+    setText("metricEntries", 0);
+    setText("metricExits", 0);
+
+    renderCourseTable([]);
+    renderDetailTable({
+        present_students: [],
+        late_students: [],
+        absent_students: [],
+    });
+
+    renderStatusGenderChart({
+        present: { M: 0, F: 0, T: 0 },
+        late: { M: 0, F: 0, T: 0 },
+        absent: { M: 0, F: 0, T: 0 },
+        excuse: { M: 0, F: 0, T: 0 },
+    });
+
+    renderEnrollmentGenderChart({ M: 0, F: 0, T: 0 });
+
+    fillFlag("flagWorkday", false);
+    fillFlag("flagActivity", false);
+    fillFlag("flagNoSchool", false);
+    fillFlag("flagEarlyDismissal", false);
+}
+
 async function loadDashboard() {
-    const centerId = document.getElementById("centerId").value;
-    const schoolYearId = document.getElementById("schoolYearId").value;
+    const selectedCenterId = document.getElementById("centerId").value;
+    const selectedSchoolYearId = document.getElementById("schoolYearId").value;
     const reportDate = document.getElementById("reportDate").value;
     const generalMessage = document.getElementById("generalMessage");
+    const loadButton = document.getElementById("loadDashboardBtn");
 
-    if (!centerId || !schoolYearId || !reportDate) {
+    if (!selectedCenterId || !selectedSchoolYearId || !reportDate) {
         alert("Debes completar centro, año escolar y fecha.");
         return;
     }
 
     generalMessage.textContent = "Cargando información...";
+    if (loadButton) {
+        loadButton.disabled = true;
+        loadButton.textContent = "Cargando...";
+    }
 
     try {
-        const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
-        const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
+        const dailyUrl = `/reports/daily-institutional?center_id=${selectedCenterId}&school_year_id=${selectedSchoolYearId}&date=${reportDate}`;
+        const summaryUrl = `/reports/students/summary?center_id=${selectedCenterId}&school_year_id=${selectedSchoolYearId}`;
 
         const [dailyReport, studentSummary] = await Promise.all([
             fetchJson(dailyUrl),
@@ -546,7 +578,6 @@ async function loadDashboard() {
 
         fillAttendanceCards(attendanceBreakdown);
         fillEnrollmentCards(enrollmentBreakdown);
-        fillPrintGradeOptions(studentSummary);
 
         setText("metricEntries", dailyReport.total_entries);
         setText("metricExits", dailyReport.total_exits);
@@ -565,61 +596,13 @@ async function loadDashboard() {
         renderEnrollmentGenderChart(enrollmentBreakdown);
     } catch (error) {
         generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
-
-        fillAttendanceCards({
-            present: { M: 0, F: 0, T: 0 },
-            late: { M: 0, F: 0, T: 0 },
-            absent: { M: 0, F: 0, T: 0 },
-            excuse: { M: 0, F: 0, T: 0 },
-            general: { M: 0, F: 0, T: 0 },
-        });
-
-        fillEnrollmentCards({ M: 0, F: 0, T: 0 });
-        renderCourseTable([]);
-        renderDetailTable({
-            present_students: [],
-            late_students: [],
-            absent_students: [],
-        });
-        renderStatusGenderChart({
-            present: { M: 0, F: 0, T: 0 },
-            late: { M: 0, F: 0, T: 0 },
-            absent: { M: 0, F: 0, T: 0 },
-            excuse: { M: 0, F: 0, T: 0 },
-        });
-        renderEnrollmentGenderChart({ M: 0, F: 0 });
+        resetDashboardVisuals();
+    } finally {
+        if (loadButton) {
+            loadButton.disabled = false;
+            loadButton.textContent = "Cargar dashboard";
+        }
     }
-}
-
-function printAllCards() {
-    const centerId = document.getElementById("centerId").value;
-    const schoolYearId = document.getElementById("schoolYearId").value;
-
-    if (!centerId || !schoolYearId) {
-        alert("Debes seleccionar centro y año escolar.");
-        return;
-    }
-
-    window.open(
-        `/students/cards/print-sheet?center_id=${centerId}&school_year_id=${schoolYearId}`,
-        "_blank"
-    );
-}
-
-function printCardsByGrade() {
-    const centerId = document.getElementById("centerId").value;
-    const schoolYearId = document.getElementById("schoolYearId").value;
-    const grade = document.getElementById("printGradeSelect").value;
-
-    if (!centerId || !schoolYearId || !grade) {
-        alert("Debes seleccionar centro, año escolar y curso.");
-        return;
-    }
-
-    window.open(
-        `/students/cards/print-sheet?center_id=${centerId}&school_year_id=${schoolYearId}&grade=${encodeURIComponent(grade)}`,
-        "_blank"
-    );
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -642,16 +625,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         const button = document.getElementById("loadDashboardBtn");
         if (button) {
             button.addEventListener("click", loadDashboard);
-        }
-
-        const printAllBtn = document.getElementById("printAllBtn");
-        if (printAllBtn) {
-            printAllBtn.addEventListener("click", printAllCards);
-        }
-
-        const printByGradeBtn = document.getElementById("printByGradeBtn");
-        if (printByGradeBtn) {
-            printByGradeBtn.addEventListener("click", printCardsByGrade);
         }
 
         const logoutBtn = document.getElementById("logoutBtn");
