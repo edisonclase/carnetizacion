@@ -1,20 +1,31 @@
 from datetime import date
 
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db, require_roles, resolve_center_scope
-from app.models.student import Student
 from app.models.user import User, UserRole
 from app.schemas.reports import (
     DailyGroupedReportResponse,
     DailyInstitutionalReportResponse,
     MonthlyInstitutionalReportResponse,
+    PrintableCourseReportResponse,
+    PrintableExcusesReportResponse,
+    PrintableGlobalReportResponse,
+    PrintableMultiCourseReportResponse,
+    StudentsSummaryResponse,
 )
 from app.services.reporting_service import ReportingService
 
 router = APIRouter(prefix="/reports", tags=["Reports"])
+
+
+def _reporting_user_dependency():
+    return require_roles(
+        UserRole.SUPER_ADMIN,
+        UserRole.ADMIN_CENTRO,
+        UserRole.CONSULTA,
+    )
 
 
 @router.get("/daily-institutional", response_model=DailyInstitutionalReportResponse)
@@ -23,12 +34,14 @@ def get_daily_institutional_report(
     school_year_id: int = Query(...),
     date_value: date = Query(..., alias="date"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
 ):
     service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
     try:
         report = service.get_daily_institutional_report(
-            center_id=center_id,
+            center_id=effective_center_id,
             school_year_id=school_year_id,
             target_date=date_value,
         )
@@ -44,12 +57,14 @@ def get_daily_grouped_report(
     school_year_id: int = Query(...),
     date_value: date = Query(..., alias="date"),
     db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
 ):
     service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
     try:
         report = service.get_daily_grouped_report(
-            center_id=center_id,
+            center_id=effective_center_id,
             school_year_id=school_year_id,
             target_date=date_value,
         )
@@ -66,12 +81,14 @@ def get_monthly_institutional_report(
     year: int = Query(...),
     month: int = Query(...),
     db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
 ):
     service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
     try:
         report = service.get_monthly_institutional_report(
-            center_id=center_id,
+            center_id=effective_center_id,
             school_year_id=school_year_id,
             year=year,
             month=month,
@@ -82,75 +99,111 @@ def get_monthly_institutional_report(
     return report
 
 
-@router.get("/students/summary")
+@router.get("/students/summary", response_model=StudentsSummaryResponse)
 def get_students_summary(
     center_id: int | None = Query(default=None),
     school_year_id: int | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(
-        require_roles(UserRole.SUPER_ADMIN, UserRole.REGISTRO)
-    ),
+    current_user: User = Depends(_reporting_user_dependency()),
 ):
+    service = ReportingService(db)
     effective_center_id = resolve_center_scope(current_user, center_id)
 
-    base_query = db.query(Student)
-
-    if effective_center_id is not None:
-        base_query = base_query.filter(Student.center_id == effective_center_id)
-
-    if school_year_id is not None:
-        base_query = base_query.filter(Student.school_year_id == school_year_id)
-
-    total_students = base_query.count()
-
-    gender_query = db.query(
-        Student.gender,
-        func.count(Student.id),
+    return service.get_students_summary(
+        center_id=effective_center_id,
+        school_year_id=school_year_id,
     )
 
-    if effective_center_id is not None:
-        gender_query = gender_query.filter(Student.center_id == effective_center_id)
 
-    if school_year_id is not None:
-        gender_query = gender_query.filter(Student.school_year_id == school_year_id)
+@router.get("/print/global-data", response_model=PrintableGlobalReportResponse)
+def get_printable_global_report(
+    center_id: int = Query(...),
+    school_year_id: int = Query(...),
+    date_value: date = Query(..., alias="date"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
+):
+    service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
-    gender_rows = (
-        gender_query
-        .group_by(Student.gender)
-        .order_by(Student.gender.asc())
-        .all()
-    )
+    try:
+        return service.get_printable_global_report(
+            center_id=effective_center_id,
+            school_year_id=school_year_id,
+            target_date=date_value,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    grade_query = db.query(
-        Student.grade,
-        func.count(Student.id),
-    )
 
-    if effective_center_id is not None:
-        grade_query = grade_query.filter(Student.center_id == effective_center_id)
+@router.get("/print/by-course-data", response_model=PrintableCourseReportResponse)
+def get_printable_course_report(
+    center_id: int = Query(...),
+    school_year_id: int = Query(...),
+    grade: str = Query(...),
+    section: str | None = Query(default=None),
+    date_value: date = Query(..., alias="date"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
+):
+    service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
-    if school_year_id is not None:
-        grade_query = grade_query.filter(Student.school_year_id == school_year_id)
+    try:
+        return service.get_printable_course_report(
+            center_id=effective_center_id,
+            school_year_id=school_year_id,
+            target_date=date_value,
+            grade=grade,
+            section=section,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    grade_rows = (
-        grade_query
-        .group_by(Student.grade)
-        .order_by(Student.grade.asc())
-        .all()
-    )
 
-    by_gender = {
-        (gender if gender else "No especificado"): count
-        for gender, count in gender_rows
-    }
+@router.get("/print/by-multi-course-data", response_model=PrintableMultiCourseReportResponse)
+def get_printable_multi_course_report(
+    center_id: int = Query(...),
+    school_year_id: int = Query(...),
+    grades: list[str] = Query(...),
+    date_value: date = Query(..., alias="date"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
+):
+    service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
 
-    by_grade = {
-        (grade if grade else "No especificado"): count
-        for grade, count in grade_rows
-    }
+    try:
+        return service.get_printable_multi_course_report(
+            center_id=effective_center_id,
+            school_year_id=school_year_id,
+            target_date=date_value,
+            grades=grades,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
-    return {
-        "total_students": total_students,
-        "by_gender": by_gender,
-        "by_grade": by_grade,
-    }
+
+@router.get("/print/excuses-by-course-data", response_model=PrintableExcusesReportResponse)
+def get_printable_excuses_report(
+    center_id: int = Query(...),
+    school_year_id: int = Query(...),
+    date_value: date = Query(..., alias="date"),
+    grade: str | None = Query(default=None),
+    section: str | None = Query(default=None),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(_reporting_user_dependency()),
+):
+    service = ReportingService(db)
+    effective_center_id = resolve_center_scope(current_user, center_id)
+
+    try:
+        return service.get_printable_excuses_report(
+            center_id=effective_center_id,
+            school_year_id=school_year_id,
+            target_date=date_value,
+            grade=grade,
+            section=section,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
