@@ -18,22 +18,6 @@ function setDefaultDate() {
     }
 }
 
-function statusBadge(status) {
-    const normalized = String(status || "").toLowerCase();
-
-    if (normalized === "present") {
-        return `<span class="badge badge-present">Presente</span>`;
-    }
-    if (normalized === "late") {
-        return `<span class="badge badge-late">Tarde</span>`;
-    }
-    if (normalized === "absent") {
-        return `<span class="badge badge-absent">Ausente</span>`;
-    }
-
-    return status || "-";
-}
-
 function setText(id, value) {
     const el = document.getElementById(id);
     if (el) {
@@ -127,133 +111,147 @@ function computeEnrollmentBreakdown(summary) {
     };
 }
 
-function computeCourseGenderSummary(report) {
-    const rows = mergedDailyRows(report);
-    const map = new Map();
+async function fetchJson(url) {
+    const response = await apiFetch(url);
 
-    rows.forEach((item) => {
-        const grade = item.grade || "-";
-        const section = item.section || "-";
-        const key = `${grade}|||${section}`;
-        const gender = normalizeGender(item.gender);
-        const status = String(item.status || "").toLowerCase();
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || "No se pudo cargar la información.");
+    }
 
-        if (!map.has(key)) {
-            map.set(key, {
-                grade,
-                section,
-                enrollment_m: 0,
-                enrollment_f: 0,
-                enrollment_t: 0,
-                present_m: 0,
-                present_f: 0,
-                present_t: 0,
-                late_m: 0,
-                late_f: 0,
-                late_t: 0,
-                absent_m: 0,
-                absent_f: 0,
-                absent_t: 0,
-                excuse_m: 0,
-                excuse_f: 0,
-                excuse_t: 0,
-            });
-        }
-
-        const row = map.get(key);
-
-        if (gender === "M") row.enrollment_m += 1;
-        if (gender === "F") row.enrollment_f += 1;
-        row.enrollment_t += 1;
-
-        if (status === "present") {
-            if (gender === "M") row.present_m += 1;
-            if (gender === "F") row.present_f += 1;
-            row.present_t += 1;
-        }
-
-        if (status === "late") {
-            if (gender === "M") row.late_m += 1;
-            if (gender === "F") row.late_f += 1;
-            row.late_t += 1;
-        }
-
-        if (status === "absent") {
-            if (gender === "M") row.absent_m += 1;
-            if (gender === "F") row.absent_f += 1;
-            row.absent_t += 1;
-        }
-
-        if (item.has_excuse) {
-            if (gender === "M") row.excuse_m += 1;
-            if (gender === "F") row.excuse_f += 1;
-            row.excuse_t += 1;
-        }
-    });
-
-    return [...map.values()].sort((a, b) => {
-        if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade), "es");
-        return String(a.section).localeCompare(String(b.section), "es");
-    });
+    return response.json();
 }
 
-function renderCourseTable(rows) {
-    const tbody = document.getElementById("courseTableBody");
-    if (!tbody) return;
+function canManageCenterCardSettings(role) {
+    const normalized = String(role || "").toLowerCase();
+    return normalized === "super_admin" || normalized === "admin_centro";
+}
 
-    if (!rows || rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="17" class="empty-row">Sin datos disponibles.</td></tr>`;
+function canAccessInstitutionalReports(role) {
+    const normalized = String(role || "").toLowerCase();
+    return normalized === "super_admin" || normalized === "admin_centro" || normalized === "consulta";
+}
+
+function configureRoleUI(user) {
+    document.getElementById("currentUserName").textContent = user.full_name;
+    document.getElementById("currentUserRole").textContent = roleLabel(user.role);
+
+    const navStudentsLink = document.getElementById("navStudentsLink");
+    const navRegisterLink = document.getElementById("navRegisterLink");
+    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
+    const moduleAccessCard = document.getElementById("moduleAccessCard");
+    const moduleStudentsList = document.getElementById("moduleStudentsList");
+    const moduleStudentRegister = document.getElementById("moduleStudentRegister");
+    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
+    const navDocsLink = document.getElementById("navDocsLink");
+    const reportActionsCard = document.getElementById("reportActionsCard");
+
+    if (canViewStudents(user.role)) {
+        navStudentsLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleStudentsList.classList.remove("hidden");
+    }
+
+    if (canManageStudents(user.role)) {
+        navRegisterLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleStudentRegister.classList.remove("hidden");
+    }
+
+    if (canManageCenterCardSettings(user.role)) {
+        navCenterSettingsLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleCenterSettings.classList.remove("hidden");
+    }
+
+    if (canAccessInstitutionalReports(user.role)) {
+        reportActionsCard.classList.remove("hidden");
+    }
+
+    if (String(user.role).toLowerCase() !== "super_admin") {
+        navDocsLink.classList.add("hidden");
+    }
+}
+
+function filterSchoolYearsByCenter(centerId) {
+    const schoolYearSelect = document.getElementById("schoolYearId");
+    if (!schoolYearSelect) return;
+
+    const filtered = allSchoolYears.filter((item) => {
+        return !centerId || String(item.center_id) === String(centerId);
+    });
+
+    if (!filtered.length) {
+        schoolYearSelect.innerHTML = `<option value="">No hay años escolares disponibles</option>`;
         return;
     }
 
-    tbody.innerHTML = rows.map(item => `
-        <tr>
-            <td>${item.grade}</td>
-            <td>${item.section}</td>
-            <td>${item.enrollment_m}</td>
-            <td>${item.enrollment_f}</td>
-            <td>${item.enrollment_t}</td>
-            <td>${item.present_m}</td>
-            <td>${item.present_f}</td>
-            <td>${item.present_t}</td>
-            <td>${item.late_m}</td>
-            <td>${item.late_f}</td>
-            <td>${item.late_t}</td>
-            <td>${item.absent_m}</td>
-            <td>${item.absent_f}</td>
-            <td>${item.absent_t}</td>
-            <td>${item.excuse_m}</td>
-            <td>${item.excuse_f}</td>
-            <td>${item.excuse_t}</td>
-        </tr>
+    schoolYearSelect.innerHTML = filtered.map(item => `
+        <option value="${item.id}">${item.name}</option>
     `).join("");
 }
 
-function renderDetailTable(report) {
-    const tbody = document.getElementById("detailTableBody");
-    if (!tbody) return;
+function updateCenterSettingsLinks() {
+    const selectedCenterId = document.getElementById("centerId")?.value;
+    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
+    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
+    const href = selectedCenterId ? `/admin/centers/${selectedCenterId}/settings` : "#";
 
-    const rows = mergedDailyRows(report);
+    if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
+    if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
+}
 
-    if (rows.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="10" class="empty-row">Sin datos disponibles.</td></tr>`;
-        return;
+async function loadCenters() {
+    const centerSelect = document.getElementById("centerId");
+    if (!centerSelect) return;
+
+    try {
+        const centers = await fetchJson("/centers/");
+
+        if (!centers.length) {
+            centerSelect.innerHTML = `<option value="">No hay centros registrados</option>`;
+            return;
+        }
+
+        if (String(currentUser.role).toLowerCase() === "super_admin") {
+            centerSelect.innerHTML = centers.map(center => `
+                <option value="${center.id}">${center.name}</option>
+            `).join("");
+        } else {
+            const ownCenter = centers.find((center) => String(center.id) === String(currentUser.center_id));
+
+            if (!ownCenter) {
+                centerSelect.innerHTML = `<option value="">Centro no disponible</option>`;
+                return;
+            }
+
+            centerSelect.innerHTML = `<option value="${ownCenter.id}">${ownCenter.name}</option>`;
+            centerSelect.value = String(ownCenter.id);
+            centerSelect.disabled = true;
+        }
+
+        updateCenterSettingsLinks();
+    } catch (error) {
+        centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
     }
+}
 
-    tbody.innerHTML = rows.map(item => `
-        <tr>
-            <td>${statusBadge(item.status)}</td>
-            <td>${item.full_name}</td>
-            <td>${item.student_code ?? "-"}</td>
-            <td>${item.minerd_id ?? "-"}</td>
-            <td>${item.gender ?? "-"}</td>
-            <td>${item.grade}</td>
-            <td>${item.section}</td>
-            <td>${item.first_entry_time ? new Date(item.first_entry_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}</td>
-            <td>${item.minutes_late ?? 0}</td>
-            <td>${item.has_excuse ? (item.excuse_note ?? "Sí") : "No"}</td>
-        </tr>
-    `).join("");
+async function loadSchoolYears() {
+    const schoolYearSelect = document.getElementById("schoolYearId");
+    if (!schoolYearSelect) return;
+
+    try {
+        allSchoolYears = await fetchJson("/school-years/");
+
+        if (!allSchoolYears.length) {
+            schoolYearSelect.innerHTML = `<option value="">No hay años escolares registrados</option>`;
+            return;
+        }
+
+        filterSchoolYearsByCenter(document.getElementById("centerId").value);
+    } catch (error) {
+        schoolYearSelect.innerHTML = `<option value="">Error cargando años escolares</option>`;
+    }
 }
 
 function renderStatusGenderChart(breakdown) {
@@ -377,139 +375,6 @@ function fillEnrollmentCards(enrollment) {
     setText("enrollmentTotal", enrollment.T);
 }
 
-async function fetchJson(url) {
-    const response = await apiFetch(url);
-
-    if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.detail || "No se pudo cargar la información.");
-    }
-
-    return response.json();
-}
-
-function canManageCenterCardSettings(role) {
-    const normalized = String(role || "").toLowerCase();
-    return normalized === "super_admin" || normalized === "admin_centro";
-}
-
-function configureRoleUI(user) {
-    document.getElementById("currentUserName").textContent = user.full_name;
-    document.getElementById("currentUserRole").textContent = roleLabel(user.role);
-
-    const navStudentsLink = document.getElementById("navStudentsLink");
-    const navRegisterLink = document.getElementById("navRegisterLink");
-    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
-    const moduleAccessCard = document.getElementById("moduleAccessCard");
-    const moduleStudentsList = document.getElementById("moduleStudentsList");
-    const moduleStudentRegister = document.getElementById("moduleStudentRegister");
-    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
-    const navDocsLink = document.getElementById("navDocsLink");
-
-    if (canViewStudents(user.role)) {
-        navStudentsLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleStudentsList.classList.remove("hidden");
-    }
-
-    if (canManageStudents(user.role)) {
-        navRegisterLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleStudentRegister.classList.remove("hidden");
-    }
-
-    if (canManageCenterCardSettings(user.role)) {
-        navCenterSettingsLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleCenterSettings.classList.remove("hidden");
-    }
-
-    if (String(user.role).toLowerCase() !== "super_admin") {
-        navDocsLink.classList.add("hidden");
-    }
-}
-
-function filterSchoolYearsByCenter(centerId) {
-    const schoolYearSelect = document.getElementById("schoolYearId");
-    if (!schoolYearSelect) return;
-
-    const filtered = allSchoolYears.filter((item) => {
-        return !centerId || String(item.center_id) === String(centerId);
-    });
-
-    if (!filtered.length) {
-        schoolYearSelect.innerHTML = `<option value="">No hay años escolares disponibles</option>`;
-        return;
-    }
-
-    schoolYearSelect.innerHTML = filtered.map(item => `
-        <option value="${item.id}">${item.name}</option>
-    `).join("");
-}
-
-function updateCenterSettingsLinks() {
-    const selectedCenterId = document.getElementById("centerId")?.value;
-    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
-    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
-    const href = selectedCenterId ? `/admin/centers/${selectedCenterId}/settings` : "#";
-
-    if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
-    if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
-}
-
-async function loadCenters() {
-    const centerSelect = document.getElementById("centerId");
-    if (!centerSelect) return;
-
-    try {
-        const centers = await fetchJson("/centers/");
-
-        if (!centers.length) {
-            centerSelect.innerHTML = `<option value="">No hay centros registrados</option>`;
-            return;
-        }
-
-        if (String(currentUser.role).toLowerCase() === "super_admin") {
-            centerSelect.innerHTML = centers.map(center => `
-                <option value="${center.id}">${center.name}</option>
-            `).join("");
-        } else {
-            const ownCenter = centers.find((center) => String(center.id) === String(currentUser.center_id));
-
-            if (!ownCenter) {
-                centerSelect.innerHTML = `<option value="">Centro no disponible</option>`;
-                return;
-            }
-
-            centerSelect.innerHTML = `<option value="${ownCenter.id}">${ownCenter.name}</option>`;
-            centerSelect.value = String(ownCenter.id);
-            centerSelect.disabled = true;
-        }
-
-        updateCenterSettingsLinks();
-    } catch (error) {
-        centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
-    }
-}
-
-async function loadSchoolYears() {
-    const schoolYearSelect = document.getElementById("schoolYearId");
-    if (!schoolYearSelect) return;
-
-    try {
-        allSchoolYears = await fetchJson("/school-years/");
-
-        if (!allSchoolYears.length) {
-            schoolYearSelect.innerHTML = `<option value="">No hay años escolares registrados</option>`;
-            return;
-        }
-
-        filterSchoolYearsByCenter(document.getElementById("centerId").value);
-    } catch (error) {
-        schoolYearSelect.innerHTML = `<option value="">Error cargando años escolares</option>`;
-    }
-}
-
 function resetDashboardVisuals() {
     fillAttendanceCards({
         present: { M: 0, F: 0, T: 0 },
@@ -522,13 +387,6 @@ function resetDashboardVisuals() {
     fillEnrollmentCards({ M: 0, F: 0, T: 0 });
     setText("metricEntries", 0);
     setText("metricExits", 0);
-
-    renderCourseTable([]);
-    renderDetailTable({
-        present_students: [],
-        late_students: [],
-        absent_students: [],
-    });
 
     renderStatusGenderChart({
         present: { M: 0, F: 0, T: 0 },
@@ -545,14 +403,116 @@ function resetDashboardVisuals() {
     fillFlag("flagEarlyDismissal", false);
 }
 
+function getSelectedFilters() {
+    return {
+        centerId: document.getElementById("centerId").value,
+        schoolYearId: document.getElementById("schoolYearId").value,
+        reportDate: document.getElementById("reportDate").value,
+    };
+}
+
+function validateSelectedFilters() {
+    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
+
+    if (!centerId || !schoolYearId || !reportDate) {
+        alert("Debes completar centro, año escolar y fecha.");
+        return false;
+    }
+
+    return true;
+}
+
+function buildReportBaseQuery() {
+    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
+    return `center_id=${encodeURIComponent(centerId)}&school_year_id=${encodeURIComponent(schoolYearId)}&date=${encodeURIComponent(reportDate)}`;
+}
+
+function openPrintableJson(url) {
+    window.open(url, "_blank", "noopener,noreferrer");
+}
+
+function handleViewCourseSummary() {
+    if (!validateSelectedFilters()) return;
+
+    const query = buildReportBaseQuery();
+    openPrintableJson(`/reports/print/global-data?${query}`);
+}
+
+function handleViewDailyDetail() {
+    if (!validateSelectedFilters()) return;
+
+    const query = buildReportBaseQuery();
+    openPrintableJson(`/reports/daily-institutional?${query}`);
+}
+
+function handlePrintGlobal() {
+    if (!validateSelectedFilters()) return;
+
+    const query = buildReportBaseQuery();
+    openPrintableJson(`/reports/print/global-data?${query}`);
+}
+
+function handlePrintByCourse() {
+    if (!validateSelectedFilters()) return;
+
+    const grade = window.prompt("Escribe el curso que deseas imprimir. Ejemplo: 5to");
+    if (!grade || !grade.trim()) return;
+
+    const section = window.prompt("Escribe la sección si deseas filtrar por sección. Déjalo vacío para todas.");
+    let query = `${buildReportBaseQuery()}&grade=${encodeURIComponent(grade.trim())}`;
+
+    if (section && section.trim()) {
+        query += `&section=${encodeURIComponent(section.trim())}`;
+    }
+
+    openPrintableJson(`/reports/print/by-course-data?${query}`);
+}
+
+function handlePrintMultiCourse() {
+    if (!validateSelectedFilters()) return;
+
+    const gradesInput = window.prompt(
+        "Escribe varios cursos separados por coma. Ejemplo: 4to,5to,6to"
+    );
+
+    if (!gradesInput || !gradesInput.trim()) return;
+
+    const grades = gradesInput
+        .split(",")
+        .map(item => item.trim())
+        .filter(Boolean);
+
+    if (!grades.length) return;
+
+    const query = `${buildReportBaseQuery()}&${grades.map(grade => `grades=${encodeURIComponent(grade)}`).join("&")}`;
+    openPrintableJson(`/reports/print/by-multi-course-data?${query}`);
+}
+
+function handlePrintExcuses() {
+    if (!validateSelectedFilters()) return;
+
+    const grade = window.prompt("Escribe el curso para filtrar excusas. Déjalo vacío para todos.");
+    const section = window.prompt("Escribe la sección si deseas filtrar por sección. Déjalo vacío para todas.");
+
+    let query = buildReportBaseQuery();
+
+    if (grade && grade.trim()) {
+        query += `&grade=${encodeURIComponent(grade.trim())}`;
+    }
+
+    if (section && section.trim()) {
+        query += `&section=${encodeURIComponent(section.trim())}`;
+    }
+
+    openPrintableJson(`/reports/print/excuses-by-course-data?${query}`);
+}
+
 async function loadDashboard() {
-    const selectedCenterId = document.getElementById("centerId").value;
-    const selectedSchoolYearId = document.getElementById("schoolYearId").value;
-    const reportDate = document.getElementById("reportDate").value;
+    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
     const generalMessage = document.getElementById("generalMessage");
     const loadButton = document.getElementById("loadDashboardBtn");
 
-    if (!selectedCenterId || !selectedSchoolYearId || !reportDate) {
+    if (!centerId || !schoolYearId || !reportDate) {
         alert("Debes completar centro, año escolar y fecha.");
         return;
     }
@@ -564,8 +524,8 @@ async function loadDashboard() {
     }
 
     try {
-        const dailyUrl = `/reports/daily-institutional?center_id=${selectedCenterId}&school_year_id=${selectedSchoolYearId}&date=${reportDate}`;
-        const summaryUrl = `/reports/students/summary?center_id=${selectedCenterId}&school_year_id=${selectedSchoolYearId}`;
+        const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
+        const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
 
         const [dailyReport, studentSummary] = await Promise.all([
             fetchJson(dailyUrl),
@@ -574,7 +534,6 @@ async function loadDashboard() {
 
         const attendanceBreakdown = computeAttendanceBreakdown(dailyReport);
         const enrollmentBreakdown = computeEnrollmentBreakdown(studentSummary);
-        const courseRows = computeCourseGenderSummary(dailyReport);
 
         fillAttendanceCards(attendanceBreakdown);
         fillEnrollmentCards(enrollmentBreakdown);
@@ -590,8 +549,6 @@ async function loadDashboard() {
         generalMessage.textContent =
             `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}.`;
 
-        renderCourseTable(courseRows);
-        renderDetailTable(dailyReport);
         renderStatusGenderChart(attendanceBreakdown);
         renderEnrollmentGenderChart(enrollmentBreakdown);
     } catch (error) {
@@ -630,6 +587,36 @@ document.addEventListener("DOMContentLoaded", async () => {
         const logoutBtn = document.getElementById("logoutBtn");
         if (logoutBtn) {
             logoutBtn.addEventListener("click", logout);
+        }
+
+        const btnViewCourseSummary = document.getElementById("btnViewCourseSummary");
+        if (btnViewCourseSummary) {
+            btnViewCourseSummary.addEventListener("click", handleViewCourseSummary);
+        }
+
+        const btnViewDailyDetail = document.getElementById("btnViewDailyDetail");
+        if (btnViewDailyDetail) {
+            btnViewDailyDetail.addEventListener("click", handleViewDailyDetail);
+        }
+
+        const btnPrintGlobal = document.getElementById("btnPrintGlobal");
+        if (btnPrintGlobal) {
+            btnPrintGlobal.addEventListener("click", handlePrintGlobal);
+        }
+
+        const btnPrintByCourse = document.getElementById("btnPrintByCourse");
+        if (btnPrintByCourse) {
+            btnPrintByCourse.addEventListener("click", handlePrintByCourse);
+        }
+
+        const btnPrintMultiCourse = document.getElementById("btnPrintMultiCourse");
+        if (btnPrintMultiCourse) {
+            btnPrintMultiCourse.addEventListener("click", handlePrintMultiCourse);
+        }
+
+        const btnPrintExcuses = document.getElementById("btnPrintExcuses");
+        if (btnPrintExcuses) {
+            btnPrintExcuses.addEventListener("click", handlePrintExcuses);
         }
     } catch (error) {
         console.error(error);

@@ -13,7 +13,12 @@ class ReportingService:
     def __init__(self, db: Session):
         self.db = db
 
-    def _get_center_day(self, center_id: int, school_year_id: int, target_date: date) -> CenterAttendanceDay:
+    def _get_center_day(
+        self,
+        center_id: int,
+        school_year_id: int,
+        target_date: date,
+    ) -> CenterAttendanceDay:
         center_day = (
             self.db.query(CenterAttendanceDay)
             .filter(
@@ -32,7 +37,12 @@ class ReportingService:
 
         return center_day
 
-    def _get_summary_rows(self, center_id: int, school_year_id: int, target_date: date):
+    def _get_summary_rows(
+        self,
+        center_id: int,
+        school_year_id: int,
+        target_date: date,
+    ):
         return (
             self.db.query(AttendanceDailySummary, Student)
             .join(Student, Student.id == AttendanceDailySummary.student_id)
@@ -53,13 +63,18 @@ class ReportingService:
     @staticmethod
     def _normalize_gender(value: str | None) -> str:
         raw = (value or "").strip().lower()
+
         if raw in {"m", "masculino", "male"}:
             return "male"
         if raw in {"f", "femenino", "female"}:
             return "female"
         return "other"
 
-    def _build_student_item(self, summary: AttendanceDailySummary, student: Student) -> dict:
+    def _build_student_item(
+        self,
+        summary: AttendanceDailySummary,
+        student: Student,
+    ) -> dict:
         return {
             "student_id": student.id,
             "student_code": student.student_code,
@@ -75,20 +90,19 @@ class ReportingService:
             "minutes_late": summary.minutes_late,
         }
 
-    def _build_printable_totals(self, rows: list[tuple[AttendanceDailySummary, Student]]) -> dict:
-        base = {
-            "male": 0,
-            "female": 0,
-            "total": 0,
-        }
+    def _build_printable_totals(
+        self,
+        rows: list[tuple[AttendanceDailySummary, Student]],
+    ) -> dict:
+        empty = {"male": 0, "female": 0, "total": 0}
 
         totals = {
-            "present": base.copy(),
-            "late": base.copy(),
-            "absent": base.copy(),
-            "excuse": base.copy(),
-            "general": base.copy(),
-            "enrollment": base.copy(),
+            "present": empty.copy(),
+            "late": empty.copy(),
+            "absent": empty.copy(),
+            "excuse": empty.copy(),
+            "general": empty.copy(),
+            "enrollment": empty.copy(),
         }
 
         for summary, student in rows:
@@ -134,7 +148,10 @@ class ReportingService:
 
         return totals
 
-    def _build_printable_course_rows(self, rows: list[tuple[AttendanceDailySummary, Student]]) -> list[dict]:
+    def _build_printable_course_rows(
+        self,
+        rows: list[tuple[AttendanceDailySummary, Student]],
+    ) -> list[dict]:
         course_groups = defaultdict(
             lambda: {
                 "grade": "",
@@ -467,7 +484,10 @@ class ReportingService:
         if not filtered_rows:
             raise ValueError("No hay datos para el curso seleccionado.")
 
-        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
+        students = [
+            self._build_student_item(summary, student)
+            for summary, student in filtered_rows
+        ]
 
         return {
             "center_id": center_day.center_id,
@@ -503,7 +523,10 @@ class ReportingService:
         if not filtered_rows:
             raise ValueError("No hay datos para los cursos seleccionados.")
 
-        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
+        students = [
+            self._build_student_item(summary, student)
+            for summary, student in filtered_rows
+        ]
 
         return {
             "center_id": center_day.center_id,
@@ -537,7 +560,10 @@ class ReportingService:
                 continue
             filtered_rows.append((summary, student))
 
-        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
+        students = [
+            self._build_student_item(summary, student)
+            for summary, student in filtered_rows
+        ]
 
         return {
             "center_id": center_day.center_id,

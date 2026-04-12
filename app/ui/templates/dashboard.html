@@ -220,80 +220,38 @@
                 </article>
             </section>
 
-            <section class="tables-section">
-                <div class="table-card full-width">
-                    <div class="table-card-header">
-                        <div>
-                            <h3>Resumen por curso y sexo</h3>
-                            <p>Desglose de matrícula, asistencia, tardanzas, ausencias y excusas por curso y sección.</p>
-                        </div>
-                    </div>
-
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Curso</th>
-                                    <th>Sección</th>
-                                    <th>Mat. M</th>
-                                    <th>Mat. F</th>
-                                    <th>Mat. T</th>
-                                    <th>Pres. M</th>
-                                    <th>Pres. F</th>
-                                    <th>Pres. T</th>
-                                    <th>Tard. M</th>
-                                    <th>Tard. F</th>
-                                    <th>Tard. T</th>
-                                    <th>Aus. M</th>
-                                    <th>Aus. F</th>
-                                    <th>Aus. T</th>
-                                    <th>Exc. M</th>
-                                    <th>Exc. F</th>
-                                    <th>Exc. T</th>
-                                </tr>
-                            </thead>
-                            <tbody id="courseTableBody">
-                                <tr>
-                                    <td colspan="17" class="empty-row">Sin datos cargados.</td>
-                                </tr>
-                            </tbody>
-                        </table>
+            <section id="reportActionsCard" class="filters-card hidden">
+                <div class="section-heading">
+                    <div>
+                        <h3>Reportes institucionales</h3>
+                        <p>Acciones disponibles para consulta, supervisión e impresión.</p>
                     </div>
                 </div>
-            </section>
 
-            <section class="tables-section">
-                <div class="table-card full-width">
-                    <div class="table-card-header">
-                        <div>
-                            <h3>Detalle diario</h3>
-                            <p>Listado detallado del comportamiento de asistencia registrado para la fecha seleccionada.</p>
-                        </div>
-                    </div>
+                <div class="report-actions-grid">
+                    <button type="button" id="btnViewCourseSummary" class="action-btn action-btn-secondary">
+                        Ver resumen por curso
+                    </button>
 
-                    <div class="table-wrapper">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Estado</th>
-                                    <th>Nombre</th>
-                                    <th>Código</th>
-                                    <th>MINERD</th>
-                                    <th>Sexo</th>
-                                    <th>Curso</th>
-                                    <th>Sección</th>
-                                    <th>Entrada</th>
-                                    <th>Min. tarde</th>
-                                    <th>Excusa</th>
-                                </tr>
-                            </thead>
-                            <tbody id="detailTableBody">
-                                <tr>
-                                    <td colspan="10" class="empty-row">Sin datos cargados.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+                    <button type="button" id="btnViewDailyDetail" class="action-btn action-btn-secondary">
+                        Ver detalle diario
+                    </button>
+
+                    <button type="button" id="btnPrintGlobal" class="action-btn">
+                        Imprimir global del centro
+                    </button>
+
+                    <button type="button" id="btnPrintByCourse" class="action-btn">
+                        Imprimir por curso
+                    </button>
+
+                    <button type="button" id="btnPrintMultiCourse" class="action-btn">
+                        Imprimir varios cursos
+                    </button>
+
+                    <button type="button" id="btnPrintExcuses" class="action-btn">
+                        Imprimir excusas
+                    </button>
                 </div>
             </section>
         </main>

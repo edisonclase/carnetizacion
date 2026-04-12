@@ -1,310 +1,399 @@
-:root {
-    --bg: #f4f7fb;
-    --panel: #ffffff;
-    --text: #152033;
-    --muted: #667085;
-    --border: #d9e2f0;
-    --primary: #2563eb;
-    --primary-soft: #e8f0ff;
-    --shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    --radius: 18px;
-}
+const bodyEl = document.body;
+const studentId = bodyEl.dataset.studentId;
 
-* {
-    box-sizing: border-box;
-}
+const form = document.getElementById("studentEditForm");
+const alertBox = document.getElementById("alertBox");
+const saveBtn = document.getElementById("saveBtn");
+const reloadBtn = document.getElementById("reloadBtn");
+const studentCodeChip = document.getElementById("studentCodeChip");
+const logoutBtn = document.getElementById("logoutBtn");
+const navRegisterLink = document.getElementById("navRegisterLink");
+const navDocsLink = document.getElementById("navDocsLink");
 
-body {
-    margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-}
+const photoFileInput = document.getElementById("photo_file");
+const photoPathInput = document.getElementById("photo_path");
+const uploadPhotoBtn = document.getElementById("uploadPhotoBtn");
+const photoUploadStatus = document.getElementById("photoUploadStatus");
+const photoPreviewWrap = document.getElementById("photoPreviewWrap");
+const photoPreview = document.getElementById("photoPreview");
 
-/* Layout */
+let alertTimeoutId = null;
+let currentGuardianId = null;
+let currentUser = null;
+let temporaryPreviewUrl = null;
 
-.edit-shell {
-    display: grid;
-    grid-template-columns: 260px 1fr;
-    min-height: 100vh;
-}
-
-.edit-sidebar {
-    background: #0f172a;
-    color: #fff;
-    padding: 28px 20px;
-}
-
-.brand-block h1 {
-    margin: 0;
-    font-size: 1.8rem;
-}
-
-.brand-block p {
-    margin: 6px 0 0;
-    color: #cbd5e1;
-    font-size: 0.95rem;
-}
-
-.brand-caption {
-    display: inline-block;
-    margin-top: 8px;
-    color: #94a3b8;
-    font-size: 0.82rem;
-}
-
-.sidebar-nav {
-    margin-top: 32px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.sidebar-nav a {
-    color: #e2e8f0;
-    text-decoration: none;
-    padding: 12px 14px;
-    border-radius: 12px;
-    transition: 0.2s ease;
-}
-
-.sidebar-nav a:hover,
-.sidebar-nav a.active {
-    background: rgba(255, 255, 255, 0.1);
-}
-
-/* Main */
-
-.edit-main {
-    padding: 28px;
-}
-
-.page-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 16px;
-    margin-bottom: 22px;
-}
-
-.page-header h2 {
-    margin: 0;
-    font-size: 1.95rem;
-}
-
-.page-header p {
-    margin: 6px 0 0;
-    color: var(--muted);
-}
-
-.header-chip {
-    background: var(--primary-soft);
-    color: var(--primary);
-    border: 1px solid #c9dafc;
-    padding: 10px 14px;
-    border-radius: 999px;
-    font-weight: 700;
-}
-
-/* Alert */
-
-.alert-box {
-    margin-bottom: 18px;
-    padding: 14px 16px;
-    border-radius: 14px;
-    font-size: 0.95rem;
-    border: 1px solid transparent;
-}
-
-.alert-box.hidden {
-    display: none;
-}
-
-.alert-box.success {
-    background: #ecfdf3;
-    color: #166534;
-    border-color: #bbf7d0;
-}
-
-.alert-box.error {
-    background: #fef2f2;
-    color: #991b1b;
-    border-color: #fecaca;
-}
-
-/* Cards */
-
-.edit-form {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.edit-card {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 22px;
-}
-
-.card-title-row {
-    margin-bottom: 18px;
-}
-
-.card-title-row h3 {
-    margin: 0;
-    font-size: 1.08rem;
-}
-
-.card-title-row span {
-    display: inline-block;
-    margin-top: 6px;
-    color: var(--muted);
-    font-size: 0.92rem;
-}
-
-/* Form */
-
-.form-grid {
-    display: grid;
-    gap: 16px;
-}
-
-.form-grid.two-cols {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.field {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.field-span-2 {
-    grid-column: span 2;
-}
-
-.field label {
-    font-weight: 700;
-    font-size: 0.95rem;
-}
-
-.field input,
-.field select {
-    width: 100%;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 12px 14px;
-    font-size: 0.95rem;
-    background: #fff;
-    color: var(--text);
-}
-
-.field input:focus,
-.field select:focus {
-    outline: none;
-    border-color: #93c5fd;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.10);
-}
-
-/* Buttons */
-
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    margin-top: 10px;
-}
-
-.btn {
-    height: 46px;
-    border: none;
-    border-radius: 14px;
-    padding: 0 18px;
-    font-weight: 700;
-    cursor: pointer;
-    font-size: 0.95rem;
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-}
-
-.btn-primary {
-    background: var(--primary);
-    color: #ffffff;
-}
-
-.btn-secondary {
-    background: #e5edf9;
-    color: #1d4ed8;
-}
-
-.btn-neutral {
-    background: #eef2f7;
-    color: #334155;
-}
-
-.btn-link {
-    justify-content: center;
-}
-
-/* Responsive */
-
-@media (max-width: 900px) {
-    .edit-shell {
-        grid-template-columns: 1fr;
+function showAlert(message, type = "success") {
+    if (alertTimeoutId) {
+        clearTimeout(alertTimeoutId);
     }
 
-    .edit-sidebar {
-        display: none;
-    }
+    alertBox.textContent = message;
+    alertBox.className = `alert-box ${type}`;
 
-    .form-grid.two-cols {
-        grid-template-columns: 1fr;
-    }
+    window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+    });
 
-    .field-span-2 {
-        grid-column: auto;
-    }
-
-    .page-header {
-        flex-direction: column;
-        align-items: flex-start;
+    if (type === "success") {
+        alertTimeoutId = window.setTimeout(() => {
+            hideAlert();
+        }, 4000);
     }
 }
 
-.header-user-actions {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
+function hideAlert() {
+    if (alertTimeoutId) {
+        clearTimeout(alertTimeoutId);
+        alertTimeoutId = null;
+    }
+
+    alertBox.textContent = "";
+    alertBox.className = "alert-box hidden";
 }
 
-.upload-row {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    flex-wrap: wrap;
-    margin-top: 4px;
+function getField(id) {
+    return document.getElementById(id);
 }
 
-.upload-status {
-    color: var(--muted);
-    font-size: 0.9rem;
+function normalizeValue(value) {
+    if (value === undefined || value === null) return "";
+    return String(value);
 }
 
-.photo-preview-wrap {
-    margin-top: 10px;
-    width: 100%;
+function configureRoleUI(user) {
+    if (user.role !== "super_admin") {
+        navDocsLink.style.display = "none";
+    }
+
+    if (!canManageStudents(user.role)) {
+        navRegisterLink.style.display = "none";
+    }
+
+    if (logoutBtn) {
+        logoutBtn.addEventListener("click", logout);
+    }
 }
 
-.photo-preview {
-    width: 150px;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 14px;
-    border: 1px solid var(--border);
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-    background: #fff;
+function clearTemporaryPreviewUrl() {
+    if (temporaryPreviewUrl) {
+        URL.revokeObjectURL(temporaryPreviewUrl);
+        temporaryPreviewUrl = null;
+    }
 }
+
+function setPhotoPreview(url) {
+    if (!url) {
+        photoPreviewWrap.classList.add("hidden");
+        photoPreview.removeAttribute("src");
+        return;
+    }
+
+    photoPreview.src = url;
+    photoPreviewWrap.classList.remove("hidden");
+}
+
+function fillStudentForm(student) {
+    getField("student_code").value = normalizeValue(student.student_code);
+    getField("minerd_id").value = normalizeValue(student.minerd_id);
+    getField("first_name").value = normalizeValue(student.first_name);
+    getField("last_name").value = normalizeValue(student.last_name);
+    getField("birth_date").value = normalizeValue(student.birth_date);
+    getField("gender").value = normalizeValue(student.gender);
+    getField("grade").value = normalizeValue(student.grade);
+    getField("section").value = normalizeValue(student.section);
+    getField("photo_path").value = normalizeValue(student.photo_path);
+    getField("is_active").value = String(student.is_active);
+
+    clearTemporaryPreviewUrl();
+    photoFileInput.value = "";
+    setPhotoPreview(student.photo_path || "");
+
+    photoUploadStatus.textContent = student.photo_path
+        ? "Foto actual cargada."
+        : "No se ha actualizado la foto.";
+
+    studentCodeChip.textContent = student.student_code || `Estudiante #${student.id}`;
+}
+
+function fillGuardianForm(guardian) {
+    currentGuardianId = guardian?.id ?? null;
+    getField("guardian_id").value = guardian?.id ?? "";
+    getField("guardian_full_name").value = normalizeValue(guardian?.full_name);
+    getField("relationship_type").value = normalizeValue(guardian?.relationship_type);
+    getField("guardian_phone").value = normalizeValue(guardian?.phone);
+    getField("guardian_whatsapp").value = normalizeValue(guardian?.whatsapp);
+    getField("guardian_email").value = normalizeValue(guardian?.email);
+}
+
+async function uploadSelectedPhoto() {
+    const file = photoFileInput.files?.[0];
+
+    if (!file) {
+        showAlert("Debes seleccionar una imagen antes de subirla.", "error");
+        return null;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadPhotoBtn.disabled = true;
+    uploadPhotoBtn.textContent = "Subiendo...";
+    photoUploadStatus.textContent = "Subiendo foto...";
+
+    try {
+        const response = await apiFetch("/uploads/students/photo", {
+            method: "POST",
+            body: formData,
+        });
+
+        const result = await response.json().catch(() => ({}));
+
+        if (!response.ok) {
+            throw new Error(result?.detail || "No se pudo subir la foto.");
+        }
+
+        const uploadedUrl = result.file_url || "";
+        photoPathInput.value = uploadedUrl;
+        photoUploadStatus.textContent = "Foto subida correctamente.";
+
+        clearTemporaryPreviewUrl();
+        setPhotoPreview(uploadedUrl);
+
+        return uploadedUrl;
+    } catch (error) {
+        photoUploadStatus.textContent = "No se pudo subir la foto.";
+        showAlert(error.message || "Error al subir la foto.", "error");
+        return null;
+    } finally {
+        uploadPhotoBtn.disabled = false;
+        uploadPhotoBtn.textContent = "Subir foto";
+    }
+}
+
+async function loadStudentData() {
+    hideAlert();
+
+    try {
+        reloadBtn.disabled = true;
+        reloadBtn.textContent = "Recargando...";
+
+        const studentResponse = await apiFetch(`/students/${studentId}`);
+        if (!studentResponse.ok) {
+            const data = await studentResponse.json().catch(() => ({}));
+            throw new Error(data.detail || "No se pudo cargar el estudiante.");
+        }
+
+        const student = await studentResponse.json();
+        fillStudentForm(student);
+
+        const guardiansResponse = await apiFetch("/guardians/");
+        if (!guardiansResponse.ok) {
+            const data = await guardiansResponse.json().catch(() => ({}));
+            throw new Error(data.detail || "No se pudieron cargar los tutores.");
+        }
+
+        const guardians = await guardiansResponse.json();
+        const primaryGuardian =
+            guardians.find(
+                (guardian) =>
+                    guardian.student_id === Number(studentId) &&
+                    guardian.is_primary === true &&
+                    guardian.is_active === true
+            ) ||
+            guardians.find((guardian) => guardian.student_id === Number(studentId)) ||
+            null;
+
+        fillGuardianForm(primaryGuardian);
+    } catch (error) {
+        showAlert(error.message || "Ocurrió un error al cargar los datos.", "error");
+    } finally {
+        reloadBtn.disabled = false;
+        reloadBtn.textContent = "Recargar";
+    }
+}
+
+function getStudentPayload() {
+    return {
+        student_code: getField("student_code").value.trim(),
+        minerd_id: getField("minerd_id").value.trim() || null,
+        first_name: getField("first_name").value.trim(),
+        last_name: getField("last_name").value.trim(),
+        birth_date: getField("birth_date").value.trim() || null,
+        gender: getField("gender").value.trim() || null,
+        grade: getField("grade").value.trim(),
+        section: getField("section").value.trim(),
+        photo_path: getField("photo_path").value.trim() || null,
+        is_active: getField("is_active").value === "true",
+    };
+}
+
+function getGuardianPayload() {
+    return {
+        full_name: getField("guardian_full_name").value.trim(),
+        relationship_type: getField("relationship_type").value.trim(),
+        phone: getField("guardian_phone").value.trim() || null,
+        whatsapp: getField("guardian_whatsapp").value.trim() || null,
+        email: getField("guardian_email").value.trim() || null,
+        is_primary: true,
+        is_active: true,
+    };
+}
+
+function validateForm() {
+    if (!getField("student_code").value.trim()) {
+        return "El código interno del estudiante es obligatorio.";
+    }
+
+    if (!getField("first_name").value.trim()) {
+        return "Los nombres del estudiante son obligatorios.";
+    }
+
+    if (!getField("last_name").value.trim()) {
+        return "Los apellidos del estudiante son obligatorios.";
+    }
+
+    if (!getField("grade").value.trim()) {
+        return "El curso o grado es obligatorio.";
+    }
+
+    if (!getField("section").value.trim()) {
+        return "La sección es obligatoria.";
+    }
+
+    if (!getField("guardian_full_name").value.trim()) {
+        return "El nombre del tutor principal es obligatorio.";
+    }
+
+    if (!getField("relationship_type").value.trim()) {
+        return "El parentesco del tutor principal es obligatorio.";
+    }
+
+    return null;
+}
+
+async function saveStudentAndGuardian(event) {
+    event.preventDefault();
+    hideAlert();
+
+    const validationError = validateForm();
+    if (validationError) {
+        showAlert(validationError, "error");
+        return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = "Guardando...";
+
+    try {
+        if (photoFileInput.files?.length) {
+            const uploadedPhoto = await uploadSelectedPhoto();
+            if (!uploadedPhoto) {
+                return;
+            }
+        }
+
+        const studentPayload = getStudentPayload();
+
+        const studentResponse = await apiFetch(`/students/${studentId}`, {
+            method: "PUT",
+            body: JSON.stringify(studentPayload),
+        });
+
+        const studentResult = await studentResponse.json().catch(() => ({}));
+
+        if (!studentResponse.ok) {
+            throw new Error(studentResult?.detail || "No se pudo actualizar el estudiante.");
+        }
+
+        const guardianPayload = getGuardianPayload();
+
+        if (currentGuardianId) {
+            const guardianResponse = await apiFetch(`/guardians/${currentGuardianId}`, {
+                method: "PUT",
+                body: JSON.stringify(guardianPayload),
+            });
+
+            const guardianResult = await guardianResponse.json().catch(() => ({}));
+
+            if (!guardianResponse.ok) {
+                throw new Error(
+                    guardianResult?.detail ||
+                    "Se actualizó el estudiante, pero no se pudo actualizar el tutor principal."
+                );
+            }
+        } else {
+            const guardianCreatePayload = {
+                student_id: Number(studentId),
+                ...guardianPayload,
+            };
+
+            const guardianResponse = await apiFetch("/guardians/", {
+                method: "POST",
+                body: JSON.stringify(guardianCreatePayload),
+            });
+
+            const guardianResult = await guardianResponse.json().catch(() => ({}));
+
+            if (!guardianResponse.ok) {
+                throw new Error(
+                    guardianResult?.detail ||
+                    "Se actualizó el estudiante, pero no se pudo crear el tutor principal."
+                );
+            }
+
+            currentGuardianId = guardianResult.id;
+            getField("guardian_id").value = guardianResult.id;
+        }
+
+        studentCodeChip.textContent = studentResult.student_code || `Estudiante #${studentResult.id}`;
+        photoFileInput.value = "";
+        photoUploadStatus.textContent = photoPathInput.value
+            ? "Foto actualizada correctamente."
+            : "Sin foto registrada.";
+
+        showAlert("Datos del estudiante y del tutor principal actualizados correctamente.", "success");
+    } catch (error) {
+        showAlert(error.message || "Ocurrió un error al guardar.", "error");
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Guardar cambios";
+    }
+}
+
+function bindEvents() {
+    form.addEventListener("submit", saveStudentAndGuardian);
+    reloadBtn.addEventListener("click", loadStudentData);
+    uploadPhotoBtn.addEventListener("click", uploadSelectedPhoto);
+
+    photoFileInput.addEventListener("change", () => {
+        const file = photoFileInput.files?.[0];
+
+        if (!file) {
+            clearTemporaryPreviewUrl();
+            photoUploadStatus.textContent = getField("photo_path").value
+                ? "Foto actual cargada."
+                : "No se ha actualizado la foto.";
+            setPhotoPreview(getField("photo_path").value || "");
+            return;
+        }
+
+        clearTemporaryPreviewUrl();
+        temporaryPreviewUrl = URL.createObjectURL(file);
+        photoUploadStatus.textContent = `Archivo seleccionado: ${file.name}.`;
+        setPhotoPreview(temporaryPreviewUrl);
+    });
+}
+
+async function initPage() {
+    try {
+        currentUser = await requireAuth(["super_admin", "registro"]);
+        configureRoleUI(currentUser);
+        await loadStudentData();
+    } catch (error) {
+        showAlert(error.message || "No se pudo validar la sesión.", "error");
+    }
+}
+
+bindEvents();
+initPage();
