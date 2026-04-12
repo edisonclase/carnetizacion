@@ -427,29 +427,64 @@ function buildReportBaseQuery() {
     return `center_id=${encodeURIComponent(centerId)}&school_year_id=${encodeURIComponent(schoolYearId)}&date=${encodeURIComponent(reportDate)}`;
 }
 
-function openPrintableJson(url) {
-    window.open(url, "_blank", "noopener,noreferrer");
+async function openJsonPreview(url, title) {
+    try {
+        const data = await fetchJson(url);
+
+        const previewWindow = window.open("", "_blank");
+        if (!previewWindow) {
+            alert("El navegador bloqueó la ventana emergente.");
+            return;
+        }
+
+        previewWindow.document.write(`
+            <!DOCTYPE html>
+            <html lang="es">
+            <head>
+                <meta charset="UTF-8" />
+                <title>${title}</title>
+                <style>
+                    body { font-family: Arial, sans-serif; margin: 24px; background: #f8fafc; color: #0f172a; }
+                    h1 { margin-top: 0; font-size: 24px; }
+                    pre {
+                        white-space: pre-wrap;
+                        word-break: break-word;
+                        background: #ffffff;
+                        border: 1px solid #dbe4f0;
+                        border-radius: 12px;
+                        padding: 16px;
+                        overflow: auto;
+                    }
+                </style>
+            </head>
+            <body>
+                <h1>${title}</h1>
+                <pre>${JSON.stringify(data, null, 2)}</pre>
+            </body>
+            </html>
+        `);
+        previewWindow.document.close();
+    } catch (error) {
+        alert(error.message || "No se pudo abrir la vista del reporte.");
+    }
 }
 
 function handleViewCourseSummary() {
     if (!validateSelectedFilters()) return;
-
     const query = buildReportBaseQuery();
-    openPrintableJson(`/reports/print/global-data?${query}`);
+    openJsonPreview(`/reports/print/global-data?${query}`, "Resumen por curso");
 }
 
 function handleViewDailyDetail() {
     if (!validateSelectedFilters()) return;
-
     const query = buildReportBaseQuery();
-    openPrintableJson(`/reports/daily-institutional?${query}`);
+    openJsonPreview(`/reports/daily-institutional?${query}`, "Detalle diario");
 }
 
 function handlePrintGlobal() {
     if (!validateSelectedFilters()) return;
-
     const query = buildReportBaseQuery();
-    openPrintableJson(`/reports/print/global-data?${query}`);
+    openJsonPreview(`/reports/print/global-data?${query}`, "Impresión global del centro");
 }
 
 function handlePrintByCourse() {
@@ -465,16 +500,13 @@ function handlePrintByCourse() {
         query += `&section=${encodeURIComponent(section.trim())}`;
     }
 
-    openPrintableJson(`/reports/print/by-course-data?${query}`);
+    openJsonPreview(`/reports/print/by-course-data?${query}`, "Impresión por curso");
 }
 
 function handlePrintMultiCourse() {
     if (!validateSelectedFilters()) return;
 
-    const gradesInput = window.prompt(
-        "Escribe varios cursos separados por coma. Ejemplo: 4to,5to,6to"
-    );
-
+    const gradesInput = window.prompt("Escribe varios cursos separados por coma. Ejemplo: 4to,5to,6to");
     if (!gradesInput || !gradesInput.trim()) return;
 
     const grades = gradesInput
@@ -485,7 +517,7 @@ function handlePrintMultiCourse() {
     if (!grades.length) return;
 
     const query = `${buildReportBaseQuery()}&${grades.map(grade => `grades=${encodeURIComponent(grade)}`).join("&")}`;
-    openPrintableJson(`/reports/print/by-multi-course-data?${query}`);
+    openJsonPreview(`/reports/print/by-multi-course-data?${query}`, "Impresión por varios cursos");
 }
 
 function handlePrintExcuses() {
@@ -504,7 +536,7 @@ function handlePrintExcuses() {
         query += `&section=${encodeURIComponent(section.trim())}`;
     }
 
-    openPrintableJson(`/reports/print/excuses-by-course-data?${query}`);
+    openJsonPreview(`/reports/print/excuses-by-course-data?${query}`, "Impresión de excusas");
 }
 
 async function loadDashboard() {
@@ -589,35 +621,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             logoutBtn.addEventListener("click", logout);
         }
 
-        const btnViewCourseSummary = document.getElementById("btnViewCourseSummary");
-        if (btnViewCourseSummary) {
-            btnViewCourseSummary.addEventListener("click", handleViewCourseSummary);
-        }
-
-        const btnViewDailyDetail = document.getElementById("btnViewDailyDetail");
-        if (btnViewDailyDetail) {
-            btnViewDailyDetail.addEventListener("click", handleViewDailyDetail);
-        }
-
-        const btnPrintGlobal = document.getElementById("btnPrintGlobal");
-        if (btnPrintGlobal) {
-            btnPrintGlobal.addEventListener("click", handlePrintGlobal);
-        }
-
-        const btnPrintByCourse = document.getElementById("btnPrintByCourse");
-        if (btnPrintByCourse) {
-            btnPrintByCourse.addEventListener("click", handlePrintByCourse);
-        }
-
-        const btnPrintMultiCourse = document.getElementById("btnPrintMultiCourse");
-        if (btnPrintMultiCourse) {
-            btnPrintMultiCourse.addEventListener("click", handlePrintMultiCourse);
-        }
-
-        const btnPrintExcuses = document.getElementById("btnPrintExcuses");
-        if (btnPrintExcuses) {
-            btnPrintExcuses.addEventListener("click", handlePrintExcuses);
-        }
+        document.getElementById("btnViewCourseSummary")?.addEventListener("click", handleViewCourseSummary);
+        document.getElementById("btnViewDailyDetail")?.addEventListener("click", handleViewDailyDetail);
+        document.getElementById("btnPrintGlobal")?.addEventListener("click", handlePrintGlobal);
+        document.getElementById("btnPrintByCourse")?.addEventListener("click", handlePrintByCourse);
+        document.getElementById("btnPrintMultiCourse")?.addEventListener("click", handlePrintMultiCourse);
+        document.getElementById("btnPrintExcuses")?.addEventListener("click", handlePrintExcuses);
     } catch (error) {
         console.error(error);
     }
