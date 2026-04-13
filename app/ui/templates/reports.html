@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reportes - Nova ID</title>
+    <link rel="stylesheet" href="/static/dashboard.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>by Aula Nova</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/reports/view" class="active">Reportes</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <span class="page-eyebrow">Módulo analítico</span>
+                    <h2>Reportes institucionales</h2>
+                    <p>Consulta detallada de asistencia y comportamiento estudiantil.</p>
+                </div>
+            </header>
+
+            <!-- FILTROS -->
+            <section class="filters-card filter-panel">
+                <div class="filters-grid">
+                    <div class="field">
+                        <label>Centro</label>
+                        <select id="centerId"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Año escolar</label>
+                        <select id="schoolYearId"></select>
+                    </div>
+
+                    <div class="field">
+                        <label>Fecha</label>
+                        <input type="date" id="reportDate" />
+                    </div>
+
+                    <div class="field field-actions">
+                        <button id="loadReportsBtn">Cargar reportes</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RESUMEN POR CURSO -->
+            <section class="tables-section">
+                <div class="table-card full-width">
+                    <div class="table-card-header">
+                        <h3>Resumen por curso y sexo</h3>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Curso</th>
+                                    <th>Sección</th>
+                                    <th>Mat. T</th>
+                                    <th>Pres. T</th>
+                                    <th>Tard. T</th>
+                                    <th>Aus. T</th>
+                                    <th>Exc. T</th>
+                                </tr>
+                            </thead>
+                            <tbody id="courseTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DETALLE -->
+            <section class="tables-section">
+                <div class="table-card full-width">
+                    <div class="table-card-header">
+                        <h3>Detalle diario</h3>
+                    </div>
+
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Estado</th>
+                                    <th>Nombre</th>
+                                    <th>Código</th>
+                                    <th>Curso</th>
+                                    <th>Sección</th>
+                                </tr>
+                            </thead>
+                            <tbody id="detailTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script src="/static/reports.js"></script>
+</body>
+</html>

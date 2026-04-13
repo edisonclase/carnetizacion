@@ -559,3 +559,11 @@ def student_cards_print_selected(
         name="student_cards_print_sheet.html",
         context=context,
     )
+    
+@router.get("/reports/view", response_class=HTMLResponse)
+def reports_view(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="reports.html",
+        context={"request": request},
+    )
