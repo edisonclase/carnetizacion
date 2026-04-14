@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Escaneo de asistencia - Nova ID</title>
+    <link rel="stylesheet" href="/static/attendance_scanner.css" />
+</head>
+<body>
+    <div class="scanner-shell">
+        <aside class="scanner-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>by Aula Nova</p>
+            </div>
+
+            <nav class="scanner-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/reports/view">Reportes</a>
+                <a href="/attendance/scanner" class="active">Escaneo de asistencia</a>
+            </nav>
+        </aside>
+
+        <main class="scanner-main">
+            <header class="scanner-topbar">
+                <div>
+                    <span class="page-eyebrow">Operación en tiempo real</span>
+                    <h2>Escaneo de asistencia</h2>
+                    <p>Registro rápido por QR token para pruebas y operación institucional.</p>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="user-chip">
+                        <strong id="currentUserName">Cargando...</strong>
+                        <span id="currentUserRole">-</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-btn" type="button">Cerrar sesión</button>
+                </div>
+            </header>
+
+            <section class="scanner-card">
+                <div class="scanner-card-header">
+                    <div>
+                        <h3>Registrar entrada</h3>
+                        <p>Pega el QR token del carnet o el valor leído por el lector.</p>
+                    </div>
+                </div>
+
+                <form id="scannerForm" class="scanner-form">
+                    <div class="field field-full">
+                        <label for="qrToken">QR token</label>
+                        <input
+                            id="qrToken"
+                            name="qrToken"
+                            type="text"
+                            placeholder="Pega aquí el qr_token del carnet"
+                            autocomplete="off"
+                            required
+                        />
+                    </div>
+
+                    <div class="field">
+                        <label for="eventTime">Fecha y hora</label>
+                        <input id="eventTime" name="eventTime" type="datetime-local" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="source">Origen</label>
+                        <input id="source" name="source" type="text" value="scanner" />
+                    </div>
+
+                    <div class="field">
+                        <label for="recordedBy">Registrado por</label>
+                        <input id="recordedBy" name="recordedBy" type="text" value="super_admin" />
+                    </div>
+
+                    <div class="field field-full">
+                        <label for="notes">Notas</label>
+                        <input id="notes" name="notes" type="text" placeholder="Opcional" />
+                    </div>
+
+                    <div class="scanner-actions">
+                        <button id="submitScanBtn" type="submit" class="primary-btn">
+                            Registrar entrada
+                        </button>
+                        <button id="clearScanBtn" type="button" class="secondary-btn">
+                            Limpiar
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section id="resultPanel" class="result-panel hidden">
+                <div class="result-panel-header">
+                    <h3>Resultado del escaneo</h3>
+                </div>
+
+                <div id="resultState" class="result-state"></div>
+
+                <div class="result-grid">
+                    <article class="result-box">
+                        <span class="result-label">Estudiante</span>
+                        <strong id="resultStudentName">-</strong>
+                        <small id="resultStudentMeta">-</small>
+                    </article>
+
+                    <article class="result-box">
+                        <span class="result-label">Evento</span>
+                        <strong id="resultEventStatus">-</strong>
+                        <small id="resultEventTime">-</small>
+                    </article>
+
+                    <article class="result-box">
+                        <span class="result-label">Resumen diario</span>
+                        <strong id="resultDailyStatus">-</strong>
+                        <small id="resultDailyMeta">-</small>
+                    </article>
+
+                    <article class="result-box">
+                        <span class="result-label">Consolidado del centro</span>
+                        <strong id="resultCenterTotals">-</strong>
+                        <small id="resultCenterMeta">-</small>
+                    </article>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script src="/static/attendance_scanner.js"></script>
+</body>
+</html>

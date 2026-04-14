@@ -132,6 +132,10 @@ function canAccessInstitutionalReports(role) {
     return normalized === "super_admin" || normalized === "admin_centro" || normalized === "consulta";
 }
 
+function canAccessAttendanceScanner(role) {
+    return String(role || "").toLowerCase() === "super_admin";
+}
+
 function configureRoleUI(user) {
     document.getElementById("currentUserName").textContent = user.full_name;
     document.getElementById("currentUserRole").textContent = roleLabel(user.role);
@@ -139,10 +143,14 @@ function configureRoleUI(user) {
     const navStudentsLink = document.getElementById("navStudentsLink");
     const navRegisterLink = document.getElementById("navRegisterLink");
     const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
+    const navAttendanceScannerLink = document.getElementById("navAttendanceScannerLink");
+
     const moduleAccessCard = document.getElementById("moduleAccessCard");
     const moduleStudentsList = document.getElementById("moduleStudentsList");
     const moduleStudentRegister = document.getElementById("moduleStudentRegister");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
+    const moduleAttendanceScanner = document.getElementById("moduleAttendanceScanner");
+
     const navDocsLink = document.getElementById("navDocsLink");
     const reportActionsCard = document.getElementById("reportActionsCard");
 
@@ -162,6 +170,12 @@ function configureRoleUI(user) {
         navCenterSettingsLink.classList.remove("hidden");
         moduleAccessCard.classList.remove("hidden");
         moduleCenterSettings.classList.remove("hidden");
+    }
+
+    if (canAccessAttendanceScanner(user.role)) {
+        navAttendanceScannerLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleAttendanceScanner.classList.remove("hidden");
     }
 
     if (canAccessInstitutionalReports(user.role)) {

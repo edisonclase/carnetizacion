@@ -289,6 +289,15 @@ def dashboard_page(request: Request):
     )
 
 
+@router.get("/attendance/scanner", response_class=HTMLResponse)
+def attendance_scanner_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="attendance_scanner.html",
+        context={"request": request},
+    )
+
+
 @router.get("/admin/centers/{center_id}/settings", response_class=HTMLResponse)
 def center_settings_page(
     request: Request,
@@ -564,7 +573,8 @@ def student_cards_print_selected(
         name="student_cards_print_sheet.html",
         context=context,
     )
-    
+
+
 @router.get("/reports/view", response_class=HTMLResponse)
 def reports_view(request: Request):
     return templates.TemplateResponse(
