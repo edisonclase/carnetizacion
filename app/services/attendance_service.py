@@ -1,12 +1,16 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 
 from sqlalchemy.orm import Session
 
+from app.models.attendance_daily_summary import AttendanceDailySummary
 from app.models.attendance_event import AttendanceEvent
 from app.models.authorized_exit import AuthorizedExit
 from app.models.card import Card
+from app.models.center_attendance_day import CenterAttendanceDay
 from app.models.center_schedule import CenterSchedule
 from app.models.student import Student
+from app.services.center_attendance_day_service import CenterAttendanceDayService
+from app.services.daily_summary_service import DailySummaryService
 
 
 WORKDAY_MAP = {
@@ -29,8 +33,14 @@ class AttendanceService:
         if not card:
             return None
 
-        student = self.db.query(Student).filter(Student.id == card.student_id).first()
-        return student
+        return self.db.query(Student).filter(Student.id == card.student_id).first()
+
+    def get_card_by_qr_token(self, qr_token: str) -> Card | None:
+        return (
+            self.db.query(Card)
+            .filter(Card.qr_token == qr_token)
+            .first()
+        )
 
     def get_schedule_for_center(self, center_id: int) -> CenterSchedule | None:
         return (
@@ -97,6 +107,49 @@ class AttendanceService:
 
         return record is not None
 
+    def has_entry_for_day(self, *, student_id: int, target_date: date) -> bool:
+        day_start = datetime.combine(target_date, datetime.min.time())
+        day_end = datetime.combine(target_date, datetime.max.time())
+
+        record = (
+            self.db.query(AttendanceEvent)
+            .filter(
+                AttendanceEvent.student_id == student_id,
+                AttendanceEvent.event_type == "entry",
+                AttendanceEvent.event_time >= day_start,
+                AttendanceEvent.event_time <= day_end,
+            )
+            .first()
+        )
+
+        return record is not None
+
+    def _refresh_attendance_aggregates(
+        self,
+        *,
+        student: Student,
+        event_time: datetime,
+    ) -> dict:
+        target_date = event_time.date()
+
+        daily_summary_service = DailySummaryService(self.db)
+        summary = daily_summary_service.create_or_update_summary(
+            student_id=student.id,
+            target_date=target_date,
+        )
+
+        center_day_service = CenterAttendanceDayService(self.db)
+        center_day = center_day_service.create_or_update_center_attendance_day(
+            center_id=student.center_id,
+            school_year_id=student.school_year_id,
+            target_date=target_date,
+        )
+
+        return {
+            "summary": summary,
+            "center_day": center_day,
+        }
+
     def create_entry_event(
         self,
         *,
@@ -120,6 +173,9 @@ class AttendanceService:
         if not self.is_workday(event_time, schedule.workdays):
             raise ValueError("La fecha indicada no corresponde a un día laborable del centro.")
 
+        if self.has_entry_for_day(student_id=student.id, target_date=event_time.date()):
+            raise ValueError("El estudiante ya tiene una entrada registrada en esta fecha.")
+
         status = self.classify_entry_status(event_time, schedule)
 
         event = AttendanceEvent(
@@ -137,7 +193,65 @@ class AttendanceService:
         self.db.commit()
         self.db.refresh(event)
 
+        self._refresh_attendance_aggregates(
+            student=student,
+            event_time=event_time,
+        )
+
         return event
+
+    def create_entry_event_by_qr_token(
+        self,
+        *,
+        qr_token: str,
+        event_time: datetime,
+        source: str = "scanner",
+        notes: str | None = None,
+        recorded_by: str | None = None,
+    ) -> dict:
+        card = self.get_card_by_qr_token(qr_token)
+        if not card:
+            raise ValueError("El QR no corresponde a un carnet válido.")
+
+        student = self.db.query(Student).filter(Student.id == card.student_id).first()
+        if not student:
+            raise ValueError("El estudiante vinculado al carnet no existe.")
+
+        event = self.create_entry_event(
+            student_id=student.id,
+            card_id=card.id,
+            event_time=event_time,
+            source=source,
+            notes=notes,
+            recorded_by=recorded_by,
+        )
+
+        refreshed_summary = (
+            self.db.query(AttendanceDailySummary)
+            .filter(
+                AttendanceDailySummary.student_id == student.id,
+                AttendanceDailySummary.date == event_time.date(),
+            )
+            .first()
+        )
+
+        refreshed_center_day = (
+            self.db.query(CenterAttendanceDay)
+            .filter(
+                CenterAttendanceDay.center_id == student.center_id,
+                CenterAttendanceDay.school_year_id == student.school_year_id,
+                CenterAttendanceDay.date == event_time.date(),
+            )
+            .first()
+        )
+
+        return {
+            "student": student,
+            "card": card,
+            "event": event,
+            "summary": refreshed_summary,
+            "center_day": refreshed_center_day,
+        }
 
     def create_exit_event(
         self,
@@ -188,5 +302,10 @@ class AttendanceService:
         self.db.add(event)
         self.db.commit()
         self.db.refresh(event)
+
+        self._refresh_attendance_aggregates(
+            student=student,
+            event_time=event_time,
+        )
 
         return event

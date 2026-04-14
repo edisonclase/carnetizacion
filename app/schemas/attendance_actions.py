@@ -20,3 +20,11 @@ class AttendanceExitRegister(BaseModel):
     status: str = "normal_exit"
     notes: str | None = None
     recorded_by: str | None = None
+
+
+class AttendanceQrEntryRegister(BaseModel):
+    qr_token: str
+    event_time: datetime
+    source: str = "scanner"
+    notes: str | None = None
+    recorded_by: str | None = None
