@@ -29,7 +29,6 @@
                 </div>
             </header>
 
-            <!-- FILTROS -->
             <section class="filters-card filter-panel">
                 <div class="filters-grid">
                     <div class="field">
@@ -48,12 +47,28 @@
                     </div>
 
                     <div class="field field-actions">
-                        <button id="loadReportsBtn">Cargar reportes</button>
+                        <button id="loadReportsBtn" type="button">Cargar reportes</button>
                     </div>
                 </div>
             </section>
 
-            <!-- RESUMEN POR CURSO -->
+            <section class="filters-card" style="margin-top: -4px;">
+                <div class="section-heading compact">
+                    <div>
+                        <h3>Exportaciones PDF</h3>
+                        <p>Genera reportes institucionales con branding del centro.</p>
+                    </div>
+                </div>
+
+                <div class="report-actions-grid">
+                    <button type="button" id="btnPdfGlobal" class="action-btn">PDF global del centro</button>
+                    <button type="button" id="btnPdfCourse" class="action-btn">PDF por curso</button>
+                    <button type="button" id="btnPdfSection" class="action-btn">PDF por sección</button>
+                    <button type="button" id="btnPdfMultiCourse" class="action-btn">PDF varios cursos</button>
+                    <button type="button" id="btnPdfExcuses" class="action-btn">PDF de excusas</button>
+                </div>
+            </section>
+
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
@@ -73,13 +88,16 @@
                                     <th>Exc. T</th>
                                 </tr>
                             </thead>
-                            <tbody id="courseTableBody"></tbody>
+                            <tbody id="courseTableBody">
+                                <tr>
+                                    <td colspan="7" class="empty-row">Sin datos cargados.</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
             </section>
 
-            <!-- DETALLE -->
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
@@ -97,7 +115,11 @@
                                     <th>Sección</th>
                                 </tr>
                             </thead>
-                            <tbody id="detailTableBody"></tbody>
+                            <tbody id="detailTableBody">
+                                <tr>
+                                    <td colspan="5" class="empty-row">Sin datos cargados.</td>
+                                </tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
