@@ -20,6 +20,8 @@ from app.api.routes.uploads import router as uploads_router
 from app.core.database import engine
 from app.core.settings import settings
 from app.models.user import User  # noqa: F401
+from app.api.routes.billing import router as billing_router
+from app.models.billing_invoice import BillingInvoice  # noqa: F401
 
 app = FastAPI(title=settings.app_name)
 
@@ -44,6 +46,7 @@ app.include_router(authorized_exit_router)
 app.include_router(reports_router)
 app.include_router(ui_router)
 app.include_router(uploads_router)
+app.include_router(billing_router)
 
 
 @app.get("/")
