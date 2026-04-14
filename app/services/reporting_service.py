@@ -5,6 +5,7 @@ from sqlalchemy import extract
 from sqlalchemy.orm import Session
 
 from app.models.attendance_daily_summary import AttendanceDailySummary
+from app.models.center import Center
 from app.models.center_attendance_day import CenterAttendanceDay
 from app.models.student import Student
 
@@ -12,6 +13,12 @@ from app.models.student import Student
 class ReportingService:
     def __init__(self, db: Session):
         self.db = db
+
+    def _get_center_or_404(self, center_id: int) -> Center:
+        center = self.db.query(Center).filter(Center.id == center_id).first()
+        if not center:
+            raise ValueError("Centro no encontrado.")
+        return center
 
     def _get_center_day(
         self,
@@ -89,6 +96,33 @@ class ReportingService:
             "first_entry_time": summary.first_entry_time,
             "minutes_late": summary.minutes_late,
         }
+
+    def _filter_rows(
+        self,
+        rows: list[tuple[AttendanceDailySummary, Student]],
+        *,
+        grade: str | None = None,
+        section: str | None = None,
+        grades: list[str] | None = None,
+    ) -> list[tuple[AttendanceDailySummary, Student]]:
+        filtered = []
+
+        normalized_grades = None
+        if grades is not None:
+            normalized_grades = [item.strip() for item in grades if item and item.strip()]
+            if not normalized_grades:
+                normalized_grades = None
+
+        for summary, student in rows:
+            if grade is not None and student.grade != grade:
+                continue
+            if section is not None and student.section != section:
+                continue
+            if normalized_grades is not None and student.grade not in normalized_grades:
+                continue
+            filtered.append((summary, student))
+
+        return filtered
 
     def _build_printable_totals(
         self,
@@ -220,6 +254,22 @@ class ReportingService:
             course_groups.values(),
             key=lambda item: (item["grade"], item["section"]),
         )
+
+    def _build_pdf_branding_context(self, center_id: int) -> dict:
+        center = self._get_center_or_404(center_id)
+
+        return {
+            "center_name": center.name,
+            "center_logo_url": center.logo_url,
+            "center_primary_color": center.primary_color or "#1f8f4a",
+            "center_secondary_color": center.secondary_color or "#0b3d24",
+            "center_accent_color": center.accent_color or "#f4c95d",
+            "center_text_color": center.text_color or "#1e293b",
+            "center_background_color": center.background_color or "#ffffff",
+            "phone": center.phone,
+            "email": center.email,
+            "report_footer_text": getattr(center, "report_footer_text", None) or "by Aula Nova",
+        }
 
     def get_daily_institutional_report(
         self,
@@ -475,11 +525,11 @@ class ReportingService:
         center_day = self._get_center_day(center_id, school_year_id, target_date)
         rows = self._get_summary_rows(center_id, school_year_id, target_date)
 
-        filtered_rows = [
-            (summary, student)
-            for summary, student in rows
-            if student.grade == grade and (section is None or student.section == section)
-        ]
+        filtered_rows = self._filter_rows(
+            rows,
+            grade=grade,
+            section=section,
+        )
 
         if not filtered_rows:
             raise ValueError("No hay datos para el curso seleccionado.")
@@ -494,6 +544,42 @@ class ReportingService:
             "school_year_id": center_day.school_year_id,
             "date": center_day.date,
             "grade": grade,
+            "section": section,
+            "totals": self._build_printable_totals(filtered_rows),
+            "students": students,
+        }
+
+    def get_printable_section_report(
+        self,
+        *,
+        center_id: int,
+        school_year_id: int,
+        target_date: date,
+        section: str,
+    ) -> dict:
+        center_day = self._get_center_day(center_id, school_year_id, target_date)
+        rows = self._get_summary_rows(center_id, school_year_id, target_date)
+
+        filtered_rows = self._filter_rows(
+            rows,
+            section=section,
+        )
+
+        if not filtered_rows:
+            raise ValueError("No hay datos para la sección seleccionada.")
+
+        students = [
+            self._build_student_item(summary, student)
+            for summary, student in filtered_rows
+        ]
+
+        grades = sorted({student.grade for _, student in filtered_rows})
+
+        return {
+            "center_id": center_day.center_id,
+            "school_year_id": center_day.school_year_id,
+            "date": center_day.date,
+            "grade": ", ".join(grades),
             "section": section,
             "totals": self._build_printable_totals(filtered_rows),
             "students": students,
@@ -514,11 +600,10 @@ class ReportingService:
         if not normalized_grades:
             raise ValueError("Debes indicar al menos un curso.")
 
-        filtered_rows = [
-            (summary, student)
-            for summary, student in rows
-            if student.grade in normalized_grades
-        ]
+        filtered_rows = self._filter_rows(
+            rows,
+            grades=normalized_grades,
+        )
 
         if not filtered_rows:
             raise ValueError("No hay datos para los cursos seleccionados.")
@@ -535,6 +620,33 @@ class ReportingService:
             "grades": normalized_grades,
             "totals": self._build_printable_totals(filtered_rows),
             "by_course": self._build_printable_course_rows(filtered_rows),
+            "students": students,
+        }
+
+    def get_printable_center_full_report(
+        self,
+        *,
+        center_id: int,
+        school_year_id: int,
+        target_date: date,
+    ) -> dict:
+        center_day = self._get_center_day(center_id, school_year_id, target_date)
+        rows = self._get_summary_rows(center_id, school_year_id, target_date)
+
+        if not rows:
+            raise ValueError("No hay datos para el centro en la fecha seleccionada.")
+
+        students = [
+            self._build_student_item(summary, student)
+            for summary, student in rows
+        ]
+
+        return {
+            "center_id": center_day.center_id,
+            "school_year_id": center_day.school_year_id,
+            "date": center_day.date,
+            "totals": self._build_printable_totals(rows),
+            "by_course": self._build_printable_course_rows(rows),
             "students": students,
         }
 
@@ -573,4 +685,31 @@ class ReportingService:
             "section": section,
             "total_students_with_excuse": len(students),
             "students": students,
+        }
+
+    def build_daily_pdf_context(
+        self,
+        *,
+        center_id: int,
+        school_year_id: int,
+        target_date: date,
+        rows: list[dict],
+        total_present: int,
+        total_late: int,
+        total_absent: int,
+        total_with_excuse: int,
+        report_title: str = "Reporte diario de asistencia",
+    ) -> dict:
+        branding = self._build_pdf_branding_context(center_id)
+
+        return {
+            **branding,
+            "school_year_id": school_year_id,
+            "date": target_date,
+            "rows": rows,
+            "total_present": total_present,
+            "total_late": total_late,
+            "total_absent": total_absent,
+            "total_with_excuse": total_with_excuse,
+            "report_title": report_title,
         }

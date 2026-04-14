@@ -162,6 +162,11 @@ def _build_center_theme(center: Center | None) -> dict:
             if center and center.card_footer_text
             else "by Aula Nova"
         ),
+        "report_footer_text": (
+            center.report_footer_text
+            if center and getattr(center, "report_footer_text", None)
+            else "by Aula Nova"
+        ),
         "card_design_key": design_key,
         "show_full_card_identity": prefer_full_identity,
     }
