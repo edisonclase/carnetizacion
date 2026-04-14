@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: "Segoe UI", sans-serif;
+            font-size: 12px;
+            color: #1e293b;
+            margin: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            border-bottom: 2px solid #1f8f4a;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin-right: 15px;
+        }
+
+        .title h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .title p {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .summary {
+            margin-bottom: 20px;
+        }
+
+        .summary div {
+            margin-bottom: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #1f8f4a;
+            color: white;
+            padding: 6px;
+            font-size: 11px;
+        }
+
+        td {
+            border: 1px solid #e2e8f0;
+            padding: 5px;
+            font-size: 11px;
+        }
+
+        .present { color: #16a34a; }
+        .late { color: #f59e0b; }
+        .absent { color: #dc2626; }
+
+        .footer {
+            margin-top: 20px;
+            font-size: 10px;
+            text-align: right;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    {% if center_logo_url %}
+    <img src="{{ center_logo_url }}" class="logo">
+    {% endif %}
+    <div class="title">
+        <h1>{{ center_name }}</h1>
+        <p>Reporte diario de asistencia</p>
+    </div>
+</div>
+
+<div class="summary">
+    <div><strong>Fecha:</strong> {{ date }}</div>
+    <div><strong>Presentes:</strong> {{ total_present }}</div>
+    <div><strong>Tardanzas:</strong> {{ total_late }}</div>
+    <div><strong>Ausentes:</strong> {{ total_absent }}</div>
+    <div><strong>Con excusa:</strong> {{ total_with_excuse }}</div>
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Estado</th>
+            <th>Nombre</th>
+            <th>Código</th>
+            <th>Curso</th>
+            <th>Sección</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for s in rows %}
+        <tr>
+            <td class="{{ s.status }}">{{ s.status }}</td>
+            <td>{{ s.full_name }}</td>
+            <td>{{ s.student_code }}</td>
+            <td>{{ s.grade }}</td>
+            <td>{{ s.section }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="footer">
+    Generado por Aula Nova
+</div>
+
+</body>
+</html>
