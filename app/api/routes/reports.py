@@ -31,7 +31,10 @@ def _reporting_user_dependency():
 
 
 def _safe_filename(value: str) -> str:
-    cleaned = "".join(ch if ch.isalnum() or ch in {"-", "_"} else "_" for ch in value.strip())
+    cleaned = "".join(
+        ch if ch.isalnum() or ch in {"-", "_"} else "_"
+        for ch in value.strip()
+    )
     return cleaned.strip("_") or "reporte"
 
 
@@ -283,7 +286,10 @@ def get_printable_course_pdf(
             grade=grade,
             section=section,
         )
-        title = f"Reporte por curso - {grade}" + (f" Sección {section}" if section else "")
+        report_title = f"Reporte por curso - {grade}"
+        if section:
+            report_title += f" - Sección {section}"
+
         context = service.build_daily_pdf_context(
             center_id=effective_center_id,
             school_year_id=school_year_id,
@@ -293,7 +299,7 @@ def get_printable_course_pdf(
             total_late=report["totals"]["late"]["total"],
             total_absent=report["totals"]["absent"]["total"],
             total_with_excuse=report["totals"]["excuse"]["total"],
-            report_title=title,
+            report_title=report_title,
         )
         pdf_bytes = build_report_pdf(
             template_name="daily_report.html",
@@ -378,7 +384,6 @@ def get_printable_multi_course_pdf(
             target_date=date_value,
             grades=grades,
         )
-        title = "Reporte por varios cursos - " + ", ".join(report["grades"])
         context = service.build_daily_pdf_context(
             center_id=effective_center_id,
             school_year_id=school_year_id,
@@ -388,7 +393,7 @@ def get_printable_multi_course_pdf(
             total_late=report["totals"]["late"]["total"],
             total_absent=report["totals"]["absent"]["total"],
             total_with_excuse=report["totals"]["excuse"]["total"],
-            report_title=title,
+            report_title="Reporte por varios cursos",
         )
         pdf_bytes = build_report_pdf(
             template_name="daily_report.html",
@@ -428,11 +433,12 @@ def get_printable_excuses_pdf(
             grade=grade,
             section=section,
         )
-        title = "Reporte de excusas"
+
+        report_title = "Reporte de excusas"
         if grade:
-            title += f" - {grade}"
+            report_title += f" - {grade}"
         if section:
-            title += f" Sección {section}"
+            report_title += f" - Sección {section}"
 
         context = service.build_daily_pdf_context(
             center_id=effective_center_id,
@@ -443,7 +449,7 @@ def get_printable_excuses_pdf(
             total_late=0,
             total_absent=0,
             total_with_excuse=report["total_students_with_excuse"],
-            report_title=title,
+            report_title=report_title,
         )
         pdf_bytes = build_report_pdf(
             template_name="daily_report.html",

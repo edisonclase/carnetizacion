@@ -17,6 +17,7 @@
             <nav class="sidebar-nav">
                 <a href="/dashboard">Dashboard</a>
                 <a href="/reports/view" class="active">Reportes</a>
+                <a href="/admin/students">Listado de estudiantes</a>
             </nav>
         </aside>
 
@@ -25,24 +26,35 @@
                 <div>
                     <span class="page-eyebrow">Módulo analítico</span>
                     <h2>Reportes institucionales</h2>
-                    <p>Consulta detallada de asistencia y comportamiento estudiantil.</p>
+                    <p>Consulta ejecutiva, exportaciones y detalle operativo de asistencia.</p>
                 </div>
             </header>
 
             <section class="filters-card filter-panel">
+                <div class="section-heading">
+                    <div>
+                        <h3>Filtros del reporte</h3>
+                        <p>Selecciona el contexto para consultar y exportar la información institucional.</p>
+                    </div>
+                </div>
+
                 <div class="filters-grid">
                     <div class="field">
-                        <label>Centro</label>
-                        <select id="centerId"></select>
+                        <label for="centerId">Centro</label>
+                        <select id="centerId">
+                            <option value="">Cargando centros...</option>
+                        </select>
                     </div>
 
                     <div class="field">
-                        <label>Año escolar</label>
-                        <select id="schoolYearId"></select>
+                        <label for="schoolYearId">Año escolar</label>
+                        <select id="schoolYearId">
+                            <option value="">Cargando años escolares...</option>
+                        </select>
                     </div>
 
                     <div class="field">
-                        <label>Fecha</label>
+                        <label for="reportDate">Fecha</label>
                         <input type="date" id="reportDate" />
                     </div>
 
@@ -52,11 +64,97 @@
                 </div>
             </section>
 
-            <section class="filters-card" style="margin-top: -4px;">
-                <div class="section-heading compact">
+            <section class="metrics-grid metrics-grid-main">
+                <article class="metric-card metric-card-breakdown metric-present">
+                    <span class="metric-label">Presentes</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="presentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="presentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="presentTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown metric-late">
+                    <span class="metric-label">Tardanzas</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="lateMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="lateFemale">0</strong></div>
+                        <div><span>Total</span><strong id="lateTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown metric-absent">
+                    <span class="metric-label">Ausentes</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="absentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="absentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="absentTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown metric-excuse">
+                    <span class="metric-label">Con excusa</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="excuseMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="excuseFemale">0</strong></div>
+                        <div><span>Total</span><strong id="excuseTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown metric-general">
+                    <span class="metric-label">Total general</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="generalMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="generalFemale">0</strong></div>
+                        <div><span>Total</span><strong id="generalTotal">0</strong></div>
+                    </div>
+                </article>
+
+                <article class="metric-card metric-card-breakdown metric-enrollment">
+                    <span class="metric-label">Matrícula del contexto</span>
+                    <div class="metric-breakdown">
+                        <div><span>Masculino</span><strong id="enrollmentMale">0</strong></div>
+                        <div><span>Femenino</span><strong id="enrollmentFemale">0</strong></div>
+                        <div><span>Total</span><strong id="enrollmentTotal">0</strong></div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="status-grid">
+                <article class="status-card">
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Estado del día</h3>
+                            <p>Contexto rápido de la jornada consultada.</p>
+                        </div>
+                    </div>
+
+                    <div class="status-list">
+                        <div><span>Día laborable</span><strong id="flagWorkday">-</strong></div>
+                        <div><span>Hubo actividad</span><strong id="flagActivity">-</strong></div>
+                        <div><span>Posible no docencia</span><strong id="flagNoSchool">-</strong></div>
+                        <div><span>Posible despacho temprano</span><strong id="flagEarlyDismissal">-</strong></div>
+                    </div>
+                </article>
+
+                <article class="status-card">
+                    <div class="section-heading compact">
+                        <div>
+                            <h3>Resumen ejecutivo</h3>
+                            <p>Lectura institucional del comportamiento del día.</p>
+                        </div>
+                    </div>
+                    <div id="executiveMessage" class="general-message">
+                        Selecciona centro, año escolar y fecha para consultar el reporte.
+                    </div>
+                </article>
+            </section>
+
+            <section class="filters-card">
+                <div class="section-heading">
                     <div>
                         <h3>Exportaciones PDF</h3>
-                        <p>Genera reportes institucionales con branding del centro.</p>
+                        <p>Genera reportes profesionales con identidad visual del centro.</p>
                     </div>
                 </div>
 
@@ -72,7 +170,10 @@
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
-                        <h3>Resumen por curso y sexo</h3>
+                        <div>
+                            <h3>Resumen por curso y sexo</h3>
+                            <p>Vista ejecutiva de comportamiento por curso y sección.</p>
+                        </div>
                     </div>
 
                     <div class="table-wrapper">
@@ -81,6 +182,8 @@
                                 <tr>
                                     <th>Curso</th>
                                     <th>Sección</th>
+                                    <th>Mat. M</th>
+                                    <th>Mat. F</th>
                                     <th>Mat. T</th>
                                     <th>Pres. T</th>
                                     <th>Tard. T</th>
@@ -90,7 +193,7 @@
                             </thead>
                             <tbody id="courseTableBody">
                                 <tr>
-                                    <td colspan="7" class="empty-row">Sin datos cargados.</td>
+                                    <td colspan="9" class="empty-row">Sin datos cargados.</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -101,7 +204,10 @@
             <section class="tables-section">
                 <div class="table-card full-width">
                     <div class="table-card-header">
-                        <h3>Detalle diario</h3>
+                        <div>
+                            <h3>Detalle diario</h3>
+                            <p>Listado operativo del contexto seleccionado.</p>
+                        </div>
                     </div>
 
                     <div class="table-wrapper">
@@ -111,13 +217,17 @@
                                     <th>Estado</th>
                                     <th>Nombre</th>
                                     <th>Código</th>
+                                    <th>Sexo</th>
                                     <th>Curso</th>
                                     <th>Sección</th>
+                                    <th>Entrada</th>
+                                    <th>Min. tarde</th>
+                                    <th>Excusa</th>
                                 </tr>
                             </thead>
                             <tbody id="detailTableBody">
                                 <tr>
-                                    <td colspan="5" class="empty-row">Sin datos cargados.</td>
+                                    <td colspan="9" class="empty-row">Sin datos cargados.</td>
                                 </tr>
                             </tbody>
                         </table>

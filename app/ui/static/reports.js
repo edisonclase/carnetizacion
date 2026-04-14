@@ -6,8 +6,47 @@ document.addEventListener("DOMContentLoaded", async () => {
     const dateInput = document.getElementById("reportDate");
     const courseTableBody = document.getElementById("courseTableBody");
     const detailTableBody = document.getElementById("detailTableBody");
+    const executiveMessage = document.getElementById("executiveMessage");
 
     dateInput.value = new Date().toISOString().split("T")[0];
+
+    function setText(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = value ?? 0;
+        }
+    }
+
+    function fillFlag(id, value) {
+        const el = document.getElementById(id);
+        if (el) {
+            el.textContent = value ? "Sí" : "No";
+        }
+    }
+
+    function normalizeGender(value) {
+        const raw = String(value || "").trim().toLowerCase();
+
+        if (raw === "m" || raw === "masculino" || raw === "male") return "M";
+        if (raw === "f" || raw === "femenino" || raw === "female") return "F";
+        return "O";
+    }
+
+    function statusBadge(status) {
+        const normalized = String(status || "").toLowerCase();
+
+        if (normalized === "present") {
+            return `<span class="badge badge-present">Presente</span>`;
+        }
+        if (normalized === "late") {
+            return `<span class="badge badge-late">Tarde</span>`;
+        }
+        if (normalized === "absent") {
+            return `<span class="badge badge-absent">Ausente</span>`;
+        }
+
+        return status || "-";
+    }
 
     async function fetchJson(url) {
         const response = await apiFetch(url);
@@ -58,15 +97,102 @@ document.addEventListener("DOMContentLoaded", async () => {
         return `center_id=${encodeURIComponent(centerId)}&school_year_id=${encodeURIComponent(schoolYearId)}&date=${encodeURIComponent(reportDate)}`;
     }
 
-    function renderDetail(data) {
+    function mergedRows(data) {
         const rows = [
             ...(data.present_students || []),
             ...(data.late_students || []),
             ...(data.absent_students || []),
         ];
 
+        return rows.sort((a, b) => {
+            if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade), "es");
+            if (a.section !== b.section) return String(a.section).localeCompare(String(b.section), "es");
+            return String(a.full_name || "").localeCompare(String(b.full_name || ""), "es");
+        });
+    }
+
+    function computeAttendanceBreakdown(rows) {
+        const result = {
+            present: { M: 0, F: 0, T: 0 },
+            late: { M: 0, F: 0, T: 0 },
+            absent: { M: 0, F: 0, T: 0 },
+            excuse: { M: 0, F: 0, T: 0 },
+            general: { M: 0, F: 0, T: 0 },
+        };
+
+        rows.forEach((item) => {
+            const gender = normalizeGender(item.gender);
+            const status = String(item.status || "").toLowerCase();
+
+            if (gender === "M" || gender === "F") {
+                result.general[gender] += 1;
+            }
+            result.general.T += 1;
+
+            if (status === "present") {
+                if (gender === "M" || gender === "F") result.present[gender] += 1;
+                result.present.T += 1;
+            } else if (status === "late") {
+                if (gender === "M" || gender === "F") result.late[gender] += 1;
+                result.late.T += 1;
+            } else if (status === "absent") {
+                if (gender === "M" || gender === "F") result.absent[gender] += 1;
+                result.absent.T += 1;
+            }
+
+            if (item.has_excuse) {
+                if (gender === "M" || gender === "F") result.excuse[gender] += 1;
+                result.excuse.T += 1;
+            }
+        });
+
+        return result;
+    }
+
+    function computeEnrollmentFromRows(rows) {
+        const result = { M: 0, F: 0, T: 0 };
+
+        rows.forEach((item) => {
+            const gender = normalizeGender(item.gender);
+            if (gender === "M") result.M += 1;
+            if (gender === "F") result.F += 1;
+            result.T += 1;
+        });
+
+        return result;
+    }
+
+    function fillExecutiveCards(attendance, enrollment) {
+        setText("presentMale", attendance.present.M);
+        setText("presentFemale", attendance.present.F);
+        setText("presentTotal", attendance.present.T);
+
+        setText("lateMale", attendance.late.M);
+        setText("lateFemale", attendance.late.F);
+        setText("lateTotal", attendance.late.T);
+
+        setText("absentMale", attendance.absent.M);
+        setText("absentFemale", attendance.absent.F);
+        setText("absentTotal", attendance.absent.T);
+
+        setText("excuseMale", attendance.excuse.M);
+        setText("excuseFemale", attendance.excuse.F);
+        setText("excuseTotal", attendance.excuse.T);
+
+        setText("generalMale", attendance.general.M);
+        setText("generalFemale", attendance.general.F);
+        setText("generalTotal", attendance.general.T);
+
+        setText("enrollmentMale", enrollment.M);
+        setText("enrollmentFemale", enrollment.F);
+        setText("enrollmentTotal", enrollment.T);
+    }
+
+    function renderDetail(data) {
+        const rows = mergedRows(data);
+
         if (!rows.length) {
-            detailTableBody.innerHTML = `<tr><td colspan="5" class="empty-row">Sin datos disponibles.</td></tr>`;
+            detailTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Sin datos disponibles.</td></tr>`;
             return;
         }
 
@@ -74,11 +200,15 @@ document.addEventListener("DOMContentLoaded", async () => {
             .map(
                 (r) => `
             <tr>
-                <td>${r.status}</td>
+                <td>${statusBadge(r.status)}</td>
                 <td>${r.full_name}</td>
                 <td>${r.student_code ?? "-"}</td>
+                <td>${r.gender ?? "-"}</td>
                 <td>${r.grade}</td>
                 <td>${r.section}</td>
+                <td>${r.first_entry_time ? new Date(r.first_entry_time).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "-"}</td>
+                <td>${r.minutes_late ?? 0}</td>
+                <td>${r.has_excuse ? (r.excuse_note ?? "Sí") : "No"}</td>
             </tr>
         `
             )
@@ -87,19 +217,19 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     function renderCourse(data) {
         const map = {};
-        const rows = [
-            ...(data.present_students || []),
-            ...(data.late_students || []),
-            ...(data.absent_students || []),
-        ];
+        const rows = mergedRows(data);
 
         rows.forEach((r) => {
             const key = `${r.grade}-${r.section}`;
+            const gender = normalizeGender(r.gender);
+
             if (!map[key]) {
                 map[key] = {
                     grade: r.grade,
                     section: r.section,
-                    total: 0,
+                    enrollmentM: 0,
+                    enrollmentF: 0,
+                    enrollmentT: 0,
                     present: 0,
                     late: 0,
                     absent: 0,
@@ -107,7 +237,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                 };
             }
 
-            map[key].total += 1;
+            if (gender === "M") map[key].enrollmentM += 1;
+            if (gender === "F") map[key].enrollmentF += 1;
+            map[key].enrollmentT += 1;
 
             if (r.status === "present") map[key].present += 1;
             if (r.status === "late") map[key].late += 1;
@@ -118,7 +250,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const values = Object.values(map);
 
         if (!values.length) {
-            courseTableBody.innerHTML = `<tr><td colspan="7" class="empty-row">Sin datos disponibles.</td></tr>`;
+            courseTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Sin datos disponibles.</td></tr>`;
             return;
         }
 
@@ -128,7 +260,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             <tr>
                 <td>${r.grade}</td>
                 <td>${r.section}</td>
-                <td>${r.total}</td>
+                <td>${r.enrollmentM}</td>
+                <td>${r.enrollmentF}</td>
+                <td>${r.enrollmentT}</td>
                 <td>${r.present}</td>
                 <td>${r.late}</td>
                 <td>${r.absent}</td>
@@ -142,11 +276,31 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function loadReports() {
         if (!validateFilters()) return;
 
-        const query = buildBaseQuery();
-        const data = await fetchJson(`/reports/daily-institutional?${query}`);
+        executiveMessage.textContent = "Cargando reporte institucional...";
 
-        renderDetail(data);
-        renderCourse(data);
+        try {
+            const query = buildBaseQuery();
+            const data = await fetchJson(`/reports/daily-institutional?${query}`);
+            const rows = mergedRows(data);
+            const attendance = computeAttendanceBreakdown(rows);
+            const enrollment = computeEnrollmentFromRows(rows);
+
+            fillExecutiveCards(attendance, enrollment);
+            renderDetail(data);
+            renderCourse(data);
+
+            fillFlag("flagWorkday", data.is_workday);
+            fillFlag("flagActivity", data.had_attendance_activity);
+            fillFlag("flagNoSchool", data.possible_no_school_day);
+            fillFlag("flagEarlyDismissal", data.possible_early_dismissal);
+
+            executiveMessage.textContent =
+                `Reporte cargado para ${data.date}. Presentes: ${data.total_present}, tardanzas: ${data.total_late}, ausentes: ${data.total_absent}, excusas: ${data.total_with_excuse}.`;
+        } catch (error) {
+            executiveMessage.textContent = error.message || "No se pudo cargar el reporte.";
+            courseTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Sin datos disponibles.</td></tr>`;
+            detailTableBody.innerHTML = `<tr><td colspan="9" class="empty-row">Sin datos disponibles.</td></tr>`;
+        }
     }
 
     function openPdf(url) {

@@ -4,121 +4,201 @@
     <meta charset="UTF-8">
     <style>
         body {
-            font-family: "Segoe UI", sans-serif;
+            font-family: "Segoe UI", Arial, sans-serif;
             font-size: 12px;
             color: #1e293b;
-            margin: 20px;
+            margin: 28px;
         }
 
         .header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid {{ center_primary_color or "#1f8f4a" }};
-            padding-bottom: 10px;
-            margin-bottom: 20px;
+            border-bottom: 3px solid {{ center_primary_color or "#1f8f4a" }};
+            padding-bottom: 12px;
+            margin-bottom: 18px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .logo {
-            width: 60px;
-            height: 60px;
-            margin-right: 15px;
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
         }
 
-        .title h1 {
+        .title-block h1 {
             margin: 0;
             font-size: 18px;
+            color: #0f172a;
         }
 
-        .title p {
-            margin: 0;
+        .title-block p {
+            margin: 3px 0 0;
             font-size: 12px;
             color: #64748b;
         }
 
-        .summary {
-            margin-bottom: 20px;
+        .header-right {
+            text-align: right;
+            font-size: 11px;
+            color: #475569;
         }
 
-        .summary div {
-            margin-bottom: 5px;
+        .summary-grid {
+            width: 100%;
+            margin-bottom: 18px;
+            border-collapse: separate;
+            border-spacing: 8px 0;
         }
 
-        table {
+        .summary-card {
+            background: #f8fafc;
+            border-left: 4px solid {{ center_primary_color or "#1f8f4a" }};
+            border-radius: 8px;
+            padding: 10px 12px;
+            vertical-align: top;
+        }
+
+        .summary-card strong {
+            display: block;
+            font-size: 15px;
+            color: #0f172a;
+            margin-bottom: 4px;
+        }
+
+        .summary-card span {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .table-title {
+            margin: 0 0 8px;
+            font-size: 13px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        table.report-table {
             width: 100%;
             border-collapse: collapse;
         }
 
-        th {
+        .report-table th {
             background: {{ center_primary_color or "#1f8f4a" }};
-            color: white;
-            padding: 6px;
+            color: #ffffff;
+            padding: 7px 8px;
             font-size: 11px;
+            text-align: left;
         }
 
-        td {
+        .report-table td {
             border: 1px solid #e2e8f0;
-            padding: 5px;
+            padding: 6px 8px;
             font-size: 11px;
+            vertical-align: top;
         }
 
-        .present { color: #16a34a; }
-        .late { color: #f59e0b; }
-        .absent { color: #dc2626; }
+        .present {
+            color: #16a34a;
+            font-weight: 600;
+        }
+
+        .late {
+            color: #d97706;
+            font-weight: 600;
+        }
+
+        .absent {
+            color: #dc2626;
+            font-weight: 600;
+        }
 
         .footer {
             margin-top: 20px;
+            padding-top: 8px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
             font-size: 10px;
-            text-align: right;
             color: #64748b;
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    {% if center_logo_url %}
-    <img src="{{ center_logo_url }}" class="logo">
-    {% endif %}
-    <div class="title">
-        <h1>{{ center_name }}</h1>
-        <p>Reporte diario de asistencia</p>
+    <div class="header">
+        <div class="header-left">
+            {% if center_logo_url %}
+            <img src="{{ center_logo_url }}" alt="Logo del centro" class="logo">
+            {% endif %}
+
+            <div class="title-block">
+                <h1>{{ center_name }}</h1>
+                <p>{{ report_title or "Reporte institucional de asistencia" }}</p>
+            </div>
+        </div>
+
+        <div class="header-right">
+            <div><strong>Fecha:</strong> {{ date }}</div>
+            <div><strong>Año escolar:</strong> {{ school_year_name }}</div>
+        </div>
     </div>
-</div>
 
-<div class="summary">
-    <div><strong>Fecha:</strong> {{ date }}</div>
-    <div><strong>Presentes:</strong> {{ total_present }}</div>
-    <div><strong>Tardanzas:</strong> {{ total_late }}</div>
-    <div><strong>Ausentes:</strong> {{ total_absent }}</div>
-    <div><strong>Con excusa:</strong> {{ total_with_excuse }}</div>
-</div>
-
-<table>
-    <thead>
+    <table class="summary-grid">
         <tr>
-            <th>Estado</th>
-            <th>Nombre</th>
-            <th>Código</th>
-            <th>Curso</th>
-            <th>Sección</th>
+            <td class="summary-card">
+                <strong>{{ total_present }}</strong>
+                <span>Presentes</span>
+            </td>
+            <td class="summary-card">
+                <strong>{{ total_late }}</strong>
+                <span>Tardanzas</span>
+            </td>
+            <td class="summary-card">
+                <strong>{{ total_absent }}</strong>
+                <span>Ausentes</span>
+            </td>
+            <td class="summary-card">
+                <strong>{{ total_with_excuse }}</strong>
+                <span>Con excusa</span>
+            </td>
         </tr>
-    </thead>
-    <tbody>
-        {% for s in rows %}
-        <tr>
-            <td class="{{ s.status }}">{{ s.status }}</td>
-            <td>{{ s.full_name }}</td>
-            <td>{{ s.student_code }}</td>
-            <td>{{ s.grade }}</td>
-            <td>{{ s.section }}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+    </table>
 
-<div class="footer">
-    {{ report_footer_text or "Sistema institucional" }}
-</div>
+    <p class="table-title">Detalle del reporte</p>
+
+    <table class="report-table">
+        <thead>
+            <tr>
+                <th>Estado</th>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th>Curso</th>
+                <th>Sección</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in rows %}
+            <tr>
+                <td class="{{ s.status }}">{{ s.status }}</td>
+                <td>{{ s.full_name }}</td>
+                <td>{{ s.student_code }}</td>
+                <td>{{ s.grade }}</td>
+                <td>{{ s.section }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <div>{{ center_name }}</div>
+        <div>{{ report_footer_text or "Sistema institucional" }}</div>
+    </div>
 
 </body>
 </html>

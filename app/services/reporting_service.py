@@ -427,9 +427,7 @@ class ReportingService:
         )
 
         if not rows:
-            raise ValueError(
-                "No existen consolidados institucionales para el mes indicado."
-            )
+            raise ValueError("No existen consolidados institucionales para el mes indicado.")
 
         by_day = [
             {
@@ -525,19 +523,12 @@ class ReportingService:
         center_day = self._get_center_day(center_id, school_year_id, target_date)
         rows = self._get_summary_rows(center_id, school_year_id, target_date)
 
-        filtered_rows = self._filter_rows(
-            rows,
-            grade=grade,
-            section=section,
-        )
+        filtered_rows = self._filter_rows(rows, grade=grade, section=section)
 
         if not filtered_rows:
             raise ValueError("No hay datos para el curso seleccionado.")
 
-        students = [
-            self._build_student_item(summary, student)
-            for summary, student in filtered_rows
-        ]
+        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
 
         return {
             "center_id": center_day.center_id,
@@ -560,19 +551,12 @@ class ReportingService:
         center_day = self._get_center_day(center_id, school_year_id, target_date)
         rows = self._get_summary_rows(center_id, school_year_id, target_date)
 
-        filtered_rows = self._filter_rows(
-            rows,
-            section=section,
-        )
+        filtered_rows = self._filter_rows(rows, section=section)
 
         if not filtered_rows:
             raise ValueError("No hay datos para la sección seleccionada.")
 
-        students = [
-            self._build_student_item(summary, student)
-            for summary, student in filtered_rows
-        ]
-
+        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
         grades = sorted({student.grade for _, student in filtered_rows})
 
         return {
@@ -600,18 +584,12 @@ class ReportingService:
         if not normalized_grades:
             raise ValueError("Debes indicar al menos un curso.")
 
-        filtered_rows = self._filter_rows(
-            rows,
-            grades=normalized_grades,
-        )
+        filtered_rows = self._filter_rows(rows, grades=normalized_grades)
 
         if not filtered_rows:
             raise ValueError("No hay datos para los cursos seleccionados.")
 
-        students = [
-            self._build_student_item(summary, student)
-            for summary, student in filtered_rows
-        ]
+        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
 
         return {
             "center_id": center_day.center_id,
@@ -636,10 +614,7 @@ class ReportingService:
         if not rows:
             raise ValueError("No hay datos para el centro en la fecha seleccionada.")
 
-        students = [
-            self._build_student_item(summary, student)
-            for summary, student in rows
-        ]
+        students = [self._build_student_item(summary, student) for summary, student in rows]
 
         return {
             "center_id": center_day.center_id,
@@ -672,10 +647,7 @@ class ReportingService:
                 continue
             filtered_rows.append((summary, student))
 
-        students = [
-            self._build_student_item(summary, student)
-            for summary, student in filtered_rows
-        ]
+        students = [self._build_student_item(summary, student) for summary, student in filtered_rows]
 
         return {
             "center_id": center_day.center_id,
@@ -705,6 +677,7 @@ class ReportingService:
         return {
             **branding,
             "school_year_id": school_year_id,
+            "school_year_name": f"Año escolar #{school_year_id}",
             "date": target_date,
             "rows": rows,
             "total_present": total_present,
