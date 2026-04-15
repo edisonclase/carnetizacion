@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Facturación - Nova ID</title>
+    <link rel="stylesheet" href="/static/billing.css" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>by Aula Nova</p>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/billing/view" class="active">Facturación</a>
+                <a href="/docs" target="_blank">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="main-content">
+            <header class="topbar">
+                <div>
+                    <span class="page-eyebrow">Panel financiero</span>
+                    <h2>Facturación por centro educativo</h2>
+                    <p>Control de pedidos, cobros y balances pendientes del sistema Nova ID.</p>
+                </div>
+
+                <div class="topbar-right">
+                    <div class="user-chip">
+                        <strong id="currentUserName">Cargando...</strong>
+                        <span id="currentUserRole">-</span>
+                    </div>
+                    <button id="logoutBtn" class="logout-btn" type="button">Cerrar sesión</button>
+                </div>
+            </header>
+
+            <section class="filters-card">
+                <div class="section-heading">
+                    <div>
+                        <h3>Resumen ejecutivo</h3>
+                        <p>Visión consolidada de las facturas cargadas en el sistema.</p>
+                    </div>
+                </div>
+
+                <div class="metrics-grid">
+                    <article class="metric-card">
+                        <span class="metric-label">Facturado</span>
+                        <strong id="metricTotalBilled">RD$ 0.00</strong>
+                    </article>
+
+                    <article class="metric-card">
+                        <span class="metric-label">Cobrado</span>
+                        <strong id="metricTotalPaid">RD$ 0.00</strong>
+                    </article>
+
+                    <article class="metric-card">
+                        <span class="metric-label">Pendiente</span>
+                        <strong id="metricTotalPending">RD$ 0.00</strong>
+                    </article>
+
+                    <article class="metric-card">
+                        <span class="metric-label">Facturas</span>
+                        <strong id="metricInvoiceCount">0</strong>
+                    </article>
+                </div>
+            </section>
+
+            <section class="grid-two">
+                <section class="panel-card">
+                    <div class="section-heading">
+                        <div>
+                            <h3>Nueva factura</h3>
+                            <p>Registro de pedidos y cobros iniciales por centro.</p>
+                        </div>
+                    </div>
+
+                    <form id="billingForm" class="form-grid">
+                        <div class="field">
+                            <label for="centerId">Centro</label>
+                            <select id="centerId" required>
+                                <option value="">Cargando centros...</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="issueDate">Fecha de emisión</label>
+                            <input type="date" id="issueDate" required />
+                        </div>
+
+                        <div class="field">
+                            <label for="dueDate">Fecha de vencimiento</label>
+                            <input type="date" id="dueDate" required />
+                        </div>
+
+                        <div class="field field-full">
+                            <label for="concept">Concepto</label>
+                            <input
+                                type="text"
+                                id="concept"
+                                placeholder="Ejemplo: Emisión de carnets escolares"
+                                required
+                            />
+                        </div>
+
+                        <div class="field">
+                            <label for="cardQuantity">Cantidad de carnets</label>
+                            <input type="number" id="cardQuantity" min="1" step="1" required />
+                        </div>
+
+                        <div class="field">
+                            <label for="unitPrice">Precio unitario</label>
+                            <input type="number" id="unitPrice" min="0" step="0.01" required />
+                        </div>
+
+                        <div class="field">
+                            <label for="amountPaid">Monto pagado</label>
+                            <input type="number" id="amountPaid" min="0" step="0.01" value="0" required />
+                        </div>
+
+                        <div class="field field-full">
+                            <label for="notes">Notas</label>
+                            <textarea
+                                id="notes"
+                                rows="4"
+                                placeholder="Observaciones de la factura o del pedido."
+                            ></textarea>
+                        </div>
+
+                        <div class="field field-full form-actions">
+                            <button id="saveInvoiceBtn" type="submit" class="primary-btn">
+                                Registrar factura
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="formMessage" class="form-message"></div>
+                </section>
+
+                <section class="panel-card">
+                    <div class="section-heading">
+                        <div>
+                            <h3>Filtros de consulta</h3>
+                            <p>Busca facturas por centro y estado.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-grid compact-grid">
+                        <div class="field">
+                            <label for="filterCenterId">Centro</label>
+                            <select id="filterCenterId">
+                                <option value="">Todos los centros</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="filterStatus">Estado</label>
+                            <select id="filterStatus">
+                                <option value="">Todos</option>
+                                <option value="pending">Pendiente</option>
+                                <option value="partial">Parcial</option>
+                                <option value="paid">Pagada</option>
+                                <option value="cancelled">Cancelada</option>
+                            </select>
+                        </div>
+
+                        <div class="field field-full form-actions">
+                            <button id="filterInvoicesBtn" type="button" class="secondary-btn">
+                                Cargar facturas
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h4>Detalle de factura</h4>
+                        <div id="invoiceDetailEmpty" class="detail-empty">
+                            Selecciona una factura de la tabla para ver su detalle.
+                        </div>
+
+                        <div id="invoiceDetailContent" class="detail-content hidden">
+                            <div class="detail-grid">
+                                <div><span>Número</span><strong id="detailInvoiceNumber">-</strong></div>
+                                <div><span>Centro</span><strong id="detailCenterName">-</strong></div>
+                                <div><span>Emisión</span><strong id="detailIssueDate">-</strong></div>
+                                <div><span>Vencimiento</span><strong id="detailDueDate">-</strong></div>
+                                <div><span>Concepto</span><strong id="detailConcept">-</strong></div>
+                                <div><span>Cantidad</span><strong id="detailCardQuantity">-</strong></div>
+                                <div><span>Precio unitario</span><strong id="detailUnitPrice">-</strong></div>
+                                <div><span>Total</span><strong id="detailTotalAmount">-</strong></div>
+                                <div><span>Pagado</span><strong id="detailAmountPaid">-</strong></div>
+                                <div><span>Pendiente</span><strong id="detailPendingAmount">-</strong></div>
+                                <div><span>Estado</span><strong id="detailStatus">-</strong></div>
+                            </div>
+
+                            <div class="detail-notes">
+                                <span>Notas</span>
+                                <p id="detailNotes">-</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </section>
+
+            <section class="panel-card">
+                <div class="section-heading">
+                    <div>
+                        <h3>Facturas registradas</h3>
+                        <p>Listado operativo para supervisión y control financiero.</p>
+                    </div>
+                </div>
+
+                <div class="table-wrapper">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Número</th>
+                                <th>Centro</th>
+                                <th>Concepto</th>
+                                <th>Cant.</th>
+                                <th>Total</th>
+                                <th>Pagado</th>
+                                <th>Pendiente</th>
+                                <th>Estado</th>
+                                <th>Emisión</th>
+                                <th>Vence</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="billingTableBody">
+                            <tr>
+                                <td colspan="11" class="empty-row">Cargando facturas...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script src="/static/billing.js"></script>
+</body>
+</html>
