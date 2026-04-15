@@ -136,6 +136,10 @@ function canAccessAttendanceScanner(role) {
     return String(role || "").toLowerCase() === "super_admin";
 }
 
+function canAccessBilling(role) {
+    return String(role || "").toLowerCase() === "super_admin";
+}
+
 function configureRoleUI(user) {
     document.getElementById("currentUserName").textContent = user.full_name;
     document.getElementById("currentUserRole").textContent = roleLabel(user.role);
@@ -144,12 +148,14 @@ function configureRoleUI(user) {
     const navRegisterLink = document.getElementById("navRegisterLink");
     const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
     const navAttendanceScannerLink = document.getElementById("navAttendanceScannerLink");
+    const navBillingLink = document.getElementById("navBillingLink");
 
     const moduleAccessCard = document.getElementById("moduleAccessCard");
     const moduleStudentsList = document.getElementById("moduleStudentsList");
     const moduleStudentRegister = document.getElementById("moduleStudentRegister");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
     const moduleAttendanceScanner = document.getElementById("moduleAttendanceScanner");
+    const moduleBilling = document.getElementById("moduleBilling");
 
     const navDocsLink = document.getElementById("navDocsLink");
     const reportActionsCard = document.getElementById("reportActionsCard");
@@ -176,6 +182,12 @@ function configureRoleUI(user) {
         navAttendanceScannerLink.classList.remove("hidden");
         moduleAccessCard.classList.remove("hidden");
         moduleAttendanceScanner.classList.remove("hidden");
+    }
+
+    if (canAccessBilling(user.role)) {
+        navBillingLink.classList.remove("hidden");
+        moduleAccessCard.classList.remove("hidden");
+        moduleBilling.classList.remove("hidden");
     }
 
     if (canAccessInstitutionalReports(user.role)) {

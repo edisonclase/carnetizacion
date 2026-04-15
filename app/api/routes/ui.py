@@ -298,6 +298,15 @@ def attendance_scanner_page(request: Request):
     )
 
 
+@router.get("/billing/view", response_class=HTMLResponse)
+def billing_view(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="billing.html",
+        context={"request": request},
+    )
+
+
 @router.get("/admin/centers/{center_id}/settings", response_class=HTMLResponse)
 def center_settings_page(
     request: Request,
