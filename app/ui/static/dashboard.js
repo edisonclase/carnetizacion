@@ -1,7 +1,71 @@
-let statusGenderChartInstance = null;
-let enrollmentGenderChartInstance = null;
 let currentUser = null;
-let allSchoolYears = [];
+let centersCache = [];
+let selectedInvoiceId = null;
+
+function setText(id, value) {
+    const el = document.getElementById(id);
+    if (el) {
+        el.textContent = value ?? "-";
+    }
+}
+
+function formatCurrency(value) {
+    const amount = Number(value || 0);
+    return new Intl.NumberFormat("es-DO", {
+        style: "currency",
+        currency: "DOP",
+        minimumFractionDigits: 2,
+    }).format(amount);
+}
+
+function formatDate(value) {
+    if (!value) return "-";
+    return value;
+}
+
+function normalizeStatus(status) {
+    const value = String(status || "").toLowerCase();
+    if (value === "paid") return "Pagada";
+    if (value === "partial") return "Parcial";
+    if (value === "pending") return "Pendiente";
+    if (value === "cancelled") return "Cancelada";
+    return status || "-";
+}
+
+function statusBadge(status) {
+    const value = String(status || "").toLowerCase();
+
+    if (value === "paid") {
+        return `<span class="badge badge-paid">Pagada</span>`;
+    }
+    if (value === "partial") {
+        return `<span class="badge badge-partial">Parcial</span>`;
+    }
+    if (value === "pending") {
+        return `<span class="badge badge-pending">Pendiente</span>`;
+    }
+    if (value === "cancelled") {
+        return `<span class="badge badge-cancelled">Cancelada</span>`;
+    }
+
+    return `<span class="badge">${status || "-"}</span>`;
+}
+
+async function fetchJson(url, options = {}) {
+    const response = await apiFetch(url, options);
+
+    if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data.detail || "No se pudo completar la operación.");
+    }
+
+    return response.json();
+}
+
+function fillUserChip(user) {
+    setText("currentUserName", user.full_name);
+    setText("currentUserRole", roleLabel(user.role));
+}
 
 function getTodayLocalDate() {
     const now = new Date();
@@ -11,648 +75,336 @@ function getTodayLocalDate() {
     return `${year}-${month}-${day}`;
 }
 
-function setDefaultDate() {
-    const dateInput = document.getElementById("reportDate");
-    if (dateInput && !dateInput.value) {
-        dateInput.value = getTodayLocalDate();
+function setDefaultDates() {
+    const issueDate = document.getElementById("issueDate");
+    const dueDate = document.getElementById("dueDate");
+    const paymentDate = document.getElementById("paymentDate");
+
+    if (issueDate && !issueDate.value) {
+        issueDate.value = getTodayLocalDate();
+    }
+
+    if (paymentDate && !paymentDate.value) {
+        paymentDate.value = getTodayLocalDate();
+    }
+
+    if (dueDate && !dueDate.value) {
+        const today = new Date();
+        today.setDate(today.getDate() + 15);
+
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        dueDate.value = `${year}-${month}-${day}`;
     }
 }
 
-function setText(id, value) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.textContent = value ?? 0;
-    }
-}
+function renderCenters(selectId, includeAllOption = false) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
 
-function fillFlag(id, value) {
-    const el = document.getElementById(id);
-    if (el) {
-        el.textContent = value ? "Sí" : "No";
-    }
-}
+    const options = [];
 
-function normalizeGender(value) {
-    const raw = String(value || "").trim().toLowerCase();
-
-    if (raw === "m" || raw === "masculino" || raw === "male") return "M";
-    if (raw === "f" || raw === "femenino" || raw === "female") return "F";
-    return "O";
-}
-
-function mergedDailyRows(report) {
-    const rows = [];
-    (report.present_students || []).forEach(item => rows.push(item));
-    (report.late_students || []).forEach(item => rows.push(item));
-    (report.absent_students || []).forEach(item => rows.push(item));
-
-    return rows.sort((a, b) => {
-        if (a.grade !== b.grade) return String(a.grade).localeCompare(String(b.grade), "es");
-        if (a.section !== b.section) return String(a.section).localeCompare(String(b.section), "es");
-        return String(a.full_name || "").localeCompare(String(b.full_name || ""), "es");
-    });
-}
-
-function computeAttendanceBreakdown(report) {
-    const rows = mergedDailyRows(report);
-
-    const result = {
-        present: { M: 0, F: 0, T: 0 },
-        late: { M: 0, F: 0, T: 0 },
-        absent: { M: 0, F: 0, T: 0 },
-        excuse: { M: 0, F: 0, T: 0 },
-        general: { M: 0, F: 0, T: 0 },
-    };
-
-    rows.forEach((item) => {
-        const gender = normalizeGender(item.gender);
-        const status = String(item.status || "").toLowerCase();
-
-        if (gender === "M" || gender === "F") {
-            result.general[gender] += 1;
-        }
-        result.general.T += 1;
-
-        if (status === "present") {
-            if (gender === "M" || gender === "F") result.present[gender] += 1;
-            result.present.T += 1;
-        } else if (status === "late") {
-            if (gender === "M" || gender === "F") result.late[gender] += 1;
-            result.late.T += 1;
-        } else if (status === "absent") {
-            if (gender === "M" || gender === "F") result.absent[gender] += 1;
-            result.absent.T += 1;
-        }
-
-        if (item.has_excuse) {
-            if (gender === "M" || gender === "F") result.excuse[gender] += 1;
-            result.excuse.T += 1;
-        }
-    });
-
-    return result;
-}
-
-function computeEnrollmentBreakdown(summary) {
-    const byGender = summary.by_gender || {};
-    let male = 0;
-    let female = 0;
-
-    Object.entries(byGender).forEach(([key, value]) => {
-        const normalized = normalizeGender(key);
-        if (normalized === "M") male += Number(value || 0);
-        if (normalized === "F") female += Number(value || 0);
-    });
-
-    return {
-        M: male,
-        F: female,
-        T: Number(summary.total_students || 0),
-    };
-}
-
-async function fetchJson(url) {
-    const response = await apiFetch(url);
-
-    if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.detail || "No se pudo cargar la información.");
+    if (includeAllOption) {
+        options.push(`<option value="">Todos los centros</option>`);
     }
 
-    return response.json();
-}
+    options.push(
+        ...centersCache.map(center => `<option value="${center.id}">${center.name}</option>`)
+    );
 
-function canManageCenterCardSettings(role) {
-    const normalized = String(role || "").toLowerCase();
-    return normalized === "super_admin" || normalized === "admin_centro";
-}
-
-function canAccessInstitutionalReports(role) {
-    const normalized = String(role || "").toLowerCase();
-    return normalized === "super_admin" || normalized === "admin_centro" || normalized === "consulta";
-}
-
-function canAccessAttendanceScanner(role) {
-    return String(role || "").toLowerCase() === "super_admin";
-}
-
-function canAccessBilling(role) {
-    return String(role || "").toLowerCase() === "super_admin";
-}
-
-function configureRoleUI(user) {
-    document.getElementById("currentUserName").textContent = user.full_name;
-    document.getElementById("currentUserRole").textContent = roleLabel(user.role);
-
-    const navStudentsLink = document.getElementById("navStudentsLink");
-    const navRegisterLink = document.getElementById("navRegisterLink");
-    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
-    const navAttendanceScannerLink = document.getElementById("navAttendanceScannerLink");
-    const navBillingLink = document.getElementById("navBillingLink");
-
-    const moduleAccessCard = document.getElementById("moduleAccessCard");
-    const moduleStudentsList = document.getElementById("moduleStudentsList");
-    const moduleStudentRegister = document.getElementById("moduleStudentRegister");
-    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
-    const moduleAttendanceScanner = document.getElementById("moduleAttendanceScanner");
-    const moduleBilling = document.getElementById("moduleBilling");
-
-    const navDocsLink = document.getElementById("navDocsLink");
-    const reportActionsCard = document.getElementById("reportActionsCard");
-
-    if (canViewStudents(user.role)) {
-        navStudentsLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleStudentsList.classList.remove("hidden");
-    }
-
-    if (canManageStudents(user.role)) {
-        navRegisterLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleStudentRegister.classList.remove("hidden");
-    }
-
-    if (canManageCenterCardSettings(user.role)) {
-        navCenterSettingsLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleCenterSettings.classList.remove("hidden");
-    }
-
-    if (canAccessAttendanceScanner(user.role)) {
-        navAttendanceScannerLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleAttendanceScanner.classList.remove("hidden");
-    }
-
-    if (canAccessBilling(user.role)) {
-        navBillingLink.classList.remove("hidden");
-        moduleAccessCard.classList.remove("hidden");
-        moduleBilling.classList.remove("hidden");
-    }
-
-    if (canAccessInstitutionalReports(user.role)) {
-        reportActionsCard.classList.remove("hidden");
-    }
-
-    if (String(user.role).toLowerCase() !== "super_admin") {
-        navDocsLink.classList.add("hidden");
-    }
-}
-
-function filterSchoolYearsByCenter(centerId) {
-    const schoolYearSelect = document.getElementById("schoolYearId");
-    if (!schoolYearSelect) return;
-
-    const filtered = allSchoolYears.filter((item) => {
-        return !centerId || String(item.center_id) === String(centerId);
-    });
-
-    if (!filtered.length) {
-        schoolYearSelect.innerHTML = `<option value="">No hay años escolares disponibles</option>`;
-        return;
-    }
-
-    schoolYearSelect.innerHTML = filtered.map(item => `
-        <option value="${item.id}">${item.name}</option>
-    `).join("");
-}
-
-function updateCenterSettingsLinks() {
-    const selectedCenterId = document.getElementById("centerId")?.value;
-    const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
-    const moduleCenterSettings = document.getElementById("moduleCenterSettings");
-    const href = selectedCenterId ? `/admin/centers/${selectedCenterId}/settings` : "#";
-
-    if (navCenterSettingsLink) navCenterSettingsLink.setAttribute("href", href);
-    if (moduleCenterSettings) moduleCenterSettings.setAttribute("href", href);
+    select.innerHTML = options.join("");
 }
 
 async function loadCenters() {
-    const centerSelect = document.getElementById("centerId");
-    if (!centerSelect) return;
-
-    try {
-        const centers = await fetchJson("/centers/");
-
-        if (!centers.length) {
-            centerSelect.innerHTML = `<option value="">No hay centros registrados</option>`;
-            return;
-        }
-
-        if (String(currentUser.role).toLowerCase() === "super_admin") {
-            centerSelect.innerHTML = centers.map(center => `
-                <option value="${center.id}">${center.name}</option>
-            `).join("");
-        } else {
-            const ownCenter = centers.find((center) => String(center.id) === String(currentUser.center_id));
-
-            if (!ownCenter) {
-                centerSelect.innerHTML = `<option value="">Centro no disponible</option>`;
-                return;
-            }
-
-            centerSelect.innerHTML = `<option value="${ownCenter.id}">${ownCenter.name}</option>`;
-            centerSelect.value = String(ownCenter.id);
-            centerSelect.disabled = true;
-        }
-
-        updateCenterSettingsLinks();
-    } catch (error) {
-        centerSelect.innerHTML = `<option value="">Error cargando centros</option>`;
-    }
+    centersCache = await fetchJson("/centers/");
+    renderCenters("centerId", false);
+    renderCenters("filterCenterId", true);
 }
 
-async function loadSchoolYears() {
-    const schoolYearSelect = document.getElementById("schoolYearId");
-    if (!schoolYearSelect) return;
-
-    try {
-        allSchoolYears = await fetchJson("/school-years/");
-
-        if (!allSchoolYears.length) {
-            schoolYearSelect.innerHTML = `<option value="">No hay años escolares registrados</option>`;
-            return;
-        }
-
-        filterSchoolYearsByCenter(document.getElementById("centerId").value);
-    } catch (error) {
-        schoolYearSelect.innerHTML = `<option value="">Error cargando años escolares</option>`;
-    }
+function getCenterName(centerId) {
+    const center = centersCache.find(item => String(item.id) === String(centerId));
+    return center ? center.name : `Centro ${centerId}`;
 }
 
-function renderStatusGenderChart(breakdown) {
-    const ctx = document.getElementById("statusGenderChart");
-    if (!ctx) return;
-
-    if (statusGenderChartInstance) {
-        statusGenderChartInstance.destroy();
-    }
-
-    statusGenderChartInstance = new Chart(ctx, {
-        type: "bar",
-        data: {
-            labels: ["Presentes", "Tardanzas", "Ausentes", "Con excusa"],
-            datasets: [
-                {
-                    label: "Masculino",
-                    data: [
-                        breakdown.present.M,
-                        breakdown.late.M,
-                        breakdown.absent.M,
-                        breakdown.excuse.M,
-                    ],
-                    backgroundColor: "#2563eb",
-                    borderRadius: 10,
-                    maxBarThickness: 42,
-                },
-                {
-                    label: "Femenino",
-                    data: [
-                        breakdown.present.F,
-                        breakdown.late.F,
-                        breakdown.absent.F,
-                        breakdown.excuse.F,
-                    ],
-                    backgroundColor: "#ec4899",
-                    borderRadius: 10,
-                    maxBarThickness: 42,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: "top",
-                },
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        precision: 0,
-                    },
-                },
-            },
-        },
-    });
-}
-
-function renderEnrollmentGenderChart(enrollment) {
-    const ctx = document.getElementById("enrollmentGenderChart");
-    if (!ctx) return;
-
-    if (enrollmentGenderChartInstance) {
-        enrollmentGenderChartInstance.destroy();
-    }
-
-    enrollmentGenderChartInstance = new Chart(ctx, {
-        type: "doughnut",
-        data: {
-            labels: ["Masculino", "Femenino"],
-            datasets: [
-                {
-                    data: [enrollment.M, enrollment.F],
-                    backgroundColor: ["#2563eb", "#ec4899"],
-                    borderWidth: 0,
-                    hoverOffset: 8,
-                },
-            ],
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: "62%",
-            plugins: {
-                legend: {
-                    position: "top",
-                },
-            },
-        },
-    });
-}
-
-function fillAttendanceCards(breakdown) {
-    setText("presentMale", breakdown.present.M);
-    setText("presentFemale", breakdown.present.F);
-    setText("presentTotal", breakdown.present.T);
-
-    setText("lateMale", breakdown.late.M);
-    setText("lateFemale", breakdown.late.F);
-    setText("lateTotal", breakdown.late.T);
-
-    setText("absentMale", breakdown.absent.M);
-    setText("absentFemale", breakdown.absent.F);
-    setText("absentTotal", breakdown.absent.T);
-
-    setText("excuseMale", breakdown.excuse.M);
-    setText("excuseFemale", breakdown.excuse.F);
-    setText("excuseTotal", breakdown.excuse.T);
-
-    setText("generalMale", breakdown.general.M);
-    setText("generalFemale", breakdown.general.F);
-    setText("generalTotal", breakdown.general.T);
-}
-
-function fillEnrollmentCards(enrollment) {
-    setText("enrollmentMale", enrollment.M);
-    setText("enrollmentFemale", enrollment.F);
-    setText("enrollmentTotal", enrollment.T);
-}
-
-function resetDashboardVisuals() {
-    fillAttendanceCards({
-        present: { M: 0, F: 0, T: 0 },
-        late: { M: 0, F: 0, T: 0 },
-        absent: { M: 0, F: 0, T: 0 },
-        excuse: { M: 0, F: 0, T: 0 },
-        general: { M: 0, F: 0, T: 0 },
+function calculateSummary(invoices) {
+    const totals = invoices.reduce((acc, item) => {
+        acc.totalBilled += Number(item.total_amount || 0);
+        acc.totalPaid += Number(item.amount_paid || 0);
+        acc.totalPending += Number(item.pending_amount || 0);
+        return acc;
+    }, {
+        totalBilled: 0,
+        totalPaid: 0,
+        totalPending: 0,
     });
 
-    fillEnrollmentCards({ M: 0, F: 0, T: 0 });
-    setText("metricEntries", 0);
-    setText("metricExits", 0);
-
-    renderStatusGenderChart({
-        present: { M: 0, F: 0, T: 0 },
-        late: { M: 0, F: 0, T: 0 },
-        absent: { M: 0, F: 0, T: 0 },
-        excuse: { M: 0, F: 0, T: 0 },
-    });
-
-    renderEnrollmentGenderChart({ M: 0, F: 0, T: 0 });
-
-    fillFlag("flagWorkday", false);
-    fillFlag("flagActivity", false);
-    fillFlag("flagNoSchool", false);
-    fillFlag("flagEarlyDismissal", false);
+    setText("metricTotalBilled", formatCurrency(totals.totalBilled));
+    setText("metricTotalPaid", formatCurrency(totals.totalPaid));
+    setText("metricTotalPending", formatCurrency(totals.totalPending));
+    setText("metricInvoiceCount", invoices.length);
 }
 
-function getSelectedFilters() {
-    return {
-        centerId: document.getElementById("centerId").value,
-        schoolYearId: document.getElementById("schoolYearId").value,
-        reportDate: document.getElementById("reportDate").value,
-    };
-}
+function renderPaymentsTable(payments) {
+    const tbody = document.getElementById("paymentsTableBody");
+    if (!tbody) return;
 
-function validateSelectedFilters() {
-    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
-
-    if (!centerId || !schoolYearId || !reportDate) {
-        alert("Debes completar centro, año escolar y fecha.");
-        return false;
-    }
-
-    return true;
-}
-
-function buildReportBaseQuery() {
-    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
-    return `center_id=${encodeURIComponent(centerId)}&school_year_id=${encodeURIComponent(schoolYearId)}&date=${encodeURIComponent(reportDate)}`;
-}
-
-async function openJsonPreview(url, title) {
-    try {
-        const data = await fetchJson(url);
-
-        const previewWindow = window.open("", "_blank");
-        if (!previewWindow) {
-            alert("El navegador bloqueó la ventana emergente.");
-            return;
-        }
-
-        previewWindow.document.write(`
-            <!DOCTYPE html>
-            <html lang="es">
-            <head>
-                <meta charset="UTF-8" />
-                <title>${title}</title>
-                <style>
-                    body { font-family: Arial, sans-serif; margin: 24px; background: #f8fafc; color: #0f172a; }
-                    h1 { margin-top: 0; font-size: 24px; }
-                    pre {
-                        white-space: pre-wrap;
-                        word-break: break-word;
-                        background: #ffffff;
-                        border: 1px solid #dbe4f0;
-                        border-radius: 12px;
-                        padding: 16px;
-                        overflow: auto;
-                    }
-                </style>
-            </head>
-            <body>
-                <h1>${title}</h1>
-                <pre>${JSON.stringify(data, null, 2)}</pre>
-            </body>
-            </html>
-        `);
-        previewWindow.document.close();
-    } catch (error) {
-        alert(error.message || "No se pudo abrir la vista del reporte.");
-    }
-}
-
-function handleViewCourseSummary() {
-    if (!validateSelectedFilters()) return;
-    const query = buildReportBaseQuery();
-    openJsonPreview(`/reports/print/global-data?${query}`, "Resumen por curso");
-}
-
-function handleViewDailyDetail() {
-    if (!validateSelectedFilters()) return;
-    const query = buildReportBaseQuery();
-    openJsonPreview(`/reports/daily-institutional?${query}`, "Detalle diario");
-}
-
-function handlePrintGlobal() {
-    if (!validateSelectedFilters()) return;
-    const query = buildReportBaseQuery();
-    openJsonPreview(`/reports/print/global-data?${query}`, "Impresión global del centro");
-}
-
-function handlePrintByCourse() {
-    if (!validateSelectedFilters()) return;
-
-    const grade = window.prompt("Escribe el curso que deseas imprimir. Ejemplo: 5to");
-    if (!grade || !grade.trim()) return;
-
-    const section = window.prompt("Escribe la sección si deseas filtrar por sección. Déjalo vacío para todas.");
-    let query = `${buildReportBaseQuery()}&grade=${encodeURIComponent(grade.trim())}`;
-
-    if (section && section.trim()) {
-        query += `&section=${encodeURIComponent(section.trim())}`;
-    }
-
-    openJsonPreview(`/reports/print/by-course-data?${query}`, "Impresión por curso");
-}
-
-function handlePrintMultiCourse() {
-    if (!validateSelectedFilters()) return;
-
-    const gradesInput = window.prompt("Escribe varios cursos separados por coma. Ejemplo: 4to,5to,6to");
-    if (!gradesInput || !gradesInput.trim()) return;
-
-    const grades = gradesInput
-        .split(",")
-        .map(item => item.trim())
-        .filter(Boolean);
-
-    if (!grades.length) return;
-
-    const query = `${buildReportBaseQuery()}&${grades.map(grade => `grades=${encodeURIComponent(grade)}`).join("&")}`;
-    openJsonPreview(`/reports/print/by-multi-course-data?${query}`, "Impresión por varios cursos");
-}
-
-function handlePrintExcuses() {
-    if (!validateSelectedFilters()) return;
-
-    const grade = window.prompt("Escribe el curso para filtrar excusas. Déjalo vacío para todos.");
-    const section = window.prompt("Escribe la sección si deseas filtrar por sección. Déjalo vacío para todas.");
-
-    let query = buildReportBaseQuery();
-
-    if (grade && grade.trim()) {
-        query += `&grade=${encodeURIComponent(grade.trim())}`;
-    }
-
-    if (section && section.trim()) {
-        query += `&section=${encodeURIComponent(section.trim())}`;
-    }
-
-    openJsonPreview(`/reports/print/excuses-by-course-data?${query}`, "Impresión de excusas");
-}
-
-async function loadDashboard() {
-    const { centerId, schoolYearId, reportDate } = getSelectedFilters();
-    const generalMessage = document.getElementById("generalMessage");
-    const loadButton = document.getElementById("loadDashboardBtn");
-
-    if (!centerId || !schoolYearId || !reportDate) {
-        alert("Debes completar centro, año escolar y fecha.");
+    if (!payments.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No hay pagos registrados.</td></tr>`;
         return;
     }
 
-    generalMessage.textContent = "Cargando información...";
-    if (loadButton) {
-        loadButton.disabled = true;
-        loadButton.textContent = "Cargando...";
+    tbody.innerHTML = payments.map(payment => `
+        <tr>
+            <td>${formatDate(payment.payment_date)}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.payment_method || "-"}</td>
+            <td>${payment.reference || "-"}</td>
+            <td>${payment.recorded_by || "-"}</td>
+        </tr>
+    `).join("");
+}
+
+function renderTable(invoices) {
+    const tbody = document.getElementById("billingTableBody");
+    if (!tbody) return;
+
+    if (!invoices.length) {
+        tbody.innerHTML = `<tr><td colspan="11" class="empty-row">No hay facturas registradas con esos filtros.</td></tr>`;
+        calculateSummary([]);
+        return;
     }
 
+    tbody.innerHTML = invoices.map(invoice => `
+        <tr>
+            <td>${invoice.invoice_number}</td>
+            <td>${getCenterName(invoice.center_id)}</td>
+            <td>${invoice.concept}</td>
+            <td>${invoice.card_quantity}</td>
+            <td>${formatCurrency(invoice.total_amount)}</td>
+            <td>${formatCurrency(invoice.amount_paid)}</td>
+            <td>${formatCurrency(invoice.pending_amount)}</td>
+            <td>${statusBadge(invoice.status)}</td>
+            <td>${formatDate(invoice.issue_date)}</td>
+            <td>${formatDate(invoice.due_date)}</td>
+            <td>
+                <button
+                    type="button"
+                    class="table-action-btn"
+                    data-invoice-id="${invoice.id}"
+                >
+                    Ver
+                </button>
+            </td>
+        </tr>
+    `).join("");
+
+    calculateSummary(invoices);
+
+    tbody.querySelectorAll("[data-invoice-id]").forEach(button => {
+        button.addEventListener("click", () => {
+            const invoiceId = button.getAttribute("data-invoice-id");
+            loadInvoiceDetail(invoiceId);
+        });
+    });
+}
+
+async function loadInvoices() {
+    const filterCenterId = document.getElementById("filterCenterId")?.value || "";
+    const filterStatus = document.getElementById("filterStatus")?.value || "";
+
+    const params = new URLSearchParams();
+
+    if (filterCenterId) params.append("center_id", filterCenterId);
+    if (filterStatus) params.append("status", filterStatus);
+
+    const url = params.toString()
+        ? `/billing/invoices?${params.toString()}`
+        : "/billing/invoices";
+
+    const invoices = await fetchJson(url);
+    renderTable(invoices);
+}
+
+async function loadInvoiceDetail(invoiceId) {
+    selectedInvoiceId = Number(invoiceId);
+
+    const detail = await fetchJson(`/billing/invoices/${invoiceId}`);
+    const payments = await fetchJson(`/billing/invoices/${invoiceId}/payments`);
+
+    document.getElementById("invoiceDetailEmpty")?.classList.add("hidden");
+    document.getElementById("invoiceDetailContent")?.classList.remove("hidden");
+
+    setText("detailInvoiceNumber", detail.invoice_number);
+    setText("detailCenterName", getCenterName(detail.center_id));
+    setText("detailIssueDate", formatDate(detail.issue_date));
+    setText("detailDueDate", formatDate(detail.due_date));
+    setText("detailConcept", detail.concept);
+    setText("detailCardQuantity", detail.card_quantity);
+    setText("detailUnitPrice", formatCurrency(detail.unit_price));
+    setText("detailTotalAmount", formatCurrency(detail.total_amount));
+    setText("detailAmountPaid", formatCurrency(detail.amount_paid));
+    setText("detailPendingAmount", formatCurrency(detail.pending_amount));
+    setText("detailStatus", normalizeStatus(detail.status));
+    setText("detailNotes", detail.notes || "-");
+
+    renderPaymentsTable(payments);
+
+    document.getElementById("paymentAmount").value = "";
+    document.getElementById("paymentReference").value = "";
+    document.getElementById("paymentNotes").value = "";
+    document.getElementById("paymentDate").value = getTodayLocalDate();
+    showPaymentMessage("", "info", true);
+}
+
+function clearForm() {
+    document.getElementById("concept").value = "";
+    document.getElementById("cardQuantity").value = "";
+    document.getElementById("unitPrice").value = "";
+    document.getElementById("amountPaid").value = "0";
+    document.getElementById("notes").value = "";
+    setDefaultDates();
+}
+
+function showFormMessage(message, type = "info", hidden = false) {
+    const box = document.getElementById("formMessage");
+    if (!box) return;
+
+    if (hidden) {
+        box.textContent = "";
+        box.className = "form-message";
+        return;
+    }
+
+    box.textContent = message;
+    box.className = `form-message form-message-${type}`;
+}
+
+function showPaymentMessage(message, type = "info", hidden = false) {
+    const box = document.getElementById("paymentMessage");
+    if (!box) return;
+
+    if (hidden) {
+        box.textContent = "";
+        box.className = "form-message";
+        return;
+    }
+
+    box.textContent = message;
+    box.className = `form-message form-message-${type}`;
+}
+
+async function handleCreateInvoice(event) {
+    event.preventDefault();
+
+    const saveButton = document.getElementById("saveInvoiceBtn");
+
+    const payload = {
+        center_id: Number(document.getElementById("centerId").value),
+        issue_date: document.getElementById("issueDate").value,
+        due_date: document.getElementById("dueDate").value,
+        concept: document.getElementById("concept").value.trim(),
+        card_quantity: Number(document.getElementById("cardQuantity").value),
+        unit_price: Number(document.getElementById("unitPrice").value),
+        amount_paid: Number(document.getElementById("amountPaid").value || 0),
+        notes: document.getElementById("notes").value.trim() || null,
+    };
+
+    if (!payload.center_id || !payload.issue_date || !payload.due_date || !payload.concept) {
+        showFormMessage("Completa los campos obligatorios.", "error");
+        return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Registrando...";
+
     try {
-        const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
-        const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
+        const created = await fetchJson("/billing/invoices", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
 
-        const [dailyReport, studentSummary] = await Promise.all([
-            fetchJson(dailyUrl),
-            fetchJson(summaryUrl),
-        ]);
-
-        const attendanceBreakdown = computeAttendanceBreakdown(dailyReport);
-        const enrollmentBreakdown = computeEnrollmentBreakdown(studentSummary);
-
-        fillAttendanceCards(attendanceBreakdown);
-        fillEnrollmentCards(enrollmentBreakdown);
-
-        setText("metricEntries", dailyReport.total_entries);
-        setText("metricExits", dailyReport.total_exits);
-
-        fillFlag("flagWorkday", dailyReport.is_workday);
-        fillFlag("flagActivity", dailyReport.had_attendance_activity);
-        fillFlag("flagNoSchool", dailyReport.possible_no_school_day);
-        fillFlag("flagEarlyDismissal", dailyReport.possible_early_dismissal);
-
-        generalMessage.textContent =
-            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}.`;
-
-        renderStatusGenderChart(attendanceBreakdown);
-        renderEnrollmentGenderChart(enrollmentBreakdown);
+        showFormMessage(`Factura registrada correctamente: ${created.invoice_number}`, "success");
+        clearForm();
+        await loadInvoices();
+        await loadInvoiceDetail(created.id);
     } catch (error) {
-        generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
-        resetDashboardVisuals();
+        showFormMessage(error.message || "No se pudo registrar la factura.", "error");
     } finally {
-        if (loadButton) {
-            loadButton.disabled = false;
-            loadButton.textContent = "Cargar dashboard";
-        }
+        saveButton.disabled = false;
+        saveButton.textContent = "Registrar factura";
+    }
+}
+
+async function handleRegisterPayment(event) {
+    event.preventDefault();
+
+    if (!selectedInvoiceId) {
+        showPaymentMessage("Primero selecciona una factura.", "error");
+        return;
+    }
+
+    const saveButton = document.getElementById("savePaymentBtn");
+
+    const payload = {
+        payment_date: document.getElementById("paymentDate").value,
+        amount: Number(document.getElementById("paymentAmount").value),
+        payment_method: document.getElementById("paymentMethod").value,
+        reference: document.getElementById("paymentReference").value.trim() || null,
+        notes: document.getElementById("paymentNotes").value.trim() || null,
+        recorded_by: currentUser?.email || currentUser?.full_name || "super_admin",
+    };
+
+    if (!payload.payment_date || !payload.amount || payload.amount <= 0) {
+        showPaymentMessage("Completa correctamente la fecha y el monto del pago.", "error");
+        return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Registrando...";
+
+    try {
+        await fetchJson(`/billing/invoices/${selectedInvoiceId}/payments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        showPaymentMessage("Pago registrado correctamente.", "success");
+        await loadInvoices();
+        await loadInvoiceDetail(selectedInvoiceId);
+    } catch (error) {
+        showPaymentMessage(error.message || "No se pudo registrar el pago.", "error");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "Registrar pago";
     }
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        currentUser = await requireAuth(["super_admin", "admin_centro", "registro", "consulta"]);
-        configureRoleUI(currentUser);
+        currentUser = await requireAuth(["super_admin"]);
 
-        setDefaultDate();
+        if (String(currentUser.role || "").toLowerCase() !== "super_admin") {
+            window.location.href = "/dashboard";
+            return;
+        }
+
+        fillUserChip(currentUser);
+        setDefaultDates();
+
         await loadCenters();
-        await loadSchoolYears();
+        await loadInvoices();
 
-        const centerSelect = document.getElementById("centerId");
-        if (centerSelect) {
-            centerSelect.addEventListener("change", () => {
-                filterSchoolYearsByCenter(centerSelect.value);
-                updateCenterSettingsLinks();
-            });
-        }
-
-        const button = document.getElementById("loadDashboardBtn");
-        if (button) {
-            button.addEventListener("click", loadDashboard);
-        }
-
-        const logoutBtn = document.getElementById("logoutBtn");
-        if (logoutBtn) {
-            logoutBtn.addEventListener("click", logout);
-        }
-
-        document.getElementById("btnViewCourseSummary")?.addEventListener("click", handleViewCourseSummary);
-        document.getElementById("btnViewDailyDetail")?.addEventListener("click", handleViewDailyDetail);
-        document.getElementById("btnPrintGlobal")?.addEventListener("click", handlePrintGlobal);
-        document.getElementById("btnPrintByCourse")?.addEventListener("click", handlePrintByCourse);
-        document.getElementById("btnPrintMultiCourse")?.addEventListener("click", handlePrintMultiCourse);
-        document.getElementById("btnPrintExcuses")?.addEventListener("click", handlePrintExcuses);
+        document.getElementById("billingForm")?.addEventListener("submit", handleCreateInvoice);
+        document.getElementById("paymentForm")?.addEventListener("submit", handleRegisterPayment);
+        document.getElementById("filterInvoicesBtn")?.addEventListener("click", loadInvoices);
+        document.getElementById("logoutBtn")?.addEventListener("click", logout);
     } catch (error) {
         console.error(error);
     }

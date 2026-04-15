@@ -1,27 +1,35 @@
-from datetime import date
 from decimal import Decimal, ROUND_HALF_UP
 
 from sqlalchemy.orm import Session
 
 from app.models.billing_invoice import BillingInvoice
+from app.models.billing_payment import BillingPayment
 from app.models.center import Center
+from app.schemas.billing import BillingInvoiceCreate, BillingPaymentCreate
 
 
-TWOPLACES = Decimal("0.01")
+TWO_PLACES = Decimal("0.01")
+
+
+def _to_money(value: Decimal | int | float | str) -> Decimal:
+    return Decimal(str(value)).quantize(TWO_PLACES, rounding=ROUND_HALF_UP)
 
 
 class BillingService:
     def __init__(self, db: Session):
         self.db = db
 
-    def _round_money(self, value: Decimal | int | float) -> Decimal:
-        return Decimal(value).quantize(TWOPLACES, rounding=ROUND_HALF_UP)
-
-    def _get_center_or_404(self, center_id: int) -> Center:
+    def _get_center_or_raise(self, center_id: int) -> Center:
         center = self.db.query(Center).filter(Center.id == center_id).first()
         if not center:
-            raise ValueError("Centro no encontrado.")
+            raise ValueError("El centro indicado no existe.")
         return center
+
+    def _get_invoice_or_raise(self, invoice_id: int) -> BillingInvoice:
+        invoice = self.db.query(BillingInvoice).filter(BillingInvoice.id == invoice_id).first()
+        if not invoice:
+            raise ValueError("La factura no existe.")
+        return invoice
 
     def _build_invoice_number(self, center_id: int) -> str:
         count = (
@@ -29,73 +37,76 @@ class BillingService:
             .filter(BillingInvoice.center_id == center_id)
             .count()
         )
-        return f"FAC-{center_id:03d}-{count + 1:05d}"
+        next_number = count + 1
+        return f"FAC-{center_id:03d}-{next_number:05d}"
 
-    def _resolve_status(
-        self,
-        *,
-        total_amount: Decimal,
-        amount_paid: Decimal,
-        due_date: date | None,
-    ) -> str:
-        if amount_paid <= Decimal("0.00"):
-            if due_date and due_date < date.today():
-                return "overdue"
-            return "pending"
+    def _recalculate_invoice_totals(self, invoice: BillingInvoice) -> None:
+        total_paid = sum((_to_money(payment.amount) for payment in invoice.payments), Decimal("0.00"))
+        total_amount = _to_money(invoice.total_amount)
+        pending_amount = total_amount - total_paid
 
-        if amount_paid >= total_amount:
-            return "paid"
+        if pending_amount < Decimal("0.00"):
+            raise ValueError("Los pagos superan el total de la factura.")
 
-        if due_date and due_date < date.today():
-            return "overdue"
+        invoice.amount_paid = _to_money(total_paid)
+        invoice.pending_amount = _to_money(pending_amount)
 
-        return "partial"
+        if invoice.amount_paid <= Decimal("0.00"):
+            invoice.status = "pending"
+        elif invoice.pending_amount == Decimal("0.00"):
+            invoice.status = "paid"
+        else:
+            invoice.status = "partial"
 
-    def create_invoice(
-        self,
-        *,
-        center_id: int,
-        issue_date: date,
-        due_date: date | None,
-        concept: str,
-        card_quantity: int,
-        unit_price: Decimal,
-        amount_paid: Decimal,
-        notes: str | None,
-    ) -> BillingInvoice:
-        self._get_center_or_404(center_id)
+    def create_invoice(self, payload: BillingInvoiceCreate) -> BillingInvoice:
+        self._get_center_or_raise(payload.center_id)
 
-        unit_price = self._round_money(unit_price)
-        amount_paid = self._round_money(amount_paid)
+        if payload.due_date < payload.issue_date:
+            raise ValueError("La fecha de vencimiento no puede ser menor que la fecha de emisión.")
 
-        total_amount = self._round_money(Decimal(card_quantity) * unit_price)
-        pending_amount = self._round_money(total_amount - amount_paid)
+        quantity = int(payload.card_quantity)
+        unit_price = _to_money(payload.unit_price)
+        upfront_paid = _to_money(payload.amount_paid)
 
-        if amount_paid > total_amount:
-            raise ValueError("El monto pagado no puede ser mayor que el monto total.")
+        total_amount = _to_money(Decimal(quantity) * unit_price)
 
-        status = self._resolve_status(
-            total_amount=total_amount,
-            amount_paid=amount_paid,
-            due_date=due_date,
-        )
+        if upfront_paid > total_amount:
+            raise ValueError("El monto pagado no puede ser mayor que el total de la factura.")
 
         invoice = BillingInvoice(
-            center_id=center_id,
-            invoice_number=self._build_invoice_number(center_id),
-            issue_date=issue_date,
-            due_date=due_date,
-            concept=concept,
-            card_quantity=card_quantity,
+            center_id=payload.center_id,
+            invoice_number=self._build_invoice_number(payload.center_id),
+            issue_date=payload.issue_date,
+            due_date=payload.due_date,
+            concept=payload.concept.strip(),
+            card_quantity=quantity,
             unit_price=unit_price,
             total_amount=total_amount,
-            amount_paid=amount_paid,
-            pending_amount=pending_amount,
-            status=status,
-            notes=notes,
+            amount_paid=Decimal("0.00"),
+            pending_amount=total_amount,
+            status="pending",
+            notes=payload.notes.strip() if payload.notes else None,
         )
 
         self.db.add(invoice)
+        self.db.flush()
+
+        if upfront_paid > Decimal("0.00"):
+            opening_payment = BillingPayment(
+                invoice_id=invoice.id,
+                payment_date=payload.issue_date,
+                amount=upfront_paid,
+                payment_method="initial",
+                reference=None,
+                notes="Pago inicial registrado al crear la factura.",
+                recorded_by="system",
+            )
+            self.db.add(opening_payment)
+            self.db.flush()
+
+        self.db.refresh(invoice)
+        self._recalculate_invoice_totals(invoice)
+
         self.db.commit()
         self.db.refresh(invoice)
         return invoice
@@ -112,133 +123,61 @@ class BillingService:
             query = query.filter(BillingInvoice.center_id == center_id)
 
         if status:
-            query = query.filter(BillingInvoice.status == status.strip().lower())
+            query = query.filter(BillingInvoice.status == status)
 
         return query.order_by(BillingInvoice.id.desc()).all()
 
     def get_invoice(self, invoice_id: int) -> BillingInvoice:
-        invoice = (
-            self.db.query(BillingInvoice)
-            .filter(BillingInvoice.id == invoice_id)
-            .first()
-        )
-        if not invoice:
-            raise ValueError("Factura no encontrada.")
-        return invoice
+        return self._get_invoice_or_raise(invoice_id)
 
-    def update_invoice(
+    def register_payment(
         self,
         *,
         invoice_id: int,
-        issue_date: date | None,
-        due_date: date | None,
-        concept: str | None,
-        card_quantity: int | None,
-        unit_price: Decimal | None,
-        notes: str | None,
-        status: str | None,
-    ) -> BillingInvoice:
-        invoice = self.get_invoice(invoice_id)
+        payload: BillingPaymentCreate,
+    ) -> BillingPayment:
+        invoice = self._get_invoice_or_raise(invoice_id)
 
-        if issue_date is not None:
-            invoice.issue_date = issue_date
+        payment_amount = _to_money(payload.amount)
 
-        if due_date is not None:
-            invoice.due_date = due_date
+        if payment_amount <= Decimal("0.00"):
+            raise ValueError("El monto del pago debe ser mayor que cero.")
 
-        if concept is not None:
-            invoice.concept = concept
+        if payment_amount > _to_money(invoice.pending_amount):
+            raise ValueError("El monto del pago no puede superar el balance pendiente.")
 
-        if card_quantity is not None:
-            invoice.card_quantity = card_quantity
-
-        if unit_price is not None:
-            invoice.unit_price = self._round_money(unit_price)
-
-        if notes is not None:
-            invoice.notes = notes
-
-        invoice.total_amount = self._round_money(
-            Decimal(invoice.card_quantity) * Decimal(invoice.unit_price)
+        payment = BillingPayment(
+            invoice_id=invoice.id,
+            payment_date=payload.payment_date,
+            amount=payment_amount,
+            payment_method=payload.payment_method.strip(),
+            reference=payload.reference.strip() if payload.reference else None,
+            notes=payload.notes.strip() if payload.notes else None,
+            recorded_by=payload.recorded_by.strip() if payload.recorded_by else None,
         )
 
-        if invoice.amount_paid > invoice.total_amount:
-            raise ValueError("El monto pagado actual supera el nuevo total de la factura.")
+        self.db.add(payment)
+        self.db.flush()
 
-        invoice.pending_amount = self._round_money(invoice.total_amount - invoice.amount_paid)
-
-        if status is not None:
-            invoice.status = status
-        else:
-            invoice.status = self._resolve_status(
-                total_amount=Decimal(invoice.total_amount),
-                amount_paid=Decimal(invoice.amount_paid),
-                due_date=invoice.due_date,
-            )
+        self.db.refresh(invoice)
+        self._recalculate_invoice_totals(invoice)
 
         self.db.commit()
-        self.db.refresh(invoice)
-        return invoice
+        self.db.refresh(payment)
+        return payment
 
-    def apply_payment(
-        self,
-        *,
-        invoice_id: int,
-        amount: Decimal,
-        notes: str | None,
-    ) -> BillingInvoice:
-        invoice = self.get_invoice(invoice_id)
+    def list_invoice_payments(self, invoice_id: int) -> list[BillingPayment]:
+        self._get_invoice_or_raise(invoice_id)
 
-        amount = self._round_money(amount)
-
-        new_amount_paid = self._round_money(Decimal(invoice.amount_paid) + amount)
-        if new_amount_paid > Decimal(invoice.total_amount):
-            raise ValueError("El pago excede el monto total de la factura.")
-
-        invoice.amount_paid = new_amount_paid
-        invoice.pending_amount = self._round_money(
-            Decimal(invoice.total_amount) - Decimal(invoice.amount_paid)
-        )
-        invoice.status = self._resolve_status(
-            total_amount=Decimal(invoice.total_amount),
-            amount_paid=Decimal(invoice.amount_paid),
-            due_date=invoice.due_date,
-        )
-
-        if notes:
-            base_notes = invoice.notes.strip() if invoice.notes else ""
-            payment_note = f"Pago aplicado: {amount}"
-            invoice.notes = f"{base_notes}\n{payment_note}\n{notes}".strip()
-        else:
-            base_notes = invoice.notes.strip() if invoice.notes else ""
-            payment_note = f"Pago aplicado: {amount}"
-            invoice.notes = f"{base_notes}\n{payment_note}".strip()
-
-        self.db.commit()
-        self.db.refresh(invoice)
-        return invoice
-
-    def get_center_summary(self, *, center_id: int) -> dict:
-        self._get_center_or_404(center_id)
-
-        invoices = (
-            self.db.query(BillingInvoice)
-            .filter(BillingInvoice.center_id == center_id)
+        return (
+            self.db.query(BillingPayment)
+            .filter(BillingPayment.invoice_id == invoice_id)
+            .order_by(BillingPayment.payment_date.desc(), BillingPayment.id.desc())
             .all()
         )
 
-        total_billed = self._round_money(sum(Decimal(item.total_amount) for item in invoices) if invoices else 0)
-        total_paid = self._round_money(sum(Decimal(item.amount_paid) for item in invoices) if invoices else 0)
-        total_pending = self._round_money(sum(Decimal(item.pending_amount) for item in invoices) if invoices else 0)
-
-        return {
-            "center_id": center_id,
-            "total_invoices": len(invoices),
-            "total_billed": total_billed,
-            "total_paid": total_paid,
-            "total_pending": total_pending,
-            "pending_invoices": sum(1 for item in invoices if item.status == "pending"),
-            "partial_invoices": sum(1 for item in invoices if item.status == "partial"),
-            "paid_invoices": sum(1 for item in invoices if item.status == "paid"),
-            "overdue_invoices": sum(1 for item in invoices if item.status == "overdue"),
-        }
+    def get_payment(self, payment_id: int) -> BillingPayment:
+        payment = self.db.query(BillingPayment).filter(BillingPayment.id == payment_id).first()
+        if not payment:
+            raise ValueError("El pago no existe.")
+        return payment

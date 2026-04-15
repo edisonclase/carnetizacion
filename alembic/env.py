@@ -6,8 +6,8 @@ from sqlalchemy import engine_from_config, pool
 from app.core.database import Base
 from app.core.settings import settings
 
-# Importar todos los modelos para que Alembic los registre en Base.metadata
 from app.models.billing_invoice import BillingInvoice  # noqa: F401
+from app.models.billing_payment import BillingPayment  # noqa: F401
 from app.models.card import Card  # noqa: F401
 from app.models.center import Center  # noqa: F401
 from app.models.guardian import Guardian  # noqa: F401

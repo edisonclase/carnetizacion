@@ -6,16 +6,15 @@ from app.models.user import User, UserRole
 from app.schemas.billing import (
     BillingInvoiceCreate,
     BillingInvoiceResponse,
-    BillingInvoiceUpdate,
-    BillingPaymentApply,
-    CenterBillingSummaryResponse,
+    BillingPaymentCreate,
+    BillingPaymentResponse,
 )
 from app.services.billing_service import BillingService
 
 router = APIRouter(prefix="/billing", tags=["Billing"])
 
 
-def _super_admin_dependency():
+def _super_admin_only():
     return require_roles(UserRole.SUPER_ADMIN)
 
 
@@ -24,44 +23,35 @@ def _super_admin_dependency():
     response_model=BillingInvoiceResponse,
     status_code=status.HTTP_201_CREATED,
 )
-def create_billing_invoice(
+def create_invoice(
     payload: BillingInvoiceCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
 
     try:
-        return service.create_invoice(
-            center_id=payload.center_id,
-            issue_date=payload.issue_date,
-            due_date=payload.due_date,
-            concept=payload.concept,
-            card_quantity=payload.card_quantity,
-            unit_price=payload.unit_price,
-            amount_paid=payload.amount_paid,
-            notes=payload.notes,
-        )
+        return service.create_invoice(payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.get("/invoices", response_model=list[BillingInvoiceResponse])
-def list_billing_invoices(
+def list_invoices(
     center_id: int | None = Query(default=None),
-    status_value: str | None = Query(default=None, alias="status"),
+    status: str | None = Query(default=None),
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
-    return service.list_invoices(center_id=center_id, status=status_value)
+    return service.list_invoices(center_id=center_id, status=status)
 
 
 @router.get("/invoices/{invoice_id}", response_model=BillingInvoiceResponse)
-def get_billing_invoice(
+def get_invoice(
     invoice_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
 
@@ -71,58 +61,51 @@ def get_billing_invoice(
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.put("/invoices/{invoice_id}", response_model=BillingInvoiceResponse)
-def update_billing_invoice(
+@router.post(
+    "/invoices/{invoice_id}/payments",
+    response_model=BillingPaymentResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def register_payment(
     invoice_id: int,
-    payload: BillingInvoiceUpdate,
+    payload: BillingPaymentCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
 
     try:
-        return service.update_invoice(
-            invoice_id=invoice_id,
-            issue_date=payload.issue_date,
-            due_date=payload.due_date,
-            concept=payload.concept,
-            card_quantity=payload.card_quantity,
-            unit_price=payload.unit_price,
-            notes=payload.notes,
-            status=payload.status,
-        )
+        return service.register_payment(invoice_id=invoice_id, payload=payload)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
-@router.patch("/invoices/{invoice_id}/apply-payment", response_model=BillingInvoiceResponse)
-def apply_billing_payment(
+@router.get(
+    "/invoices/{invoice_id}/payments",
+    response_model=list[BillingPaymentResponse],
+)
+def list_invoice_payments(
     invoice_id: int,
-    payload: BillingPaymentApply,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
 
     try:
-        return service.apply_payment(
-            invoice_id=invoice_id,
-            amount=payload.amount,
-            notes=payload.notes,
-        )
+        return service.list_invoice_payments(invoice_id)
     except ValueError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
 
 
-@router.get("/centers/{center_id}/summary", response_model=CenterBillingSummaryResponse)
-def get_center_billing_summary(
-    center_id: int,
+@router.get("/payments/{payment_id}", response_model=BillingPaymentResponse)
+def get_payment(
+    payment_id: int,
     db: Session = Depends(get_db),
-    current_user: User = Depends(_super_admin_dependency()),
+    current_user: User = Depends(_super_admin_only()),
 ):
     service = BillingService(db)
 
     try:
-        return service.get_center_summary(center_id=center_id)
+        return service.get_payment(payment_id)
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc

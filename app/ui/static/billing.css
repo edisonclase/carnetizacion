@@ -563,3 +563,32 @@ tbody tr:hover {
         font-size: 1.7rem;
     }
 }
+
+.payment-box {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #e5edf7;
+}
+
+.payment-box-header h4,
+.payments-history-header h4 {
+    margin: 0 0 6px;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.payment-box-header p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 0.92rem;
+}
+
+.payments-history {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid #e5edf7;
+}
+
+.inner-table-wrapper table {
+    min-width: 720px;
+}
