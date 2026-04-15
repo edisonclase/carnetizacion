@@ -41,7 +41,13 @@ class BillingService:
         return f"FAC-{center_id:03d}-{next_number:05d}"
 
     def _recalculate_invoice_totals(self, invoice: BillingInvoice) -> None:
-        total_paid = sum((_to_money(payment.amount) for payment in invoice.payments), Decimal("0.00"))
+        payments = (
+            self.db.query(BillingPayment)
+            .filter(BillingPayment.invoice_id == invoice.id)
+            .all()
+        )
+
+        total_paid = sum((_to_money(payment.amount) for payment in payments), Decimal("0.00"))
         total_amount = _to_money(invoice.total_amount)
         pending_amount = total_amount - total_paid
 
@@ -51,7 +57,7 @@ class BillingService:
         invoice.amount_paid = _to_money(total_paid)
         invoice.pending_amount = _to_money(pending_amount)
 
-        if invoice.amount_paid <= Decimal("0.00"):
+        if invoice.amount_paid == Decimal("0.00"):
             invoice.status = "pending"
         elif invoice.pending_amount == Decimal("0.00"):
             invoice.status = "paid"
@@ -104,7 +110,6 @@ class BillingService:
             self.db.add(opening_payment)
             self.db.flush()
 
-        self.db.refresh(invoice)
         self._recalculate_invoice_totals(invoice)
 
         self.db.commit()
@@ -139,11 +144,15 @@ class BillingService:
         invoice = self._get_invoice_or_raise(invoice_id)
 
         payment_amount = _to_money(payload.amount)
+        current_pending = _to_money(invoice.pending_amount)
 
         if payment_amount <= Decimal("0.00"):
             raise ValueError("El monto del pago debe ser mayor que cero.")
 
-        if payment_amount > _to_money(invoice.pending_amount):
+        if invoice.status == "paid":
+            raise ValueError("La factura ya está saldada.")
+
+        if payment_amount > current_pending:
             raise ValueError("El monto del pago no puede superar el balance pendiente.")
 
         payment = BillingPayment(
@@ -159,11 +168,11 @@ class BillingService:
         self.db.add(payment)
         self.db.flush()
 
-        self.db.refresh(invoice)
         self._recalculate_invoice_totals(invoice)
 
         self.db.commit()
         self.db.refresh(payment)
+
         return payment
 
     def list_invoice_payments(self, invoice_id: int) -> list[BillingPayment]:
