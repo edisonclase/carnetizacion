@@ -1,0 +1,346 @@
+:root {
+  --primary: {{ center.primary_color or '#0f172a' }};
+  --secondary: {{ center.secondary_color or '#1d4ed8' }};
+  --accent: {{ center.accent_color or '#22c55e' }};
+  --text: {{ center.text_color or '#e5eefb' }};
+  --bg: {{ center.background_color or '#07111f' }};
+  --panel: rgba(255, 255, 255, 0.08);
+  --panel-border: rgba(255, 255, 255, 0.14);
+  --white: #ffffff;
+  --muted: rgba(229, 238, 251, 0.74);
+}
+
+@page {
+  size: 85.6mm 53.98mm;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 85.6mm;
+  height: 53.98mm;
+  font-family: "Inter", "Segoe UI", sans-serif;
+  background: transparent;
+}
+
+.id-card {
+  position: relative;
+  width: 85.6mm;
+  height: 53.98mm;
+  overflow: hidden;
+  border-radius: 3.2mm;
+}
+
+.tech-card {
+  background:
+    radial-gradient(circle at 15% 20%, rgba(34, 197, 94, 0.20), transparent 25%),
+    radial-gradient(circle at 90% 15%, rgba(29, 78, 216, 0.22), transparent 28%),
+    linear-gradient(135deg, var(--bg), var(--primary));
+  color: var(--text);
+}
+
+.grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.04) 0.2mm, transparent 0.2mm),
+    linear-gradient(90deg, rgba(255,255,255,0.04) 0.2mm, transparent 0.2mm);
+  background-size: 4mm 4mm;
+  opacity: 0.35;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(8mm);
+  opacity: 0.6;
+}
+
+.glow-1 {
+  width: 24mm;
+  height: 24mm;
+  left: -6mm;
+  bottom: -6mm;
+  background: var(--accent);
+}
+
+.glow-2 {
+  width: 22mm;
+  height: 22mm;
+  right: -4mm;
+  top: -4mm;
+  background: var(--secondary);
+}
+
+.tech-shell {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  padding: 4mm;
+  display: flex;
+  flex-direction: column;
+}
+
+.tech-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.tech-brand {
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+}
+
+.tech-logo {
+  width: 8mm;
+  height: 8mm;
+  object-fit: contain;
+  border-radius: 2mm;
+  background: rgba(255,255,255,0.08);
+  padding: 0.6mm;
+}
+
+.tech-brand-text h1 {
+  margin: 0;
+  font-size: 3mm;
+  line-height: 1.08;
+  font-weight: 800;
+}
+
+.tech-brand-text p {
+  margin: 0.5mm 0 0;
+  font-size: 1.8mm;
+  color: var(--muted);
+  letter-spacing: 0.4px;
+}
+
+.chip-badge {
+  padding: 1mm 1.8mm;
+  border-radius: 999px;
+  border: 0.25mm solid rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.08);
+  font-size: 1.75mm;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+}
+
+.tech-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 24mm 1fr;
+  gap: 3mm;
+  margin-top: 2mm;
+}
+
+.photo-column {
+  display: flex;
+  align-items: stretch;
+}
+
+.photo-card {
+  width: 100%;
+  height: 100%;
+  min-height: 31mm;
+  padding: 1mm;
+  border-radius: 3.2mm;
+  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.05));
+  border: 0.25mm solid rgba(255,255,255,0.16);
+  box-shadow: inset 0 0 0 0.2mm rgba(255,255,255,0.06);
+}
+
+.student-photo,
+.photo-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 2.6mm;
+  object-fit: cover;
+  background: rgba(255,255,255,0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.2mm;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.data-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-tag {
+  align-self: flex-start;
+  padding: 0.8mm 1.6mm;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.18);
+  border: 0.25mm solid rgba(34, 197, 94, 0.32);
+  font-size: 1.75mm;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.student-name {
+  margin: 1.2mm 0 1.4mm;
+  font-size: 3.8mm;
+  line-height: 1.08;
+  font-weight: 900;
+}
+
+.tech-data-list {
+  display: grid;
+  gap: 1mm;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.2mm 1.6mm;
+  border-radius: 2mm;
+  background: var(--panel);
+  border: 0.25mm solid var(--panel-border);
+  gap: 2mm;
+}
+
+.data-row span {
+  font-size: 1.75mm;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.data-row strong {
+  font-size: 2.15mm;
+  line-height: 1.1;
+  text-align: right;
+}
+
+.tech-qr-wrap {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: 2mm;
+}
+
+.qr-box {
+  width: 13.8mm;
+  height: 13.8mm;
+  border-radius: 2.4mm;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1.2mm 2.5mm rgba(0, 0, 0, 0.20);
+}
+
+.qr-image {
+  width: 11.6mm;
+  height: 11.6mm;
+  object-fit: contain;
+}
+
+.scan-text span {
+  display: block;
+  font-size: 1.75mm;
+  color: var(--muted);
+}
+
+.scan-text strong {
+  display: block;
+  margin-top: 0.4mm;
+  font-size: 2.25mm;
+  line-height: 1.15;
+}
+
+.tech-footer {
+  margin-top: 1.5mm;
+}
+
+.footer-line {
+  height: 0.3mm;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.34), transparent);
+  margin-bottom: 1mm;
+}
+
+.tech-footer p {
+  margin: 0;
+  text-align: right;
+  font-size: 1.8mm;
+  color: var(--muted);
+}
+
+.back-tech-shell {
+  justify-content: space-between;
+}
+
+.tech-back-header h2 {
+  margin: 0;
+  font-size: 4mm;
+  font-weight: 900;
+}
+
+.tech-back-header p {
+  margin: 0.8mm 0 0;
+  font-size: 2mm;
+  color: var(--muted);
+}
+
+.back-panels {
+  margin-top: 2mm;
+  display: grid;
+  gap: 1.4mm;
+}
+
+.panel {
+  padding: 1.8mm;
+  border-radius: 2.2mm;
+  background: var(--panel);
+  border: 0.25mm solid var(--panel-border);
+}
+
+.panel-label {
+  display: block;
+  margin-bottom: 0.6mm;
+  font-size: 1.65mm;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.panel strong {
+  display: block;
+  font-size: 2.4mm;
+  line-height: 1.15;
+}
+
+.panel p {
+  margin: 0.6mm 0 0;
+  font-size: 1.85mm;
+  line-height: 1.2;
+}
+
+.panel.dual {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2mm;
+}
+
+.legal-note {
+  margin-top: 1.4mm;
+}
+
+.legal-note p {
+  margin: 0;
+  font-size: 1.8mm;
+  line-height: 1.22;
+  color: var(--muted);
+}

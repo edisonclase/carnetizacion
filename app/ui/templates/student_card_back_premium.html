@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reverso Carnet Premium Institucional</title>
+  <link rel="stylesheet" href="/static/cards/card_premium.css" />
+</head>
+<body>
+  <div class="id-card premium-card premium-card-back">
+    <div class="premium-top-accent"></div>
+    <div class="premium-bottom-accent"></div>
+
+    <div class="card-shell back-shell">
+      <header class="back-header">
+        <h2>Identificación Institucional</h2>
+        <p>Documento de uso oficial</p>
+      </header>
+
+      <section class="institution-block">
+        <div class="mini-brand">
+          {% if center.logo_url %}
+            <img src="{{ center.logo_url }}" alt="Logo del centro" class="back-logo" />
+          {% endif %}
+          <div>
+            <h3>{{ center.name }}</h3>
+            {% if center.motto %}<p>{{ center.motto }}</p>{% endif %}
+          </div>
+        </div>
+
+        <div class="back-info-grid">
+          {% if center.management_code %}
+          <div class="back-info-item">
+            <span class="label">Código de gestión</span>
+            <span class="value">{{ center.management_code }}</span>
+          </div>
+          {% endif %}
+
+          {% if center.district_name %}
+          <div class="back-info-item">
+            <span class="label">Distrito</span>
+            <span class="value">{{ center.district_name }}</span>
+          </div>
+          {% endif %}
+
+          {% if center.address %}
+          <div class="back-info-item full">
+            <span class="label">Dirección</span>
+            <span class="value">{{ center.address }}</span>
+          </div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="policy-block">
+        <h4>Condiciones de uso</h4>
+        <ul>
+          <li>Este carnet es personal e intransferible.</li>
+          <li>Debe portarse dentro del centro educativo cuando sea requerido.</li>
+          <li>Su uso permite procesos de identificación y registro institucional.</li>
+          <li>En caso de pérdida, debe reportarse inmediatamente.</li>
+        </ul>
+      </section>
+
+      <section class="back-student-code">
+        <span>ID del estudiante</span>
+        <strong>{{ student.student_code or student.id }}</strong>
+      </section>
+
+      <footer class="back-footer">
+        <p>{{ center.card_footer_text or "by Aula Nova" }}</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

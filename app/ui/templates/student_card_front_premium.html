@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carnet Premium Institucional</title>
+  <link rel="stylesheet" href="/static/cards/card_premium.css" />
+</head>
+<body>
+  <div class="id-card premium-card">
+    <div class="premium-top-accent"></div>
+    <div class="premium-bottom-accent"></div>
+
+    <div class="card-shell">
+      <header class="card-header">
+        <div class="header-left">
+          {% if center.letterhead_url %}
+            <img src="{{ center.letterhead_url }}" alt="Membrete del centro" class="letterhead" />
+          {% else %}
+            <div class="center-brand">
+              {% if center.logo_url %}
+                <img src="{{ center.logo_url }}" alt="Logo del centro" class="center-logo" />
+              {% endif %}
+              <div class="center-meta">
+                <h1>{{ center.name }}</h1>
+                {% if center.district_name %}<p>{{ center.district_name }}</p>{% endif %}
+              </div>
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="header-badge">
+          <span>ESTUDIANTE</span>
+        </div>
+      </header>
+
+      <section class="hero-section">
+        <div class="photo-frame">
+          {% if student.photo_url %}
+            <img src="{{ student.photo_url }}" alt="Foto del estudiante" class="student-photo" />
+          {% else %}
+            <div class="photo-placeholder">FOTO</div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="identity-section">
+        <h2 class="student-name">{{ student.full_name }}</h2>
+        <p class="student-role">Estudiante</p>
+
+        <div class="identity-grid">
+          <div class="info-item">
+            <span class="label">Matrícula</span>
+            <span class="value">{{ student.student_code or student.id }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Nivel</span>
+            <span class="value">{{ student.level_name or "Secundario" }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Curso</span>
+            <span class="value">{{ student.grade_name }} {{ student.section_name }}</span>
+          </div>
+
+          <div class="info-item">
+            <span class="label">Año escolar</span>
+            <span class="value">{{ school_year.name if school_year else "Activo" }}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="card-footer">
+        <div class="qr-box">
+          {% if qr_url %}
+            <img src="{{ qr_url }}" alt="Código QR" class="qr-image" />
+          {% endif %}
+        </div>
+
+        <div class="footer-meta">
+          <p class="center-name">{{ center.name }}</p>
+          {% if center.address %}<p>{{ center.address }}</p>{% endif %}
+          {% if center.phone or center.email %}
+            <p>
+              {% if center.phone %}{{ center.phone }}{% endif %}
+              {% if center.phone and center.email %} · {% endif %}
+              {% if center.email %}{{ center.email }}{% endif %}
+            </p>
+          {% endif %}
+        </div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>

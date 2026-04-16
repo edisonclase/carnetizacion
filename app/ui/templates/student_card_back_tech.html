@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Reverso Carnet Moderno Tecnológico</title>
+  <link rel="stylesheet" href="/static/cards/card_tech.css" />
+</head>
+<body>
+  <div class="id-card tech-card tech-card-back">
+    <div class="grid-overlay"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <div class="tech-shell back-tech-shell">
+      <header class="tech-back-header">
+        <h2>Nova ID</h2>
+        <p>Identidad segura y trazabilidad institucional</p>
+      </header>
+
+      <section class="back-panels">
+        <div class="panel">
+          <span class="panel-label">Centro</span>
+          <strong>{{ center.name }}</strong>
+          {% if center.address %}<p>{{ center.address }}</p>{% endif %}
+        </div>
+
+        <div class="panel">
+          <span class="panel-label">Uso del carnet</span>
+          <p>
+            Este documento habilita procesos de identificación,
+            control de acceso y registro institucional.
+          </p>
+        </div>
+
+        <div class="panel dual">
+          <div>
+            <span class="panel-label">Código</span>
+            <strong>{{ student.student_code or student.id }}</strong>
+          </div>
+          <div>
+            <span class="panel-label">Estado</span>
+            <strong>ACTIVO</strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="legal-note">
+        <p>
+          El uso de este carnet puede generar eventos de acceso y asistencia
+          conforme a las políticas del centro educativo.
+        </p>
+      </section>
+
+      <footer class="tech-footer">
+        <div class="footer-line"></div>
+        <p>{{ center.card_footer_text or "by Aula Nova" }}</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

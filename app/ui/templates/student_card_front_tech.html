@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Carnet Moderno Tecnológico</title>
+  <link rel="stylesheet" href="/static/cards/card_tech.css" />
+</head>
+<body>
+  <div class="id-card tech-card">
+    <div class="grid-overlay"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+
+    <div class="tech-shell">
+      <header class="tech-header">
+        <div class="tech-brand">
+          {% if center.logo_url %}
+            <img src="{{ center.logo_url }}" alt="Logo del centro" class="tech-logo" />
+          {% endif %}
+          <div class="tech-brand-text">
+            <h1>{{ center.name }}</h1>
+            <p>Nova ID · Aula Nova</p>
+          </div>
+        </div>
+
+        <div class="chip-badge">QR ACCESS</div>
+      </header>
+
+      <section class="tech-main">
+        <div class="photo-column">
+          <div class="photo-card">
+            {% if student.photo_url %}
+              <img src="{{ student.photo_url }}" alt="Foto del estudiante" class="student-photo" />
+            {% else %}
+              <div class="photo-placeholder">FOTO</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="data-column">
+          <div class="student-tag">ESTUDIANTE</div>
+          <h2 class="student-name">{{ student.full_name }}</h2>
+
+          <div class="tech-data-list">
+            <div class="data-row">
+              <span>ID</span>
+              <strong>{{ student.student_code or student.id }}</strong>
+            </div>
+            <div class="data-row">
+              <span>Curso</span>
+              <strong>{{ student.grade_name }} {{ student.section_name }}</strong>
+            </div>
+            <div class="data-row">
+              <span>Nivel</span>
+              <strong>{{ student.level_name or "Secundario" }}</strong>
+            </div>
+            <div class="data-row">
+              <span>Período</span>
+              <strong>{{ school_year.name if school_year else "Activo" }}</strong>
+            </div>
+          </div>
+
+          <div class="tech-qr-wrap">
+            <div class="qr-box">
+              {% if qr_url %}
+                <img src="{{ qr_url }}" alt="Código QR" class="qr-image" />
+              {% endif %}
+            </div>
+            <div class="scan-text">
+              <span>Identificación digital</span>
+              <strong>Escaneo institucional</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <footer class="tech-footer">
+        <div class="footer-line"></div>
+        <p>{{ center.card_footer_text or "by Aula Nova" }}</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>
