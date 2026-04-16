@@ -9,6 +9,7 @@ Desarrollar un sistema profesional de:
 - Carnetización digital
 - Control de acceso
 - Gestión de asistencia
+- Facturación institucional
 - Analítica institucional
 
 Diseñado como producto SaaS multi-centro.
@@ -21,12 +22,11 @@ Diseñado como producto SaaS multi-centro.
 - Identificación mediante carnet QR
 - Registro de asistencia
 - Control de acceso
-- Gestión académica básica
 
-### Personal (futuro)
-- Carnetización
-- Control de jornada
-- Registro de entradas/salidas
+### Institucional
+- Gestión por centros
+- Control de usuarios
+- Facturación de servicios
 
 ---
 
@@ -45,24 +45,16 @@ Arquitectura modular orientada a servicios.
 
 ## 4. SEGURIDAD Y AUTENTICACIÓN
 
-### Sistema JWT
+- JWT (python-jose)
+- Hash bcrypt
+- Roles:
+  - super_admin
+  - admin_centro
+  - registro
+  - consulta
 
-- Login con token
-- Endpoint `/auth/me`
-- Protección de rutas
-
-### Roles
-
-- super_admin
-- admin_centro
-- registro
-- consulta
-
-### Control de acceso
-
-- Restricción por centro
-- Validación de permisos por endpoint
-- Separación multi-tenant
+- Protección por endpoint
+- Resolución de centro
 
 ---
 
@@ -75,89 +67,65 @@ Arquitectura modular orientada a servicios.
 - Guardian
 
 ### Identificación
-- Card (QR + código único)
+- Card
 
 ### Usuarios
 - User
-- Roles
 
 ### Asistencia
 - AttendanceEvent
 - AttendanceDailySummary
 
-### Institucional
-- CenterSchedule
-- CenterAttendanceDay
-
-### Eventos especiales
-- AuthorizedExit
+### Facturación (nuevo)
+- BillingInvoice
+- BillingPayment
 
 ---
 
-## 6. FILOSOFÍA DE DISEÑO
+## 6. MULTI-CENTRO
 
-Separación clara:
-
-- Evento → dato crudo
-- Resumen → resultado procesado
-- Usuario → control de acceso
-- Centro → aislamiento de datos
-
----
-
-## 7. MULTI-CENTRO
-
-- Cada usuario pertenece a un centro
-- super_admin sin restricción
-- Usuarios operan solo su centro
+- Separación por `center_id`
+- Acceso restringido por usuario
+- super_admin global
 - Escalabilidad SaaS
 
 ---
 
-## 8. CARNETIZACIÓN
+## 7. FACTURACIÓN
 
-- Código único por estudiante
-- QR único por carnet
-- Generación automática
-- Impresión individual y masiva
+Permite:
 
----
+- Generar facturas por centro
+- Registrar pagos
+- Calcular balances
+- Control financiero básico
 
-## 9. REGLAS DE NEGOCIO
-
-### Estudiantes
-- Sin duplicados por centro/año
-- Tutor principal único
-- Carnet generado automáticamente
-
-### Seguridad
-- Acceso restringido por rol
-- Validación por centro
+Diseñado para monetización del sistema.
 
 ---
 
-## 10. MIGRACIONES
+## 8. MIGRACIONES
 
 - Alembic configurado
-- Versionado de base de datos
-- Control de cambios estructurales
+- Versionado activo
+- Correcciones manuales realizadas
 
 ---
 
-## 11. ESTADO ACTUAL
+## 9. ESTADO ACTUAL
 
-- Backend estable
-- Autenticación funcional
-- Tabla users implementada
-- Roles operativos
-- Multi-centro activo
+- Backend estable ✔
+- Dashboard funcional ✔
+- Facturación backend ✔
+- UI en desarrollo ✔
+- Seguridad en consolidación ✔
 
 ---
 
-## 12. SIGUIENTE FASE
+## 10. SIGUIENTE FASE
 
-- Protección de UI por rol
-- Dashboard por centro
-- Facturación de carnets
-- Control de acceso físico
-- API para dispositivos de entrada
+- UI de facturación
+- Seguridad frontend total
+- Reportes financieros
+- Auditoría
+- Integración con dispositivos físicos

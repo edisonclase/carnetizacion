@@ -4,15 +4,13 @@
 
 ## 📌 Estado del Proyecto
 
-Nova ID ha evolucionado de un sistema de carnetización a una plataforma institucional integral con arquitectura SaaS multi-centro.
-
-Actualmente se encuentra en fase de consolidación funcional con módulos empresariales en desarrollo.
+Nova ID es un sistema avanzado de gestión institucional con arquitectura SaaS multi-centro, actualmente en fase de consolidación operativa y preparación comercial.
 
 ---
 
 ## 🎯 Estado General
 
-👉 MVP avanzado con expansión a sistema empresarial
+👉 MVP avanzado + Módulo de facturación en integración
 
 ---
 
@@ -22,141 +20,137 @@ Actualmente se encuentra en fase de consolidación funcional con módulos empres
 - FastAPI ✔
 - SQLAlchemy ✔
 - PostgreSQL ✔
-- Alembic ✔
+- Alembic ✔ (con incidentes corregidos)
 
 ### Seguridad
 - Autenticación JWT ✔
-- Hash de contraseñas (bcrypt) ✔
+- Hash de contraseñas ✔
 - Control de roles ✔
-- Restricción multi-centro ✔
+- Resolución de centro (multi-tenant) ✔
 
 ### Usuarios
-- Gestión completa ✔
-- Super Admin global ✔
-- Roles operativos ✔
+- Tabla users ✔
+- Super admin ✔
+- Control por centro ✔
+- Endpoint `/auth/me` ✔
 
 ---
 
 ## 🧠 Arquitectura Multi-centro
 
 - Separación por `center_id` ✔
-- Aislamiento de datos ✔
-- super_admin sin restricción ✔
-- Escalabilidad SaaS ✔
+- Restricción por usuario ✔
+- `super_admin` global ✔
+- Validación de acceso por endpoint ✔
 
 ---
 
 ## 🎓 Estudiantes
 
-- CRUD completo ✔
-- Asociación con tutores ✔
-- Validaciones ✔
+- Registro ✔
+- Edición ✔
+- Validación ✔
+- Asociación con tutor ✔
 
 ---
 
 ## 🪪 Carnetización
 
-- QR único ✔
-- Código único ✔
 - Generación automática ✔
-- Preparado para impresión ✔
+- Código único ✔
+- QR único ✔
+- Impresión múltiple ✔
 
 ---
 
-## 💼 Facturación (NUEVO)
+## 💰 Facturación (NUEVO)
 
 - Tabla `billing_invoices` ✔
 - Tabla `billing_payments` ✔
 - Registro de facturas ✔
 - Registro de pagos ✔
-- Cálculo automático de balances ✔
+- Cálculo de balance ✔
+- Endpoint protegido ✔
+
+⚠️ UI en desarrollo (solo super_admin)
 
 ---
 
 ## 🎛️ UI
 
-- Dashboard institucional ✔
-- Sistema de navegación por roles ✔
-- Filtros dinámicos ✔
-
-⚠️ En ajuste:
-- Separación de lógica entre dashboard y facturación
-- Corrección de loops de autenticación
+- Dashboard funcional ✔
+- Filtros activos ✔
+- Sesión persistente ✔
+- Protección por rol (parcial) ✔
 
 ---
 
 ## 🔐 Seguridad
 
-- Protección de endpoints ✔
+- Endpoints protegidos ✔
 - Control por roles ✔
 - Restricción por centro ✔
+- Manejo de sesión frontend ✔
 
-⚠️ En mejora:
-- Protección completa de UI por rol
-- Manejo robusto de sesiones frontend
+---
+
+## 🧪 Incidentes Relevantes (CORREGIDOS)
+
+### 1. Error Alembic
+- ❌ "Can't locate revision"
+- ✔ Resolución manual de migraciones
+- ✔ Corrección de historial
+
+### 2. Endpoint no visible
+- ❌ `/billing/payments` no aparecía
+- ✔ Problema de importación/registro
+- ✔ Router corregido
+
+### 3. Inestabilidad de login
+- ❌ Redirecciones inesperadas
+- ❌ Token inconsistente
+- ✔ Corrección en `auth.js` y flujo JWT
+
+### 4. Dashboard roto
+- ❌ JS mezclado con facturación
+- ✔ Separación de módulos (dashboard vs billing)
 
 ---
 
 ## 📊 Estado Técnico
 
-✔ Backend sólido  
-✔ Base de datos consistente  
-✔ Arquitectura escalable  
-⚠️ UI en proceso de estabilización  
+✔ Estable  
+✔ Modular  
+✔ Escalable  
+✔ Comercializable (fase piloto)
 
 ---
 
-## 🚧 Problemas detectados
-
-### 1. Loop de autenticación
-- Causa: lógica incorrecta en dashboard.js
-- Efecto: recargas infinitas
-
-### 2. Mezcla de módulos
-- Dashboard usando lógica de facturación
-- JS no separado por responsabilidades
-
----
-
-## 🛠️ Correcciones aplicadas
-
-- Ajuste en requireAuth
-- Eliminación de redirecciones incorrectas
-- Identificación de mezcla de módulos
-
----
-
-## 🚀 Próxima fase
+## 🚧 Próxima Fase
 
 ### CRÍTICO
 
-- Separación completa:
-  - dashboard.js
-  - billing.js
-- Protección UI por rol
-- Dashboard funcional por rol
-- Estabilización del login
+- UI de facturación (solo super_admin)
+- Protección total por roles en frontend
+- Dashboard por rol
+- Auditoría de acciones
+- Reportes financieros
 
 ---
 
 ## ⚠️ Regla clave
 
-NO romper lo que funciona.
+NO romper lo que ya funciona.
 
 Toda mejora debe ser:
 
 - modular
 - desacoplada
-- escalable
+- segura
+- compatible con multi-centro
 
 ---
 
 ## 🚀 Conclusión
 
-Nova ID ya es:
-
-👉 Un sistema funcional real  
-👉 Con base empresarial  
-👉 Listo para piloto controlado  
-
-Solo falta estabilizar frontend para operación completa.
+Nova ID ha evolucionado de MVP técnico a producto estructurado listo para pruebas institucionales reales.
