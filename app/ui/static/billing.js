@@ -1,5 +1,6 @@
 let currentUser = null;
 let centersCache = [];
+let selectedInvoiceId = null;
 
 function setText(id, value) {
     const el = document.getElementById(id);
@@ -77,9 +78,14 @@ function getTodayLocalDate() {
 function setDefaultDates() {
     const issueDate = document.getElementById("issueDate");
     const dueDate = document.getElementById("dueDate");
+    const paymentDate = document.getElementById("paymentDate");
 
     if (issueDate && !issueDate.value) {
         issueDate.value = getTodayLocalDate();
+    }
+
+    if (paymentDate && !paymentDate.value) {
+        paymentDate.value = getTodayLocalDate();
     }
 
     if (dueDate && !dueDate.value) {
@@ -183,6 +189,26 @@ function renderTable(invoices) {
     });
 }
 
+function renderPaymentsTable(payments) {
+    const tbody = document.getElementById("paymentsTableBody");
+    if (!tbody) return;
+
+    if (!payments || !payments.length) {
+        tbody.innerHTML = `<tr><td colspan="5" class="empty-row">No hay pagos registrados.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = payments.map(payment => `
+        <tr>
+            <td>${formatDate(payment.payment_date)}</td>
+            <td>${formatCurrency(payment.amount)}</td>
+            <td>${payment.payment_method || "-"}</td>
+            <td>${payment.reference || "-"}</td>
+            <td>${payment.recorded_by || "-"}</td>
+        </tr>
+    `).join("");
+}
+
 async function loadInvoices() {
     const filterCenterId = document.getElementById("filterCenterId")?.value || "";
     const filterStatus = document.getElementById("filterStatus")?.value || "";
@@ -200,8 +226,25 @@ async function loadInvoices() {
     renderTable(invoices);
 }
 
+function clearPaymentForm() {
+    const paymentDate = document.getElementById("paymentDate");
+    const paymentAmount = document.getElementById("paymentAmount");
+    const paymentMethod = document.getElementById("paymentMethod");
+    const paymentReference = document.getElementById("paymentReference");
+    const paymentNotes = document.getElementById("paymentNotes");
+
+    if (paymentDate) paymentDate.value = getTodayLocalDate();
+    if (paymentAmount) paymentAmount.value = "";
+    if (paymentMethod) paymentMethod.value = "transfer";
+    if (paymentReference) paymentReference.value = "";
+    if (paymentNotes) paymentNotes.value = "";
+}
+
 async function loadInvoiceDetail(invoiceId) {
+    selectedInvoiceId = Number(invoiceId);
+
     const detail = await fetchJson(`/billing/invoices/${invoiceId}`);
+    const payments = await fetchJson(`/billing/invoices/${invoiceId}/payments`);
 
     document.getElementById("invoiceDetailEmpty")?.classList.add("hidden");
     document.getElementById("invoiceDetailContent")?.classList.remove("hidden");
@@ -218,6 +261,10 @@ async function loadInvoiceDetail(invoiceId) {
     setText("detailPendingAmount", formatCurrency(detail.pending_amount));
     setText("detailStatus", normalizeStatus(detail.status));
     setText("detailNotes", detail.notes || "-");
+
+    renderPaymentsTable(payments);
+    clearPaymentForm();
+    showPaymentMessage("", "info", true);
 }
 
 function clearForm() {
@@ -229,9 +276,29 @@ function clearForm() {
     setDefaultDates();
 }
 
-function showFormMessage(message, type = "info") {
+function showFormMessage(message, type = "info", hidden = false) {
     const box = document.getElementById("formMessage");
     if (!box) return;
+
+    if (hidden) {
+        box.textContent = "";
+        box.className = "form-message";
+        return;
+    }
+
+    box.textContent = message;
+    box.className = `form-message form-message-${type}`;
+}
+
+function showPaymentMessage(message, type = "info", hidden = false) {
+    const box = document.getElementById("paymentMessage");
+    if (!box) return;
+
+    if (hidden) {
+        box.textContent = "";
+        box.className = "form-message";
+        return;
+    }
 
     box.textContent = message;
     box.className = `form-message form-message-${type}`;
@@ -282,6 +349,53 @@ async function handleCreateInvoice(event) {
     }
 }
 
+async function handleRegisterPayment(event) {
+    event.preventDefault();
+
+    if (!selectedInvoiceId) {
+        showPaymentMessage("Primero selecciona una factura.", "error");
+        return;
+    }
+
+    const saveButton = document.getElementById("savePaymentBtn");
+
+    const payload = {
+        payment_date: document.getElementById("paymentDate").value,
+        amount: Number(document.getElementById("paymentAmount").value),
+        payment_method: document.getElementById("paymentMethod").value,
+        reference: document.getElementById("paymentReference").value.trim() || null,
+        notes: document.getElementById("paymentNotes").value.trim() || null,
+        recorded_by: currentUser?.email || currentUser?.full_name || "super_admin",
+    };
+
+    if (!payload.payment_date || !payload.amount || payload.amount <= 0) {
+        showPaymentMessage("Completa correctamente la fecha y el monto del pago.", "error");
+        return;
+    }
+
+    saveButton.disabled = true;
+    saveButton.textContent = "Registrando...";
+
+    try {
+        await fetchJson(`/billing/invoices/${selectedInvoiceId}/payments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        showPaymentMessage("Pago registrado correctamente.", "success");
+        await loadInvoices();
+        await loadInvoiceDetail(selectedInvoiceId);
+    } catch (error) {
+        showPaymentMessage(error.message || "No se pudo registrar el pago.", "error");
+    } finally {
+        saveButton.disabled = false;
+        saveButton.textContent = "Registrar pago";
+    }
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
     try {
         currentUser = await requireAuth(["super_admin"]);
@@ -298,6 +412,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         await loadInvoices();
 
         document.getElementById("billingForm")?.addEventListener("submit", handleCreateInvoice);
+        document.getElementById("paymentForm")?.addEventListener("submit", handleRegisterPayment);
         document.getElementById("filterInvoicesBtn")?.addEventListener("click", loadInvoices);
         document.getElementById("logoutBtn")?.addEventListener("click", logout);
     } catch (error) {

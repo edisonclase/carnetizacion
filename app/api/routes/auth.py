@@ -1,8 +1,8 @@
 from datetime import datetime, timezone
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
 from fastapi.security import OAuth2PasswordRequestForm
+from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db, require_roles, resolve_center_scope
 from app.core.security import create_access_token, get_password_hash, verify_password
@@ -33,7 +33,50 @@ def _get_center_or_404(db: Session, center_id: int) -> Center:
     return center
 
 
-@router.post("/bootstrap-super-admin", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def _normalize_email(email: str) -> str:
+    return email.lower().strip()
+
+
+def _authenticate_user(db: Session, email: str, password: str) -> User:
+    normalized_email = _normalize_email(email)
+    user = db.query(User).filter(User.email == normalized_email).first()
+
+    if not user or not verify_password(password, user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Credenciales inválidas.",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Usuario inactivo.",
+        )
+
+    return user
+
+
+def _update_last_login(db: Session, user: User) -> User:
+    user.last_login_at = datetime.now(timezone.utc)
+    db.commit()
+    db.refresh(user)
+    return user
+
+
+def _build_token_response(user: User) -> TokenResponse:
+    token = create_access_token(subject=user.email)
+    return TokenResponse(
+        access_token=token,
+        user=user,
+    )
+
+
+@router.post(
+    "/bootstrap-super-admin",
+    response_model=UserResponse,
+    status_code=status.HTTP_201_CREATED,
+)
 def bootstrap_super_admin(
     payload: BootstrapSuperAdminRequest,
     db: Session = Depends(get_db),
@@ -58,7 +101,7 @@ def bootstrap_super_admin(
             detail="Bootstrap secret inválido.",
         )
 
-    normalized_email = payload.email.lower().strip()
+    normalized_email = _normalize_email(payload.email)
 
     existing_user = db.query(User).filter(User.email == normalized_email).first()
     if existing_user:
@@ -85,58 +128,26 @@ def bootstrap_super_admin(
 
 @router.post("/login", response_model=TokenResponse)
 def login(payload: LoginRequest, db: Session = Depends(get_db)):
-    normalized_email = payload.email.lower().strip()
-
-    user = db.query(User).filter(User.email == normalized_email).first()
-
-    if not user or not verify_password(payload.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas.",
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo.",
-        )
-
-    user.last_login_at = datetime.now(timezone.utc)
-    db.commit()
-    db.refresh(user)
-
-    token = create_access_token(subject=user.email)
-
-    return TokenResponse(
-        access_token=token,
-        user=user,
+    user = _authenticate_user(
+        db=db,
+        email=payload.email,
+        password=payload.password,
     )
-    
+    user = _update_last_login(db, user)
+    return _build_token_response(user)
+
+
 @router.post("/token")
 def login_for_swagger(
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: Session = Depends(get_db),
 ):
-    normalized_email = form_data.username.lower().strip()
-
-    user = db.query(User).filter(User.email == normalized_email).first()
-
-    if not user or not verify_password(form_data.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Credenciales inválidas.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Usuario inactivo.",
-        )
-
-    user.last_login_at = datetime.now(timezone.utc)
-    db.commit()
-    db.refresh(user)
+    user = _authenticate_user(
+        db=db,
+        email=form_data.username,
+        password=form_data.password,
+    )
+    user = _update_last_login(db, user)
 
     token = create_access_token(subject=user.email)
 
@@ -144,6 +155,7 @@ def login_for_swagger(
         "access_token": token,
         "token_type": "bearer",
     }
+
 
 @router.get("/me", response_model=UserResponse)
 def me(current_user: User = Depends(get_current_user)):
@@ -158,7 +170,7 @@ def create_user(
 ):
     _ensure_valid_role(payload.role)
 
-    normalized_email = payload.email.lower().strip()
+    normalized_email = _normalize_email(payload.email)
 
     existing_user = db.query(User).filter(User.email == normalized_email).first()
     if existing_user:

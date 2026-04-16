@@ -38,7 +38,9 @@ function clearSession() {
 }
 
 function goToLogin() {
-    window.location.href = "/login";
+    if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+    }
 }
 
 async function apiFetch(url, options = {}) {
@@ -87,25 +89,26 @@ function roleLabel(role) {
         admin_centro: "Administrador del centro",
         registro: "Registro",
         consulta: "Consulta",
+        digitador: "Digitador",
     };
 
     return labels[role] || role || "-";
 }
 
 function canManageStudents(role) {
-    return ["super_admin", "registro"].includes(role);
+    return ["super_admin", "admin_centro", "registro"].includes(role);
 }
 
 function canViewStudents(role) {
-    return ["super_admin", "registro", "consulta"].includes(role);
+    return ["super_admin", "admin_centro", "registro", "consulta"].includes(role);
 }
 
 function canPrint(role) {
-    return ["super_admin", "registro"].includes(role);
+    return ["super_admin", "admin_centro", "registro"].includes(role);
 }
 
 function canEdit(role) {
-    return ["super_admin", "registro"].includes(role);
+    return ["super_admin", "admin_centro", "registro"].includes(role);
 }
 
 async function requireAuth(allowedRoles = []) {
@@ -119,11 +122,6 @@ async function requireAuth(allowedRoles = []) {
     const user = await fetchCurrentUser();
 
     if (allowedRoles.length && !allowedRoles.includes(user.role)) {
-        if (user.role === "admin_centro") {
-            window.location.href = "/dashboard";
-        } else {
-            goToLogin();
-        }
         throw new Error("No autorizado.");
     }
 

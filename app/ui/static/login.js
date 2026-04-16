@@ -18,19 +18,26 @@ function getDashboardRouteForUser() {
     return "/dashboard";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     hideLoginError();
-
-    clearSession();
 
     loginForm.reset();
     emailInput.value = "";
     passwordInput.value = "";
 
-    window.setTimeout(() => {
-        emailInput.value = "";
-        passwordInput.value = "";
-    }, 0);
+    const token = getAccessToken();
+
+    if (token) {
+        try {
+            const user = await fetchCurrentUser();
+            if (user) {
+                window.location.href = getDashboardRouteForUser();
+                return;
+            }
+        } catch (error) {
+            clearSession();
+        }
+    }
 
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();

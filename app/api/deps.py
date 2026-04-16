@@ -17,6 +17,14 @@ def get_db():
         db.close()
 
 
+def _raise_unauthorized(detail: str = "No autenticado o token inválido.") -> None:
+    raise HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail=detail,
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+
 def get_current_user(
     token: str = Depends(oauth2_scheme),
     db: Session = Depends(get_db),
@@ -24,20 +32,15 @@ def get_current_user(
     try:
         subject = extract_subject_from_token(token)
     except ValueError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="No autenticado o token inválido.",
-            headers={"WWW-Authenticate": "Bearer"},
-        ) from exc
+        _raise_unauthorized("No autenticado o token inválido.")
 
     user = db.query(User).filter(User.email == subject).first()
 
-    if not user or not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Usuario no autorizado.",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    if not user:
+        _raise_unauthorized("Usuario no autorizado.")
+
+    if not user.is_active:
+        _raise_unauthorized("Usuario inactivo o no autorizado.")
 
     return user
 
@@ -71,7 +74,7 @@ def resolve_center_scope(
             detail="Este usuario no tiene un centro asignado.",
         )
 
-    if requested_center_id is not None and requested_center_id != current_user.center_id:
+    if requested_center_id is not None and int(requested_center_id) != int(current_user.center_id):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No puedes acceder a información de otro centro.",

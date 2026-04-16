@@ -4,13 +4,15 @@
 
 ## 📌 Estado del Proyecto
 
-Nova ID es ahora un sistema funcional avanzado con base real para operación institucional y comercialización.
+Nova ID ha evolucionado de un sistema de carnetización a una plataforma institucional integral con arquitectura SaaS multi-centro.
+
+Actualmente se encuentra en fase de consolidación funcional con módulos empresariales en desarrollo.
 
 ---
 
 ## 🎯 Estado General
 
-👉 MVP avanzado con arquitectura SaaS
+👉 MVP avanzado con expansión a sistema empresarial
 
 ---
 
@@ -24,97 +26,137 @@ Nova ID es ahora un sistema funcional avanzado con base real para operación ins
 
 ### Seguridad
 - Autenticación JWT ✔
-- Hash de contraseñas ✔
+- Hash de contraseñas (bcrypt) ✔
 - Control de roles ✔
+- Restricción multi-centro ✔
 
 ### Usuarios
-- Tabla users ✔
-- Super admin ✔
-- Creación de usuarios ✔
-- Control por centro ✔
+- Gestión completa ✔
+- Super Admin global ✔
+- Roles operativos ✔
 
 ---
 
 ## 🧠 Arquitectura Multi-centro
 
-- Separación por center_id ✔
-- Usuarios restringidos ✔
-- super_admin global ✔
+- Separación por `center_id` ✔
+- Aislamiento de datos ✔
+- super_admin sin restricción ✔
+- Escalabilidad SaaS ✔
 
 ---
 
 ## 🎓 Estudiantes
 
-- Registro ✔
-- Edición ✔
-- Validación ✔
-- Asociación con tutor ✔
+- CRUD completo ✔
+- Asociación con tutores ✔
+- Validaciones ✔
 
 ---
 
 ## 🪪 Carnetización
 
-- Generación automática ✔
-- Código único ✔
 - QR único ✔
-- Impresión múltiple ✔
+- Código único ✔
+- Generación automática ✔
+- Preparado para impresión ✔
+
+---
+
+## 💼 Facturación (NUEVO)
+
+- Tabla `billing_invoices` ✔
+- Tabla `billing_payments` ✔
+- Registro de facturas ✔
+- Registro de pagos ✔
+- Cálculo automático de balances ✔
 
 ---
 
 ## 🎛️ UI
 
+- Dashboard institucional ✔
+- Sistema de navegación por roles ✔
 - Filtros dinámicos ✔
-- Selección múltiple avanzada ✔
-- Persistencia de selección ✔
+
+⚠️ En ajuste:
+- Separación de lógica entre dashboard y facturación
+- Corrección de loops de autenticación
 
 ---
 
 ## 🔐 Seguridad
 
-- Endpoints protegidos ✔
-- Control de acceso por rol ✔
+- Protección de endpoints ✔
+- Control por roles ✔
 - Restricción por centro ✔
+
+⚠️ En mejora:
+- Protección completa de UI por rol
+- Manejo robusto de sesiones frontend
 
 ---
 
 ## 📊 Estado Técnico
 
-✔ Estable  
-✔ Escalable  
-✔ Modular  
-✔ Comercializable  
+✔ Backend sólido  
+✔ Base de datos consistente  
+✔ Arquitectura escalable  
+⚠️ UI en proceso de estabilización  
 
 ---
 
-## 🚧 Próxima Fase
+## 🚧 Problemas detectados
+
+### 1. Loop de autenticación
+- Causa: lógica incorrecta en dashboard.js
+- Efecto: recargas infinitas
+
+### 2. Mezcla de módulos
+- Dashboard usando lógica de facturación
+- JS no separado por responsabilidades
+
+---
+
+## 🛠️ Correcciones aplicadas
+
+- Ajuste en requireAuth
+- Eliminación de redirecciones incorrectas
+- Identificación de mezcla de módulos
+
+---
+
+## 🚀 Próxima fase
 
 ### CRÍTICO
 
-- Protección de UI por rol
-- Login real en frontend
-- Dashboard exclusivo por centro
-- Separación de vistas:
-
-  - admin_centro → dashboard
-  - registro → operación
-  - consulta → solo lectura
+- Separación completa:
+  - dashboard.js
+  - billing.js
+- Protección UI por rol
+- Dashboard funcional por rol
+- Estabilización del login
 
 ---
 
 ## ⚠️ Regla clave
 
-NO romper lo que ya funciona.
+NO romper lo que funciona.
 
 Toda mejora debe ser:
 
 - modular
-- segura
-- compatible con multi-centro
+- desacoplada
+- escalable
 
 ---
 
 ## 🚀 Conclusión
 
-Nova ID ya no es un experimento.
+Nova ID ya es:
 
-👉 Es un producto listo para pruebas reales y pilotos institucionales.
+👉 Un sistema funcional real  
+👉 Con base empresarial  
+👉 Listo para piloto controlado  
+
+Solo falta estabilizar frontend para operación completa.
