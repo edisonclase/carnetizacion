@@ -2,33 +2,44 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Reverso Carnet Moderno Tecnológico</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverso Carnet Estudiantil Tech</title>
   <link rel="stylesheet" href="/static/cards/card_tech.css" />
 </head>
-<body>
-  <div class="id-card tech-card tech-card-back">
+<body
+  style="
+    --primary: {{ center.primary_color or '#07111f' }};
+    --secondary: {{ center.secondary_color or '#1d4ed8' }};
+    --accent: {{ center.accent_color or '#22c55e' }};
+    --text: {{ center.text_color or '#e5eefb' }};
+    --bg: {{ center.background_color or '#07111f' }};
+  "
+>
+  <div class="id-card tech-card">
     <div class="grid-overlay"></div>
-    <div class="glow glow-1"></div>
-    <div class="glow glow-2"></div>
+    <div class="glow glow-left"></div>
+    <div class="glow glow-right"></div>
 
-    <div class="tech-shell back-tech-shell">
+    <div class="card-inner back-tech-layout">
       <header class="tech-back-header">
         <h2>Nova ID</h2>
-        <p>Identidad segura y trazabilidad institucional</p>
+        <p>Identidad segura y trazabilidad escolar</p>
       </header>
 
-      <section class="back-panels">
+      <section class="tech-panels">
         <div class="panel">
-          <span class="panel-label">Centro</span>
+          <span class="panel-label">Centro educativo</span>
           <strong>{{ center.name }}</strong>
-          {% if center.address %}<p>{{ center.address }}</p>{% endif %}
+          {% if center.address %}
+            <p>{{ center.address }}</p>
+          {% endif %}
         </div>
 
         <div class="panel">
-          <span class="panel-label">Uso del carnet</span>
+          <span class="panel-label">Uso institucional</span>
           <p>
             Este documento habilita procesos de identificación,
-            control de acceso y registro institucional.
+            control de acceso y registro automatizado.
           </p>
         </div>
 
@@ -44,16 +55,15 @@
         </div>
       </section>
 
-      <section class="legal-note">
+      <section class="legal-panel">
         <p>
-          El uso de este carnet puede generar eventos de acceso y asistencia
-          conforme a las políticas del centro educativo.
+          El uso del carnet puede generar eventos de acceso y asistencia,
+          conforme a la política operativa del centro educativo.
         </p>
       </section>
 
-      <footer class="tech-footer">
-        <div class="footer-line"></div>
-        <p>{{ center.card_footer_text or "by Aula Nova" }}</p>
+      <footer class="tech-bottom-note">
+        <p>{{ center.card_footer_text or 'by Aula Nova' }}</p>
       </footer>
     </div>
   </div>

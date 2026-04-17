@@ -2,72 +2,83 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Reverso Carnet Premium Institucional</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverso Carnet Estudiantil Premium</title>
   <link rel="stylesheet" href="/static/cards/card_premium.css" />
 </head>
-<body>
-  <div class="id-card premium-card premium-card-back">
-    <div class="premium-top-accent"></div>
-    <div class="premium-bottom-accent"></div>
+<body
+  style="
+    --primary: {{ center.primary_color or '#0b3d24' }};
+    --secondary: {{ center.secondary_color or '#1f8f4a' }};
+    --accent: {{ center.accent_color or '#f4c95d' }};
+    --text: {{ center.text_color or '#1e1e1e' }};
+    --bg: {{ center.background_color or '#f7f8f7' }};
+  "
+>
+  <div class="id-card premium-card premium-back">
+    <div class="premium-shape premium-shape-top"></div>
+    <div class="premium-shape premium-shape-bottom"></div>
 
-    <div class="card-shell back-shell">
+    <div class="card-inner back-layout">
       <header class="back-header">
-        <h2>Identificación Institucional</h2>
-        <p>Documento de uso oficial</p>
+        <h2>Identificación institucional</h2>
+        <p>Documento oficial de uso escolar</p>
       </header>
 
       <section class="institution-block">
-        <div class="mini-brand">
+        <div class="institution-head">
           {% if center.logo_url %}
             <img src="{{ center.logo_url }}" alt="Logo del centro" class="back-logo" />
           {% endif %}
           <div>
             <h3>{{ center.name }}</h3>
-            {% if center.motto %}<p>{{ center.motto }}</p>{% endif %}
+            {% if center.motto %}
+              <p>{{ center.motto }}</p>
+            {% endif %}
           </div>
         </div>
 
-        <div class="back-info-grid">
+        <div class="back-grid">
           {% if center.management_code %}
-          <div class="back-info-item">
+          <div class="back-info">
             <span class="label">Código de gestión</span>
-            <span class="value">{{ center.management_code }}</span>
+            <strong>{{ center.management_code }}</strong>
           </div>
           {% endif %}
 
           {% if center.district_name %}
-          <div class="back-info-item">
+          <div class="back-info">
             <span class="label">Distrito</span>
-            <span class="value">{{ center.district_name }}</span>
+            <strong>{{ center.district_name }}</strong>
           </div>
           {% endif %}
 
           {% if center.address %}
-          <div class="back-info-item full">
+          <div class="back-info full">
             <span class="label">Dirección</span>
-            <span class="value">{{ center.address }}</span>
+            <strong>{{ center.address }}</strong>
           </div>
           {% endif %}
         </div>
       </section>
 
-      <section class="policy-block">
+      <section class="rules-block">
         <h4>Condiciones de uso</h4>
         <ul>
           <li>Este carnet es personal e intransferible.</li>
-          <li>Debe portarse dentro del centro educativo cuando sea requerido.</li>
-          <li>Su uso permite procesos de identificación y registro institucional.</li>
-          <li>En caso de pérdida, debe reportarse inmediatamente.</li>
+          <li>Debe portarse cuando sea requerido por la institución.</li>
+          <li>Su uso puede generar eventos de identificación y asistencia.</li>
+          <li>En caso de pérdida, debe notificarse de inmediato.</li>
         </ul>
       </section>
 
-      <section class="back-student-code">
+      <section class="code-badge">
         <span>ID del estudiante</span>
         <strong>{{ student.student_code or student.id }}</strong>
       </section>
 
       <footer class="back-footer">
-        <p>{{ center.card_footer_text or "by Aula Nova" }}</p>
+        <p>{{ center.card_footer_text or 'by Aula Nova' }}</p>
       </footer>
     </div>
   </div>
