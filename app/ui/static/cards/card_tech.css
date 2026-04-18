@@ -322,7 +322,7 @@ body {
 }
 
 .tech-footer-v2 {
-  padding-bottom: 3.4mm;
+  padding-bottom: 4.8mm;
 }
 
 .qr-box {
@@ -336,13 +336,13 @@ body {
 }
 
 .qr-box-large {
-  width: 13.2mm;
-  height: 13.2mm;
+  width: 12.6mm;
+  height: 12.6mm;
 }
 
 .qr-image {
-  width: 10.6mm;
-  height: 10.6mm;
+  width: 10mm;
+  height: 10mm;
   object-fit: contain;
 }
 
