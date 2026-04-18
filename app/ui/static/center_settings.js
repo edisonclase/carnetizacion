@@ -19,6 +19,10 @@ const fieldIds = [
   "background_color",
   "card_design_key",
   "show_full_card_identity",
+  "card_loss_notice",
+  "card_loss_contact",
+  "card_show_technical_area",
+  "card_technical_area_label",
   "mission",
   "vision",
   "values",
@@ -52,12 +56,18 @@ const defaultTheme = {
   card_footer_text: "Nova ID by Aula Nova",
   card_design_key: "classic_green_v1",
   show_full_card_identity: "true",
+  card_show_technical_area: "true",
+  card_technical_area_label: "Área técnica",
+  card_loss_notice: "Si encuentra este carnet, favor devolverlo al centro.",
+  card_loss_contact: "809-000-0000 · correo@centro.edu.do",
 };
 
 const designLabels = {
   classic_green_v1: "Classic Green v1",
   prestige_clean_v1: "Prestige Clean v1",
   nova_modern_v1: "Nova Modern v1",
+  premium_institutional_v1: "Premium Institutional v1",
+  tech_modern_v1: "Tech Modern v1",
 };
 
 let alertTimeoutId = null;
@@ -128,13 +138,8 @@ function fillForm(data) {
     const field = getField(id);
     if (!field) return;
 
-    if (id === "is_active") {
-      field.value = String(data[id] ?? true);
-      return;
-    }
-
-    if (id === "show_full_card_identity") {
-      field.value = String(data[id] ?? true);
+    if (id === "is_active" || id === "show_full_card_identity" || id === "card_show_technical_area") {
+      field.value = String(data[id] ?? defaultTheme[id] ?? true);
       return;
     }
 
@@ -174,6 +179,10 @@ function getFormData() {
     background_color: getField("background_color").value.trim() || null,
     card_design_key: getField("card_design_key").value || defaultTheme.card_design_key,
     show_full_card_identity: getField("show_full_card_identity").value === "true",
+    card_loss_notice: getField("card_loss_notice").value.trim() || null,
+    card_loss_contact: getField("card_loss_contact").value.trim() || null,
+    card_show_technical_area: getField("card_show_technical_area").value === "true",
+    card_technical_area_label: getField("card_technical_area_label").value.trim() || null,
     philosophy: null,
     mission: getField("mission").value.trim() || null,
     vision: getField("vision").value.trim() || null,
@@ -236,13 +245,13 @@ function styleClassicPreview(elements, theme) {
   const {
     frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
     frontBody, photo, studentName, infoGrid, qrWrap,
-    missionSection, visionSection, valuesSection
+    missionSection, visionSection, valuesSection, lossSection
   } = elements;
 
   frontCard.style.width = "255px";
   frontCard.style.height = "375px";
   backCard.style.width = "255px";
-  backCard.style.height = "300px";
+  backCard.style.height = "320px";
 
   frontCard.style.boxShadow = "0 12px 24px rgba(15, 23, 42, 0.10)";
   backCard.style.boxShadow = "0 12px 24px rgba(15, 23, 42, 0.10)";
@@ -320,7 +329,8 @@ function styleClassicPreview(elements, theme) {
   qrWrap.style.alignItems = "center";
   qrWrap.style.gap = "4px";
 
-  [missionSection, visionSection, valuesSection].forEach((section) => {
+  [missionSection, visionSection, valuesSection, lossSection].forEach((section) => {
+    if (!section) return;
     section.style.background = "rgba(255,255,255,0.90)";
     section.style.border = "1px solid rgba(15,23,42,0.08)";
     section.style.borderRadius = "12px";
@@ -333,13 +343,13 @@ function stylePrestigePreview(elements, theme) {
   const {
     frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
     frontBody, photo, studentName, infoGrid, qrWrap,
-    missionSection, visionSection, valuesSection
+    missionSection, visionSection, valuesSection, lossSection
   } = elements;
 
   frontCard.style.width = "255px";
   frontCard.style.height = "375px";
   backCard.style.width = "255px";
-  backCard.style.height = "300px";
+  backCard.style.height = "320px";
 
   frontCard.style.boxShadow = "0 16px 30px rgba(15, 23, 42, 0.08)";
   backCard.style.boxShadow = "0 16px 30px rgba(15, 23, 42, 0.08)";
@@ -369,10 +379,10 @@ function stylePrestigePreview(elements, theme) {
   frontBody.style.alignItems = "center";
   frontBody.style.gap = "12px";
 
-  photo.style.width = "80px";
-  photo.style.height = "80px";
-  photo.style.borderRadius = "18px";
-  photo.style.border = `2px solid ${theme.primaryColor}`;
+  photo.style.width = "82px";
+  photo.style.height = "82px";
+  photo.style.borderRadius = "50%";
+  photo.style.border = `4px solid ${theme.primaryColor}`;
   photo.style.background = "#eef2f8";
   photo.style.display = "flex";
   photo.style.alignItems = "center";
@@ -402,7 +412,8 @@ function stylePrestigePreview(elements, theme) {
   qrWrap.style.alignItems = "center";
   qrWrap.style.gap = "4px";
 
-  [missionSection, visionSection, valuesSection].forEach((section) => {
+  [missionSection, visionSection, valuesSection, lossSection].forEach((section) => {
+    if (!section) return;
     section.style.background = "rgba(255,255,255,0.98)";
     section.style.border = "1px solid rgba(15,23,42,0.06)";
     section.style.borderRadius = "10px";
@@ -415,13 +426,13 @@ function styleModernPreview(elements, theme) {
   const {
     frontCard, backCard, frontHeader, backHeader, frontDecor, backDecor,
     frontBody, photo, studentName, infoGrid, qrWrap,
-    missionSection, visionSection, valuesSection
+    missionSection, visionSection, valuesSection, lossSection
   } = elements;
 
   frontCard.style.width = "255px";
   frontCard.style.height = "375px";
   backCard.style.width = "255px";
-  backCard.style.height = "300px";
+  backCard.style.height = "320px";
 
   frontCard.style.boxShadow = "0 18px 36px rgba(15, 23, 42, 0.12)";
   backCard.style.boxShadow = "0 18px 36px rgba(15, 23, 42, 0.12)";
@@ -511,7 +522,8 @@ function styleModernPreview(elements, theme) {
   qrWrap.style.justifyContent = "flex-end";
   qrWrap.style.gap = "4px";
 
-  [missionSection, visionSection, valuesSection].forEach((section) => {
+  [missionSection, visionSection, valuesSection, lossSection].forEach((section) => {
+    if (!section) return;
     section.style.background = "rgba(255,255,255,0.88)";
     section.style.border = "1px solid rgba(15,23,42,0.08)";
     section.style.borderRadius = "12px";
@@ -552,6 +564,7 @@ function styleSharedPreviewText() {
     el.style.margin = "0 0 4px";
     el.style.fontSize = "10px";
     el.style.fontWeight = "800";
+    el.style.textAlign = "center";
   });
 
   backText.forEach((el) => {
@@ -573,6 +586,10 @@ function renderPreview() {
     footerText: data.card_footer_text || defaultTheme.card_footer_text,
     designKey: data.card_design_key || defaultTheme.card_design_key,
     useFullIdentity: data.show_full_card_identity === true,
+    showTechnicalArea: data.card_show_technical_area === true,
+    technicalAreaLabel: data.card_technical_area_label || defaultTheme.card_technical_area_label,
+    lossNotice: data.card_loss_notice || defaultTheme.card_loss_notice,
+    lossContact: data.card_loss_contact || defaultTheme.card_loss_contact,
   };
 
   const elements = {
@@ -595,6 +612,7 @@ function renderPreview() {
     missionSection: document.getElementById("previewMissionSection"),
     visionSection: document.getElementById("previewVisionSection"),
     valuesSection: document.getElementById("previewValuesSection"),
+    lossSection: document.getElementById("previewLossSection"),
   };
 
   setBaseCardTheme(elements.frontCard, theme);
@@ -603,9 +621,9 @@ function renderPreview() {
   setTopBand(elements.backTopBand, theme.secondaryColor, theme.primaryColor, theme.accentColor);
   styleSharedPreviewText();
 
-  if (theme.designKey === "prestige_clean_v1") {
+  if (theme.designKey === "prestige_clean_v1" || theme.designKey === "premium_institutional_v1") {
     stylePrestigePreview(elements, theme);
-  } else if (theme.designKey === "nova_modern_v1") {
+  } else if (theme.designKey === "nova_modern_v1" || theme.designKey === "tech_modern_v1") {
     styleModernPreview(elements, theme);
   } else {
     styleClassicPreview(elements, theme);
@@ -623,7 +641,9 @@ function renderPreview() {
 
   const designName = document.getElementById("previewDesignName");
   designName.textContent = designLabels[theme.designKey] || "Classic Green v1";
-  designName.style.color = theme.designKey === "prestige_clean_v1" ? "#334155" : theme.primaryColor;
+  designName.style.color = theme.designKey === "prestige_clean_v1" || theme.designKey === "premium_institutional_v1"
+    ? "#334155"
+    : theme.primaryColor;
 
   document.getElementById("previewMission").textContent =
     theme.useFullIdentity
@@ -640,25 +660,30 @@ function renderPreview() {
       ? (data.values || "Texto institucional completo.")
       : (data.card_values || data.values || "Texto corto de valores.");
 
+  document.getElementById("previewLossNotice").textContent = theme.lossNotice;
+  document.getElementById("previewLossContact").textContent = theme.lossContact;
+
+  elements.infoGrid.innerHTML = `
+    <div><strong>Rol:</strong> Estudiante</div>
+    <div><strong>ID:</strong> 0001</div>
+    <div><strong>Ciclo:</strong> Segundo Ciclo</div>
+    ${
+      theme.showTechnicalArea
+        ? `<div><strong>${theme.technicalAreaLabel}:</strong> Informática</div>`
+        : ""
+    }
+  `;
+
+  elements.frontFooter.textContent = "Vista previa";
+  elements.backFooter.textContent = theme.footerText;
+
   [elements.frontFooter, elements.backFooter].forEach((footer) => {
-    footer.textContent = theme.footerText;
     footer.style.textAlign = "center";
     footer.style.fontSize = "9px";
     footer.style.color = "#5b6777";
     footer.style.padding = "6px 8px 8px";
     footer.style.position = "relative";
     footer.style.zIndex = "2";
-  });
-
-  elements.backBody.classList.toggle("preview-long", theme.useFullIdentity);
-  elements.backBody.classList.toggle("preview-short", !theme.useFullIdentity);
-
-  document.querySelectorAll(".mini-back-section h5").forEach((title) => {
-    title.style.textAlign = "center";
-  });
-
-  document.querySelectorAll(".mini-back-section p").forEach((paragraph) => {
-    paragraph.style.textAlign = theme.useFullIdentity ? "left" : "center";
   });
 
   const logo = document.getElementById("previewLogo");
@@ -678,7 +703,9 @@ function renderPreview() {
   logoWraps.forEach((wrap) => {
     wrap.style.width = "38px";
     wrap.style.height = "38px";
-    wrap.style.borderRadius = theme.designKey === "prestige_clean_v1" ? "12px" : "10px";
+    wrap.style.borderRadius = theme.designKey === "prestige_clean_v1" || theme.designKey === "premium_institutional_v1"
+      ? "12px"
+      : "10px";
     wrap.style.background = "#ffffff";
     wrap.style.border = "1px solid rgba(0,0,0,0.08)";
     wrap.style.display = "flex";

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carnet Estudiantil Tech</title>
+  <link rel="stylesheet" href="/static/cards/card_tech.css" />
+</head>
+<body
+  style="
+    --primary: {{ center_primary_color or '#07111f' }};
+    --secondary: {{ center_secondary_color or '#1d4ed8' }};
+    --accent: {{ center_accent_color or '#22c55e' }};
+    --text: {{ center_text_color or '#e5eefb' }};
+    --bg: {{ center_background_color or '#07111f' }};
+  "
+>
+  <div class="id-card tech-card">
+    <div class="grid-overlay"></div>
+    <div class="glow glow-left"></div>
+    <div class="glow glow-right"></div>
+
+    <div class="card-inner tech-front-layout">
+      <header class="brand-header brand-header-tech">
+        <div class="brand-main">
+          {% if center_logo_url %}
+            <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large tech-logo" />
+          {% endif %}
+          <div class="brand-text-wrap">
+            <h1 class="center-name center-name-large tech-center-name">{{ center_name }}</h1>
+            {% if phone or email %}
+              <p class="brand-contact tech-brand-contact">
+                {% if phone %}{{ phone }}{% endif %}
+                {% if phone and email %} · {% endif %}
+                {% if email %}{{ email }}{% endif %}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+
+      <section class="tech-photo-section">
+        <div class="photo-shell photo-shell-circle">
+          {% if student_photo_url %}
+            <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-circle-top" />
+          {% else %}
+            <div class="photo-placeholder photo-circle-placeholder">FOTO</div>
+          {% endif %}
+        </div>
+      </section>
+
+      <section class="tech-identity">
+        <h2 class="student-name tech-student-name">{{ student_full_name }}</h2>
+        <p class="student-role tech-student-role">{{ student_role_label }}</p>
+        <p class="student-cycle tech-student-cycle">{{ student_cycle_label }}</p>
+
+        {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
+          <p class="student-area tech-student-area">{{ student_technical_area }}</p>
+        {% endif %}
+      </section>
+
+      <footer class="tech-footer">
+        <div class="qr-box qr-box-large">
+          {% if qr_image_url %}
+            <img src="{{ qr_image_url }}" alt="Código QR" class="qr-image" />
+          {% endif %}
+        </div>
+
+        <div class="tech-footer-text">
+          <span>ID institucional</span>
+          <strong>{{ student_code or student_id }}</strong>
+          <p>{{ card_footer_text or 'by Aula Nova' }}</p>
+        </div>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

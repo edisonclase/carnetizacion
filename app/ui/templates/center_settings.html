@@ -138,6 +138,8 @@
                                     <option value="classic_green_v1">Classic Green v1</option>
                                     <option value="prestige_clean_v1">Prestige Clean v1</option>
                                     <option value="nova_modern_v1">Nova Modern v1</option>
+                                    <option value="premium_institutional_v1">Premium Institutional v1</option>
+                                    <option value="tech_modern_v1">Tech Modern v1</option>
                                 </select>
                             </div>
 
@@ -147,6 +149,19 @@
                                     <option value="true">Versión larga</option>
                                     <option value="false">Versión corta</option>
                                 </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_show_technical_area">Mostrar área técnica</label>
+                                <select id="card_show_technical_area" name="card_show_technical_area">
+                                    <option value="true">Sí</option>
+                                    <option value="false">No</option>
+                                </select>
+                            </div>
+
+                            <div class="field">
+                                <label for="card_technical_area_label">Etiqueta del área técnica</label>
+                                <input type="text" id="card_technical_area_label" name="card_technical_area_label" placeholder="Área técnica" />
                             </div>
                         </div>
                     </section>
@@ -181,6 +196,25 @@
                             <div class="field">
                                 <label for="management_code">Código de gestión</label>
                                 <input type="text" id="management_code" name="management_code" />
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="settings-card">
+                        <div class="card-title-row">
+                            <h3>Pérdida y contacto del carnet</h3>
+                            <span>Información pequeña para el reverso del carnet.</span>
+                        </div>
+
+                        <div class="form-grid one-col">
+                            <div class="field">
+                                <label for="card_loss_notice">Aviso por pérdida</label>
+                                <input type="text" id="card_loss_notice" name="card_loss_notice" placeholder="Si encuentra este carnet, favor devolverlo al centro." />
+                            </div>
+
+                            <div class="field">
+                                <label for="card_loss_contact">Contacto por pérdida</label>
+                                <input type="text" id="card_loss_contact" name="card_loss_contact" placeholder="809-000-0000 · correo@centro.edu.do" />
                             </div>
                         </div>
                     </section>
@@ -278,11 +312,10 @@
                                         <div class="mini-student-name" id="previewStudentName">NOMBRE DEL ESTUDIANTE</div>
 
                                         <div class="mini-info-grid" id="previewFrontInfoGrid">
-                                            <div><strong>Código:</strong> 0001</div>
-                                            <div><strong>ID MINERD:</strong> 123456789</div>
-                                            <div><strong>Curso:</strong> 4to</div>
-                                            <div><strong>Sección:</strong> A</div>
-                                            <div><strong>Año:</strong> 2025-2026</div>
+                                            <div><strong>Rol:</strong> Estudiante</div>
+                                            <div><strong>ID:</strong> 0001</div>
+                                            <div><strong>Ciclo:</strong> Segundo Ciclo</div>
+                                            <div><strong>Área técnica:</strong> Informática</div>
                                         </div>
 
                                         <div class="mini-qr-wrap" id="previewQrWrap">
@@ -291,7 +324,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="mini-card-footer" id="previewFrontFooter">Nova ID by Aula Nova</div>
+                                    <div class="mini-card-footer" id="previewFrontFooter">Vista previa</div>
                                 </div>
                             </div>
 
@@ -320,6 +353,12 @@
                                         <section class="mini-back-section" id="previewValuesSection">
                                             <h5>Valores</h5>
                                             <p id="previewValues">Texto del centro.</p>
+                                        </section>
+
+                                        <section class="mini-back-section" id="previewLossSection">
+                                            <h5>Pérdida / contacto</h5>
+                                            <p id="previewLossNotice">Si encuentra este carnet, favor devolverlo al centro.</p>
+                                            <p id="previewLossContact">809-000-0000 · correo@centro.edu.do</p>
                                         </section>
                                     </div>
 

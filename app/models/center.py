@@ -34,6 +34,17 @@ class Center(Base):
         server_default="true",
     )
 
+    # Configuración ampliada de carnet
+    card_loss_notice: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_loss_contact: Mapped[str | None] = mapped_column(String(255), nullable=True)
+    card_show_technical_area: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        default=True,
+        server_default="true",
+    )
+    card_technical_area_label: Mapped[str | None] = mapped_column(String(100), nullable=True)
+
     # Identidad institucional general
     philosophy: Mapped[str | None] = mapped_column(Text, nullable=True)
     mission: Mapped[str | None] = mapped_column(Text, nullable=True)

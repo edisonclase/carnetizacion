@@ -16,6 +16,15 @@ def _normalize_optional_string(value: str | None) -> str | None:
     return value if value else None
 
 
+ALLOWED_CARD_DESIGN_KEYS = {
+    "classic_green_v1",
+    "prestige_clean_v1",
+    "nova_modern_v1",
+    "premium_institutional_v1",
+    "tech_modern_v1",
+}
+
+
 class CenterBase(BaseModel):
     name: str
     code: str
@@ -32,6 +41,10 @@ class CenterBase(BaseModel):
     # Configuración de diseño del carnet
     card_design_key: str = "classic_green_v1"
     show_full_card_identity: bool = True
+    card_loss_notice: str | None = None
+    card_loss_contact: str | None = None
+    card_show_technical_area: bool = True
+    card_technical_area_label: str | None = None
 
     # Identidad institucional general
     philosophy: str | None = None
@@ -87,6 +100,9 @@ class CenterBase(BaseModel):
         "card_vision",
         "card_values",
         "card_footer_text",
+        "card_loss_notice",
+        "card_loss_contact",
+        "card_technical_area_label",
         "motto",
         "address",
         "phone",
@@ -133,13 +149,8 @@ class CenterBase(BaseModel):
     @field_validator("card_design_key")
     @classmethod
     def validate_card_design_key(cls, value: str) -> str:
-        allowed = {
-            "classic_green_v1",
-            "prestige_clean_v1",
-            "nova_modern_v1",
-        }
         normalized = value.strip()
-        if normalized not in allowed:
+        if normalized not in ALLOWED_CARD_DESIGN_KEYS:
             raise ValueError("Diseño de carnet no válido.")
         return normalized
 
@@ -164,6 +175,10 @@ class CenterUpdate(BaseModel):
     # Configuración de diseño del carnet
     card_design_key: str | None = None
     show_full_card_identity: bool | None = None
+    card_loss_notice: str | None = None
+    card_loss_contact: str | None = None
+    card_show_technical_area: bool | None = None
+    card_technical_area_label: str | None = None
 
     # Identidad institucional general
     philosophy: str | None = None
@@ -219,6 +234,9 @@ class CenterUpdate(BaseModel):
         "card_vision",
         "card_values",
         "card_footer_text",
+        "card_loss_notice",
+        "card_loss_contact",
+        "card_technical_area_label",
         "motto",
         "address",
         "phone",
@@ -270,13 +288,8 @@ class CenterUpdate(BaseModel):
         if value is None:
             return None
 
-        allowed = {
-            "classic_green_v1",
-            "prestige_clean_v1",
-            "nova_modern_v1",
-        }
         normalized = value.strip()
-        if normalized not in allowed:
+        if normalized not in ALLOWED_CARD_DESIGN_KEYS:
             raise ValueError("Diseño de carnet no válido.")
         return normalized
 

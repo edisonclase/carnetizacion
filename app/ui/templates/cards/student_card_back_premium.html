@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reverso Carnet Premium</title>
+  <link rel="stylesheet" href="/static/cards/card_premium.css" />
+</head>
+<body
+  style="
+    --primary: {{ center_primary_color or '#0b3d24' }};
+    --secondary: {{ center_secondary_color or '#1f8f4a' }};
+    --accent: {{ center_accent_color or '#f4c95d' }};
+    --text: {{ center_text_color or '#1e1e1e' }};
+    --bg: {{ center_background_color or '#f7f8f7' }};
+  "
+>
+  <div class="id-card premium-card premium-back">
+    <div class="premium-shape premium-shape-top"></div>
+    <div class="premium-shape premium-shape-bottom"></div>
+
+    <div class="card-inner back-layout">
+      <header class="brand-header brand-header-back">
+        <div class="brand-main">
+          {% if center_logo_url %}
+            <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large" />
+          {% endif %}
+          <div class="brand-text-wrap">
+            <h1 class="center-name center-name-large">{{ center_name }}</h1>
+            {% if phone or email %}
+              <p class="brand-contact">
+                {% if phone %}{{ phone }}{% endif %}
+                {% if phone and email %} · {% endif %}
+                {% if email %}{{ email }}{% endif %}
+              </p>
+            {% endif %}
+          </div>
+        </div>
+      </header>
+
+      <section class="back-info-panel">
+        <h3 class="back-title">Identificación institucional</h3>
+        <p class="back-subtitle">Documento oficial de uso escolar</p>
+
+        <div class="back-content-block">
+          <p>
+            Este carnet es personal e intransferible. Su uso permite procesos de
+            identificación y control institucional dentro del centro educativo.
+          </p>
+          <p>
+            En caso de pérdida, debe notificarse inmediatamente a la institución.
+          </p>
+        </div>
+      </section>
+
+      <section class="back-student-summary">
+        <h2 class="student-name back-student-name">{{ student_full_name }}</h2>
+        <p class="student-role">{{ student_role_label }}</p>
+        <p class="student-cycle">{{ student_cycle_label }}</p>
+
+        {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
+          <p class="student-area">{{ student_technical_area }}</p>
+        {% endif %}
+      </section>
+
+      <footer class="card-footer premium-footer back-footer">
+        <div class="footer-badge footer-badge-wide">
+          <span>ID DEL ESTUDIANTE</span>
+          <strong>{{ student_code or student_id }}</strong>
+        </div>
+        <p class="footer-sign">{{ card_footer_text or 'by Aula Nova' }}</p>
+      </footer>
+    </div>
+  </div>
+</body>
+</html>

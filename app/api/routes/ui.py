@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
 from fastapi import Request
 from sqlalchemy.orm import Session
+import re
 
 from app.api.deps import get_db
 from app.models.card import Card
@@ -28,6 +29,25 @@ CARD_DESIGN_TEMPLATES = {
     "nova_modern_v1": {
         "front": "student_card_front.html",
         "back": "student_card_back.html",
+    },
+}
+
+
+CARD_PREVIEW_TEMPLATES = {
+    "classic_green_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+        "title": "Diseño actual",
+    },
+    "premium_institutional_v1": {
+        "front": "cards/student_card_front_premium.html",
+        "back": "cards/student_card_back_premium.html",
+        "title": "Premium institucional",
+    },
+    "tech_modern_v1": {
+        "front": "cards/student_card_front_tech.html",
+        "back": "cards/student_card_back_tech.html",
+        "title": "Moderno tecnológico",
     },
 }
 
@@ -83,6 +103,13 @@ def _resolve_card_design_templates(center: Center | None) -> dict:
     )
 
 
+def _resolve_preview_card_templates(design_key: str) -> dict:
+    return CARD_PREVIEW_TEMPLATES.get(
+        design_key,
+        CARD_PREVIEW_TEMPLATES["classic_green_v1"],
+    )
+
+
 def _resolve_card_text(
     center: Center | None,
     full_text: str | None,
@@ -97,6 +124,85 @@ def _resolve_card_text(
     if full_text:
         return full_text
     return fallback_text
+
+
+def _normalize_grade_value(value: str | None) -> str:
+    if not value:
+        return ""
+    return str(value).strip().lower()
+
+
+def _extract_grade_number(value: str | None) -> int | None:
+    normalized = _normalize_grade_value(value)
+    if not normalized:
+        return None
+
+    digit_match = re.search(r"\d+", normalized)
+    if digit_match:
+        try:
+            return int(digit_match.group())
+        except ValueError:
+            pass
+
+    mapping = {
+        "primero": 1,
+        "primer": 1,
+        "1ro": 1,
+        "1ero": 1,
+        "1er": 1,
+        "segundo": 2,
+        "2do": 2,
+        "tercero": 3,
+        "3ro": 3,
+        "cuarto": 4,
+        "4to": 4,
+        "quinto": 5,
+        "5to": 5,
+        "sexto": 6,
+        "6to": 6,
+    }
+
+    for key, number in mapping.items():
+        if key in normalized:
+            return number
+
+    return None
+
+
+def _build_cycle_label(grade: str | None) -> str:
+    grade_number = _extract_grade_number(grade)
+    if grade_number is None:
+        return "Ciclo no definido"
+    if grade_number in {1, 2, 3}:
+        return "Primer Ciclo"
+    return "Segundo Ciclo"
+
+
+def _pick_first_non_empty(*values) -> str | None:
+    for value in values:
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return None
+
+
+def _build_student_area_label(student: Student) -> str | None:
+    raw_value = _pick_first_non_empty(
+        getattr(student, "technical_area", None),
+        getattr(student, "technical_program", None),
+        getattr(student, "program_name", None),
+        getattr(student, "specialty", None),
+        getattr(student, "speciality", None),
+        getattr(student, "vocational_area", None),
+        getattr(student, "major_name", None),
+    )
+
+    if not raw_value:
+        return None
+
+    return raw_value
 
 
 def _build_center_theme(center: Center | None) -> dict:
@@ -189,9 +295,19 @@ def _build_student_card_data(
     if card and card.qr_token:
         qr_image_url = str(request.url_for("get_card_qr", card_id=card.id))
 
+    student_full_name = " ".join(
+        [
+            str(student.first_name or "").strip(),
+            str(student.last_name or "").strip(),
+        ]
+    ).strip()
+
+    cycle_label = _build_cycle_label(student.grade)
+    technical_area = _build_student_area_label(student)
+
     return {
         "student_id": student.id,
-        "student_full_name": f"{student.first_name} {student.last_name}",
+        "student_full_name": student_full_name,
         "student_code": student.student_code,
         "minerd_id": student.minerd_id,
         "grade": student.grade,
@@ -201,6 +317,28 @@ def _build_student_card_data(
         ),
         "student_photo_url": student.photo_path,
         "qr_image_url": qr_image_url,
+        "student_role_label": "Estudiante",
+        "student_cycle_label": cycle_label,
+        "student_technical_area": technical_area,
+        "student_cycle_and_area": (
+            f"{cycle_label} · {technical_area}"
+            if cycle_label == "Segundo Ciclo" and technical_area
+            else cycle_label
+        ),
+    }
+
+
+def _build_card_full_context(
+    request: Request,
+    db: Session,
+    student: Student,
+) -> dict:
+    center = db.query(Center).filter(Center.id == student.center_id).first()
+
+    return {
+        "request": request,
+        **_build_center_theme(center),
+        **_build_student_card_data(request=request, db=db, student=student),
     }
 
 
@@ -409,6 +547,123 @@ def student_card_back(
         request=request,
         name=templates_for_design["back"],
         context=context,
+    )
+
+
+@router.get("/preview/students/{student_id}/card/{design_key}/{side}", response_class=HTMLResponse)
+def student_card_preview_render(
+    request: Request,
+    student_id: int,
+    design_key: str,
+    side: str,
+    db: Session = Depends(get_db),
+):
+    student = _get_student_or_404(db, student_id)
+
+    side = side.lower().strip()
+    if side not in {"front", "back"}:
+        raise HTTPException(status_code=400, detail="El lado debe ser 'front' o 'back'.")
+
+    templates_for_design = _resolve_preview_card_templates(design_key)
+    context = _build_card_full_context(request=request, db=db, student=student)
+
+    return templates.TemplateResponse(
+        request=request,
+        name=templates_for_design[side],
+        context=context,
+    )
+
+
+@router.get("/preview/students/{student_id}/cards", response_class=HTMLResponse)
+def student_cards_preview_gallery(
+    request: Request,
+    student_id: int,
+    db: Session = Depends(get_db),
+):
+    student = _get_student_or_404(db, student_id)
+
+    center = db.query(Center).filter(Center.id == student.center_id).first()
+    school_year = (
+        db.query(SchoolYear)
+        .filter(SchoolYear.id == student.school_year_id)
+        .first()
+        if student.school_year_id
+        else None
+    )
+
+    preview_items = [
+        {
+            "title": "Diseño actual · Frente",
+            "subtitle": "Carnet vigente del sistema",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="classic_green_v1",
+                side="front",
+            ),
+        },
+        {
+            "title": "Diseño actual · Reverso",
+            "subtitle": "Carnet vigente del sistema",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="classic_green_v1",
+                side="back",
+            ),
+        },
+        {
+            "title": "Premium institucional · Frente",
+            "subtitle": "Imagen elegante y comercial",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="premium_institutional_v1",
+                side="front",
+            ),
+        },
+        {
+            "title": "Premium institucional · Reverso",
+            "subtitle": "Reverso institucional premium",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="premium_institutional_v1",
+                side="back",
+            ),
+        },
+        {
+            "title": "Moderno tecnológico · Frente",
+            "subtitle": "Estética SaaS y trazabilidad digital",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="tech_modern_v1",
+                side="front",
+            ),
+        },
+        {
+            "title": "Moderno tecnológico · Reverso",
+            "subtitle": "Reverso tecnológico",
+            "url": request.url_for(
+                "student_card_preview_render",
+                student_id=student.id,
+                design_key="tech_modern_v1",
+                side="back",
+            ),
+        },
+    ]
+
+    return templates.TemplateResponse(
+        request=request,
+        name="cards/card_preview_gallery.html",
+        context={
+            "request": request,
+            "student": student,
+            "center": center,
+            "school_year": school_year,
+            "preview_items": preview_items,
+        },
     )
 
 
