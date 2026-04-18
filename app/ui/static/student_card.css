@@ -213,8 +213,8 @@ body.card-body {
 }
 
 .card-content-strong {
-    padding: 2mm 2.9mm 2.8mm;
-    gap: 1.6mm;
+    padding: 1.9mm 2.9mm 4.2mm;
+    gap: 1.5mm;
 }
 
 .photo-block {
@@ -281,7 +281,7 @@ body.card-body {
 .student-info-strong h2 {
     font-size: 3.85mm;
     line-height: 1.05;
-    margin-bottom: 1.35mm;
+    margin-bottom: 1.2mm;
 }
 
 .info-grid {
@@ -304,9 +304,9 @@ body.card-body {
 }
 
 .info-grid-compact {
-    gap: 0.95mm;
-    font-size: 2.02mm;
-    padding: 1.8mm 1.95mm;
+    gap: 0.9mm;
+    font-size: 1.95mm;
+    padding: 1.7mm 1.85mm;
     border-radius: 2.5mm;
 }
 
@@ -316,11 +316,11 @@ body.card-body {
     align-items: center;
     gap: 0.9mm;
     margin-top: auto;
-    margin-bottom: 1.6mm;
+    margin-bottom: 0;
 }
 
 .qr-block-strong {
-    margin-bottom: 2.6mm;
+    margin-bottom: 0;
 }
 
 .qr-frame {
@@ -337,8 +337,8 @@ body.card-body {
 }
 
 .qr-frame-strong {
-    width: 17.2mm;
-    height: 17.2mm;
+    width: 16.2mm;
+    height: 16.2mm;
 }
 
 .qr-image {
@@ -363,8 +363,8 @@ body.card-body {
 }
 
 .qr-placeholder-strong {
-    width: 17.2mm;
-    height: 17.2mm;
+    width: 16.2mm;
+    height: 16.2mm;
 }
 
 .card-footer {

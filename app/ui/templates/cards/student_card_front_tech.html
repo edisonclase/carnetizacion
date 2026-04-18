@@ -55,10 +55,8 @@
 
         <div class="tech-info-panel">
           <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
-          <div class="row-inline">
-            <span><strong>Curso:</strong> {{ grade }}</span>
-            <span><strong>Sección:</strong> {{ section }}</span>
-          </div>
+          <div><strong>Curso:</strong> {{ grade }}</div>
+          <div><strong>Sección:</strong> {{ section }}</div>
           <div><strong>Año escolar:</strong> {{ school_year_name }}</div>
           {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
             <div><strong>{{ student_technical_area_label }}:</strong> {{ student_technical_area }}</div>

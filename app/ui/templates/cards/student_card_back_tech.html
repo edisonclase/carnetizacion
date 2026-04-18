@@ -8,14 +8,14 @@
 </head>
 <body
   style="
-    --primary: {{ center_primary_color or '#07111f' }};
-    --secondary: {{ center_secondary_color or '#1d4ed8' }};
+    --primary: {{ center_primary_color or '#000000' }};
+    --secondary: {{ center_secondary_color or '#111111' }};
     --accent: {{ center_accent_color or '#22c55e' }};
     --text: {{ center_text_color or '#e5eefb' }};
-    --bg: {{ center_background_color or '#07111f' }};
+    --bg: #000000;
   "
 >
-  <div class="id-card tech-card">
+  <div class="id-card tech-card tech-card-back-black">
     <div class="grid-overlay"></div>
     <div class="glow glow-left"></div>
     <div class="glow glow-right"></div>
@@ -28,7 +28,7 @@
       </header>
 
       <section class="tech-panels tech-panels-v2">
-        <div class="panel panel-unified-text panel-unified-text-v2 panel-unified-text-v2-lg">
+        <div class="panel panel-unified-text panel-unified-text-v2 panel-unified-text-v2-lg panel-unified-text-v2-black">
           <div class="panel-text-block">
             <span class="panel-title">Misión</span>
             <p>{{ mission or "-" }}</p>
@@ -45,7 +45,7 @@
           </div>
         </div>
 
-        <div class="panel panel-loss panel-loss-v2">
+        <div class="panel panel-loss panel-loss-v2 panel-loss-black">
           <p>{{ card_loss_notice }}</p>
           <p>{{ card_loss_contact }}</p>
         </div>

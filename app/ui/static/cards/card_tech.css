@@ -45,6 +45,13 @@ body {
   color: var(--text);
 }
 
+.tech-card-back-black {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(34, 197, 94, 0.10), transparent 26%),
+    radial-gradient(circle at 88% 10%, rgba(255, 255, 255, 0.04), transparent 22%),
+    linear-gradient(180deg, #000000, #020202);
+}
+
 .grid-overlay {
   position: absolute;
   inset: 0;
@@ -185,7 +192,7 @@ body {
   margin: 0.55mm 0 0;
   font-size: 1.75mm;
   line-height: 1.16;
-  color: rgba(255,255,255,0.92);
+  color: #dbeafe;
   text-shadow: 0 0 1mm rgba(0,0,0,0.45);
   font-weight: 700;
 }
@@ -194,7 +201,7 @@ body {
   margin: 0.55mm 0 0;
   font-size: 1.45mm;
   line-height: 1.2;
-  color: rgba(255,255,255,0.92);
+  color: #dbeafe;
   text-shadow: 0 0 1mm rgba(0,0,0,0.45);
   word-break: break-word;
 }
@@ -283,22 +290,16 @@ body {
 }
 
 .tech-info-panel {
-  margin-top: 1.35mm;
+  margin-top: 1.25mm;
   display: grid;
-  gap: 0.8mm;
+  gap: 0.75mm;
   text-align: left;
   background: rgba(255,255,255,0.08);
   border: 0.25mm solid rgba(255,255,255,0.12);
   border-radius: 2.5mm;
-  padding: 1.75mm 1.95mm;
-  font-size: 1.7mm;
-  line-height: 1.16;
-}
-
-.row-inline {
-  display: flex;
-  justify-content: space-between;
-  gap: 1.2mm;
+  padding: 1.6mm 1.85mm;
+  font-size: 1.66mm;
+  line-height: 1.14;
 }
 
 .tech-footer {
@@ -308,7 +309,7 @@ body {
 }
 
 .tech-footer-v2 {
-  padding-bottom: 2.6mm;
+  padding-bottom: 0;
 }
 
 .qr-box {
@@ -322,13 +323,13 @@ body {
 }
 
 .qr-box-large {
-  width: 15.5mm;
-  height: 15.5mm;
+  width: 15.1mm;
+  height: 15.1mm;
 }
 
 .qr-image {
-  width: 12.6mm;
-  height: 12.6mm;
+  width: 12.3mm;
+  height: 12.3mm;
   object-fit: contain;
 }
 
@@ -337,7 +338,7 @@ body {
 }
 
 .back-tech-layout-v2 {
-  padding-top: 4.2mm;
+  padding-top: 3.5mm;
 }
 
 .back-tech-logo-wrap {
@@ -360,7 +361,8 @@ body {
 }
 
 .tech-panels-v2 {
-  margin-top: 2.2mm;
+  margin-top: 1.5mm;
+  gap: 1mm;
 }
 
 .panel {
@@ -387,15 +389,20 @@ body {
 }
 
 .panel-unified-text-v2-lg {
-  padding: 2.5mm 2.15mm;
-  gap: 1.4mm;
+  padding: 3mm 2.4mm;
+  gap: 1.7mm;
+}
+
+.panel-unified-text-v2-black {
+  background: rgba(255,255,255,0.03);
+  border-color: rgba(255,255,255,0.10);
 }
 
 .panel-title {
   display: block;
   margin-bottom: 0.45mm;
-  font-size: 1.65mm;
-  color: var(--muted);
+  font-size: 1.7mm;
+  color: #dbeafe;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   text-align: center;
@@ -404,8 +411,8 @@ body {
 
 .panel-text-block p {
   text-align: center;
-  font-size: 1.82mm;
-  line-height: 1.2;
+  font-size: 1.95mm;
+  line-height: 1.22;
 }
 
 .panel-loss p {
@@ -418,13 +425,18 @@ body {
 }
 
 .panel-loss-v2 p {
-  font-size: 1.34mm;
+  font-size: 1.32mm;
   line-height: 1.12;
+}
+
+.panel-loss-black {
+  background: rgba(255,255,255,0.02);
+  border-color: rgba(255,255,255,0.08);
 }
 
 .tech-bottom-note {
   text-align: center;
-  margin-top: 1.2mm;
+  margin-top: 1mm;
 }
 
 .tech-bottom-note p {
