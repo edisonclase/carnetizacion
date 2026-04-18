@@ -25,7 +25,7 @@ body {
   padding: 0;
   width: 53.98mm;
   height: 85.6mm;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background: transparent;
 }
 
@@ -148,16 +148,16 @@ body {
 .tech-photo-section {
   display: flex;
   justify-content: center;
-  margin-top: 2.8mm;
+  margin-top: 2.5mm;
 }
 
 .photo-shell {
   overflow: hidden;
 }
 
-.photo-shell-circle {
-  width: 26mm;
-  height: 26mm;
+.photo-shell-circle-large {
+  width: 28mm;
+  height: 28mm;
   padding: 1mm;
   border-radius: 50%;
   background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.06));
@@ -174,8 +174,8 @@ body {
   background: rgba(255,255,255,0.08);
 }
 
-.photo-shell-circle .student-photo,
-.photo-shell-circle .photo-placeholder {
+.photo-shell-circle-large .student-photo,
+.photo-shell-circle-large .photo-placeholder {
   border-radius: 50%;
 }
 
@@ -199,7 +199,7 @@ body {
 
 .tech-student-name {
   margin: 0;
-  font-size: 3.9mm;
+  font-size: 3.85mm;
   line-height: 1.08;
   font-weight: 900;
   color: var(--text);
@@ -223,7 +223,7 @@ body {
 
 .tech-student-area {
   margin: 0.8mm 0 0;
-  font-size: 1.8mm;
+  font-size: 1.78mm;
   font-weight: 700;
   color: var(--muted);
   line-height: 1.15;
@@ -275,78 +275,83 @@ body {
   color: var(--text);
 }
 
-.tech-footer-text p {
-  margin: 0.8mm 0 0;
-  font-size: 1.55mm;
-  color: var(--muted);
-}
-
 .back-tech-layout {
   justify-content: space-between;
 }
 
 .tech-panels {
-  margin-top: 2.4mm;
+  margin-top: 1.9mm;
   display: grid;
-  gap: 1.3mm;
+  gap: 1.2mm;
 }
 
 .panel {
-  padding: 1.7mm;
+  padding: 1.6mm;
   border-radius: 2.3mm;
   background: var(--panel);
   border: 0.25mm solid var(--panel-border);
 }
 
-.panel-label {
-  display: block;
-  margin-bottom: 0.5mm;
-  font-size: 1.45mm;
-  color: var(--muted);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
 .panel strong {
   display: block;
-  font-size: 2.1mm;
+  font-size: 2.05mm;
   line-height: 1.12;
 }
 
 .panel p {
-  margin: 0.6mm 0 0;
-  font-size: 1.7mm;
-  line-height: 1.2;
+  margin: 0.55mm 0 0;
+  font-size: 1.6mm;
+  line-height: 1.18;
 }
 
-.panel.dual {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1mm;
+.panel-identity {
+  text-align: center;
 }
 
-.legal-panel {
-  margin-top: 1.8mm;
-  padding: 1.6mm;
-  border-radius: 2mm;
-  background: rgba(255, 255, 255, 0.05);
-  border: 0.25mm solid rgba(255, 255, 255, 0.1);
+.panel-unified-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1mm;
 }
 
-.legal-panel p {
-  margin: 0;
-  font-size: 1.65mm;
-  line-height: 1.22;
+.panel-title {
+  display: block;
+  margin-bottom: 0.4mm;
+  font-size: 1.55mm;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.panel-text-block p {
+  text-align: center;
+}
+
+.panel-loss p {
+  text-align: center;
   color: var(--muted);
 }
 
 .tech-bottom-note {
-  text-align: right;
-  margin-top: 1.6mm;
+  text-align: center;
+  margin-top: 1.4mm;
 }
 
 .tech-bottom-note p {
   margin: 0;
-  font-size: 1.55mm;
+  font-size: 1.5mm;
   color: var(--muted);
+}
+
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .id-card {
+    box-shadow: none;
+  }
 }

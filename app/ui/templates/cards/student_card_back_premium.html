@@ -38,36 +38,41 @@
         </div>
       </header>
 
-      <section class="back-info-panel">
-        <h3 class="back-title">Identificación institucional</h3>
-        <p class="back-subtitle">Documento oficial de uso escolar</p>
-
-        <div class="back-content-block">
-          <p>
-            Este carnet es personal e intransferible. Su uso permite procesos de
-            identificación y control institucional dentro del centro educativo.
-          </p>
-          <p>
-            En caso de pérdida, debe notificarse inmediatamente a la institución.
-          </p>
-        </div>
-      </section>
-
-      <section class="back-student-summary">
+      <section class="back-identity-box">
         <h2 class="student-name back-student-name">{{ student_full_name }}</h2>
         <p class="student-role">{{ student_role_label }}</p>
         <p class="student-cycle">{{ student_cycle_label }}</p>
 
         {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-          <p class="student-area">{{ student_technical_area }}</p>
+          <p class="student-area">{{ student_technical_area_label }}: {{ student_technical_area }}</p>
         {% endif %}
       </section>
 
-      <footer class="card-footer premium-footer back-footer">
-        <div class="footer-badge footer-badge-wide">
-          <span>ID DEL ESTUDIANTE</span>
-          <strong>{{ student_code or student_id }}</strong>
+      <section class="back-info-panel back-info-panel-compact">
+        <div class="back-identity-text-block">
+          <div class="back-single-section">
+            <h3>Misión</h3>
+            <p>{{ mission or "-" }}</p>
+          </div>
+
+          <div class="back-single-section">
+            <h3>Visión</h3>
+            <p>{{ vision or "-" }}</p>
+          </div>
+
+          <div class="back-single-section">
+            <h3>Valores</h3>
+            <p>{{ values or "-" }}</p>
+          </div>
         </div>
+      </section>
+
+      <section class="loss-contact-box">
+        <p>{{ card_loss_notice }}</p>
+        <p>{{ card_loss_contact }}</p>
+      </section>
+
+      <footer class="card-footer premium-footer back-footer">
         <p class="footer-sign">{{ card_footer_text or 'by Aula Nova' }}</p>
       </footer>
     </div>

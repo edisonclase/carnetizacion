@@ -40,40 +40,35 @@
       </header>
 
       <section class="tech-panels">
-        <div class="panel">
-          <span class="panel-label">Titular</span>
+        <div class="panel panel-identity">
           <strong>{{ student_full_name }}</strong>
           <p>{{ student_role_label }} · {{ student_cycle_label }}</p>
           {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-            <p>{{ student_technical_area }}</p>
+            <p>{{ student_technical_area_label }}: {{ student_technical_area }}</p>
           {% endif %}
         </div>
 
-        <div class="panel">
-          <span class="panel-label">Uso institucional</span>
-          <p>
-            Este documento habilita procesos de identificación, validación y
-            control de acceso dentro del centro educativo.
-          </p>
-        </div>
-
-        <div class="panel dual">
-          <div>
-            <span class="panel-label">Código</span>
-            <strong>{{ student_code or student_id }}</strong>
+        <div class="panel panel-unified-text">
+          <div class="panel-text-block">
+            <span class="panel-title">Misión</span>
+            <p>{{ mission or "-" }}</p>
           </div>
-          <div>
-            <span class="panel-label">Estado</span>
-            <strong>ACTIVO</strong>
+
+          <div class="panel-text-block">
+            <span class="panel-title">Visión</span>
+            <p>{{ vision or "-" }}</p>
+          </div>
+
+          <div class="panel-text-block">
+            <span class="panel-title">Valores</span>
+            <p>{{ values or "-" }}</p>
           </div>
         </div>
-      </section>
 
-      <section class="legal-panel">
-        <p>
-          El uso del carnet puede generar eventos de acceso y asistencia conforme
-          a las políticas operativas del centro educativo.
-        </p>
+        <div class="panel panel-loss">
+          <p>{{ card_loss_notice }}</p>
+          <p>{{ card_loss_contact }}</p>
+        </div>
       </section>
 
       <footer class="tech-bottom-note">

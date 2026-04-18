@@ -30,6 +30,14 @@ CARD_DESIGN_TEMPLATES = {
         "front": "student_card_front.html",
         "back": "student_card_back.html",
     },
+    "premium_institutional_v1": {
+        "front": "cards/student_card_front_premium.html",
+        "back": "cards/student_card_back_premium.html",
+    },
+    "tech_modern_v1": {
+        "front": "cards/student_card_front_tech.html",
+        "back": "cards/student_card_back_tech.html",
+    },
 }
 
 
@@ -38,6 +46,16 @@ CARD_PREVIEW_TEMPLATES = {
         "front": "student_card_front.html",
         "back": "student_card_back.html",
         "title": "Diseño actual",
+    },
+    "prestige_clean_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+        "title": "Prestige Clean v1",
+    },
+    "nova_modern_v1": {
+        "front": "student_card_front.html",
+        "back": "student_card_back.html",
+        "title": "Nova Modern v1",
     },
     "premium_institutional_v1": {
         "front": "cards/student_card_front_premium.html",
@@ -49,6 +67,12 @@ CARD_PREVIEW_TEMPLATES = {
         "back": "cards/student_card_back_tech.html",
         "title": "Moderno tecnológico",
     },
+}
+
+
+NEW_PREMIUM_DESIGNS = {
+    "premium_institutional_v1",
+    "tech_modern_v1",
 }
 
 
@@ -268,6 +292,30 @@ def _build_center_theme(center: Center | None) -> dict:
             if center and center.card_footer_text
             else "by Aula Nova"
         ),
+        "card_loss_notice": (
+            center.card_loss_notice
+            if center and getattr(center, "card_loss_notice", None)
+            else "Si encuentra este carnet, favor devolverlo al centro."
+        ),
+        "card_loss_contact": (
+            center.card_loss_contact
+            if center and getattr(center, "card_loss_contact", None)
+            else _pick_first_non_empty(
+                center.phone if center else None,
+                center.email if center else None,
+                "Contacte al centro educativo.",
+            )
+        ),
+        "card_show_technical_area": (
+            bool(center.card_show_technical_area)
+            if center and hasattr(center, "card_show_technical_area")
+            else True
+        ),
+        "card_technical_area_label": (
+            center.card_technical_area_label
+            if center and getattr(center, "card_technical_area_label", None)
+            else "Área técnica"
+        ),
         "report_footer_text": (
             center.report_footer_text
             if center and getattr(center, "report_footer_text", None)
@@ -289,6 +337,8 @@ def _build_student_card_data(
         .first()
     )
 
+    center = db.query(Center).filter(Center.id == student.center_id).first()
+
     card = _get_latest_card_for_student(db, student.id)
 
     qr_image_url = None
@@ -305,6 +355,21 @@ def _build_student_card_data(
     cycle_label = _build_cycle_label(student.grade)
     technical_area = _build_student_area_label(student)
 
+    show_technical_area = (
+        bool(center.card_show_technical_area)
+        if center and hasattr(center, "card_show_technical_area")
+        else True
+    )
+
+    if not show_technical_area:
+        technical_area = None
+
+    technical_area_label = (
+        center.card_technical_area_label
+        if center and getattr(center, "card_technical_area_label", None)
+        else "Área técnica"
+    )
+
     return {
         "student_id": student.id,
         "student_full_name": student_full_name,
@@ -320,6 +385,7 @@ def _build_student_card_data(
         "student_role_label": "Estudiante",
         "student_cycle_label": cycle_label,
         "student_technical_area": technical_area,
+        "student_technical_area_label": technical_area_label,
         "student_cycle_and_area": (
             f"{cycle_label} · {technical_area}"
             if cycle_label == "Segundo Ciclo" and technical_area
@@ -340,6 +406,15 @@ def _build_card_full_context(
         **_build_center_theme(center),
         **_build_student_card_data(request=request, db=db, student=student),
     }
+
+
+def _design_requires_full_back_context(center: Center | None) -> bool:
+    design_key = (
+        center.card_design_key
+        if center and getattr(center, "card_design_key", None)
+        else "classic_green_v1"
+    )
+    return design_key in NEW_PREMIUM_DESIGNS
 
 
 def _chunk_list(items: list, chunk_size: int) -> list[list]:
@@ -537,11 +612,18 @@ def student_card_back(
     center = db.query(Center).filter(Center.id == student.center_id).first()
     templates_for_design = _resolve_card_design_templates(center)
 
-    context = {
-        "request": request,
-        **_build_center_theme(center),
-        "student_id": student.id,
-    }
+    if _design_requires_full_back_context(center):
+        context = {
+            "request": request,
+            **_build_center_theme(center),
+            **_build_student_card_data(request=request, db=db, student=student),
+        }
+    else:
+        context = {
+            "request": request,
+            **_build_center_theme(center),
+            "student_id": student.id,
+        }
 
     return templates.TemplateResponse(
         request=request,
@@ -593,8 +675,8 @@ def student_cards_preview_gallery(
 
     preview_items = [
         {
-            "title": "Diseño actual · Frente",
-            "subtitle": "Carnet vigente del sistema",
+            "title": "Classic Green v1 · Frente",
+            "subtitle": "Diseño actual operativo",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,
@@ -603,8 +685,8 @@ def student_cards_preview_gallery(
             ),
         },
         {
-            "title": "Diseño actual · Reverso",
-            "subtitle": "Carnet vigente del sistema",
+            "title": "Classic Green v1 · Reverso",
+            "subtitle": "Diseño actual operativo",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,
@@ -614,7 +696,7 @@ def student_cards_preview_gallery(
         },
         {
             "title": "Premium institucional · Frente",
-            "subtitle": "Imagen elegante y comercial",
+            "subtitle": "Institucional, elegante y comercial",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,
@@ -624,7 +706,7 @@ def student_cards_preview_gallery(
         },
         {
             "title": "Premium institucional · Reverso",
-            "subtitle": "Reverso institucional premium",
+            "subtitle": "Reverso premium con identidad del centro",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,
@@ -633,8 +715,8 @@ def student_cards_preview_gallery(
             ),
         },
         {
-            "title": "Moderno tecnológico · Frente",
-            "subtitle": "Estética SaaS y trazabilidad digital",
+            "title": "Tech Modern · Frente",
+            "subtitle": "Tecnológico, premium y digital",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,
@@ -643,8 +725,8 @@ def student_cards_preview_gallery(
             ),
         },
         {
-            "title": "Moderno tecnológico · Reverso",
-            "subtitle": "Reverso tecnológico",
+            "title": "Tech Modern · Reverso",
+            "subtitle": "Reverso tecnológico institucional",
             "url": request.url_for(
                 "student_card_preview_render",
                 student_id=student.id,

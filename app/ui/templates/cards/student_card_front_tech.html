@@ -40,7 +40,7 @@
       </header>
 
       <section class="tech-photo-section">
-        <div class="photo-shell photo-shell-circle">
+        <div class="photo-shell photo-shell-circle-large">
           {% if student_photo_url %}
             <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-circle-top" />
           {% else %}
@@ -55,7 +55,9 @@
         <p class="student-cycle tech-student-cycle">{{ student_cycle_label }}</p>
 
         {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-          <p class="student-area tech-student-area">{{ student_technical_area }}</p>
+          <p class="student-area tech-student-area">
+            {{ student_technical_area_label }}: {{ student_technical_area }}
+          </p>
         {% endif %}
       </section>
 
@@ -69,7 +71,6 @@
         <div class="tech-footer-text">
           <span>ID institucional</span>
           <strong>{{ student_code or student_id }}</strong>
-          <p>{{ card_footer_text or 'by Aula Nova' }}</p>
         </div>
       </footer>
     </div>

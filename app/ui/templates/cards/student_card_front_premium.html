@@ -39,9 +39,9 @@
       </header>
 
       <section class="photo-section">
-        <div class="photo-frame premium-photo-rect">
+        <div class="photo-frame premium-photo-circle">
           {% if student_photo_url %}
-            <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo" />
+            <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-circle-top" />
           {% else %}
             <div class="photo-placeholder">FOTO</div>
           {% endif %}
@@ -54,7 +54,9 @@
         <p class="student-cycle">{{ student_cycle_label }}</p>
 
         {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-          <p class="student-area">{{ student_technical_area }}</p>
+          <p class="student-area">
+            {{ student_technical_area_label }}: {{ student_technical_area }}
+          </p>
         {% endif %}
       </section>
 

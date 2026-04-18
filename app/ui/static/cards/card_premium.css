@@ -24,7 +24,7 @@ body {
   padding: 0;
   width: 53.98mm;
   height: 85.6mm;
-  font-family: "Inter", "Segoe UI", sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   background: transparent;
 }
 
@@ -106,13 +106,13 @@ body {
 }
 
 .center-name-large {
-  font-size: 3.15mm;
+  font-size: 3.2mm;
   color: var(--primary);
 }
 
 .brand-contact {
   margin: 0.7mm 0 0;
-  font-size: 1.7mm;
+  font-size: 1.75mm;
   color: var(--muted);
   line-height: 1.2;
   word-break: break-word;
@@ -121,7 +121,7 @@ body {
 .photo-section {
   display: flex;
   justify-content: center;
-  margin-top: 2.5mm;
+  margin-top: 2.4mm;
 }
 
 .photo-frame {
@@ -130,11 +130,11 @@ body {
   box-shadow: 0 2mm 4mm rgba(0, 0, 0, 0.14);
 }
 
-.premium-photo-rect {
-  width: 26mm;
-  height: 32mm;
+.premium-photo-circle {
+  width: 28mm;
+  height: 28mm;
   padding: 1mm;
-  border-radius: 4mm;
+  border-radius: 50%;
 }
 
 .student-photo,
@@ -146,9 +146,13 @@ body {
   background: #edf2ed;
 }
 
-.premium-photo-rect .student-photo,
-.premium-photo-rect .photo-placeholder {
-  border-radius: 3.2mm;
+.premium-photo-circle .student-photo,
+.premium-photo-circle .photo-placeholder {
+  border-radius: 50%;
+}
+
+.student-photo-circle-top {
+  object-position: center top;
 }
 
 .photo-placeholder {
@@ -161,7 +165,7 @@ body {
 }
 
 .identity-section {
-  margin-top: 2.4mm;
+  margin-top: 2.3mm;
   text-align: center;
 }
 
@@ -175,7 +179,7 @@ body {
 
 .student-role {
   margin: 0.9mm 0 0;
-  font-size: 2.1mm;
+  font-size: 2.05mm;
   color: var(--secondary);
   font-weight: 800;
   text-transform: uppercase;
@@ -191,7 +195,7 @@ body {
 
 .student-area {
   margin: 0.8mm 0 0;
-  font-size: 1.85mm;
+  font-size: 1.8mm;
   color: var(--muted);
   font-weight: 700;
   line-height: 1.15;
@@ -253,65 +257,92 @@ body {
   line-height: 1.1;
 }
 
-.footer-badge-wide {
-  text-align: center;
-}
-
 .back-layout {
   justify-content: space-between;
 }
 
-.back-info-panel {
-  margin-top: 2.2mm;
-  padding: 2.2mm;
-  border-radius: 3mm;
-  background: rgba(255, 255, 255, 0.9);
-  border: 0.25mm solid var(--line-soft);
-}
-
-.back-title {
-  margin: 0;
-  font-size: 2.8mm;
-  color: var(--primary);
-  font-weight: 900;
-}
-
-.back-subtitle {
-  margin: 0.8mm 0 0;
-  font-size: 1.9mm;
-  color: var(--secondary);
-  font-weight: 700;
-}
-
-.back-content-block {
-  margin-top: 1.6mm;
-}
-
-.back-content-block p {
-  margin: 0 0 1.1mm;
-  font-size: 1.8mm;
-  line-height: 1.25;
-  color: var(--text);
-}
-
-.back-student-summary {
-  margin-top: 2.2mm;
+.back-identity-box {
+  margin-top: 1.8mm;
   text-align: center;
 }
 
 .back-student-name {
-  font-size: 3.6mm;
+  font-size: 3.5mm;
+}
+
+.back-info-panel {
+  margin-top: 1.8mm;
+  padding: 2mm;
+  border-radius: 3mm;
+  background: rgba(255, 255, 255, 0.94);
+  border: 0.25mm solid var(--line-soft);
+  box-shadow: 0 1.2mm 2.6mm rgba(0, 0, 0, 0.06);
+}
+
+.back-info-panel-compact {
+  padding: 1.8mm 2mm;
+}
+
+.back-identity-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2mm;
+}
+
+.back-single-section h3 {
+  margin: 0 0 0.45mm;
+  font-size: 2.15mm;
+  color: var(--primary);
+  font-weight: 900;
+  text-align: center;
+}
+
+.back-single-section p {
+  margin: 0;
+  font-size: 1.58mm;
+  line-height: 1.22;
+  text-align: center;
+  color: var(--text);
+}
+
+.loss-contact-box {
+  margin-top: 1.6mm;
+  padding: 1.6mm 1.8mm;
+  border-radius: 2.4mm;
+  background: rgba(255,255,255,0.88);
+  border: 0.25mm solid var(--line-soft);
+}
+
+.loss-contact-box p {
+  margin: 0 0 0.6mm;
+  font-size: 1.5mm;
+  line-height: 1.15;
+  text-align: center;
+  color: var(--muted);
+}
+
+.loss-contact-box p:last-child {
+  margin-bottom: 0;
 }
 
 .back-footer {
-  display: flex;
-  flex-direction: column;
-  gap: 1mm;
+  justify-content: center;
 }
 
 .footer-sign {
   margin: 0;
-  font-size: 1.7mm;
+  font-size: 1.55mm;
   color: var(--muted);
   text-align: center;
+}
+
+@media print {
+  body {
+    background: white;
+    padding: 0;
+  }
+
+  .id-card {
+    box-shadow: none;
+  }
 }

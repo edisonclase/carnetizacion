@@ -154,9 +154,9 @@
     <p>Vista comparativa de diseños activos y nuevos estilos premium para validación visual.</p>
 
     <div class="student-meta">
-      <span><strong>Estudiante:</strong> {{ student.full_name }}</span>
+      <span><strong>Estudiante:</strong> {{ student.first_name }} {{ student.last_name }}</span>
       <span><strong>Código:</strong> {{ student.student_code or student.id }}</span>
-      <span><strong>Centro:</strong> {{ center.name }}</span>
+      <span><strong>Centro:</strong> {{ center.name if center else '-' }}</span>
       <span><strong>Año escolar:</strong> {{ school_year.name if school_year else 'Activo' }}</span>
     </div>
   </header>
@@ -176,7 +176,7 @@
   </section>
 
   <div class="actions">
-    <a href="/dashboard">Volver al dashboard</a>
+    <a href="/admin/students">Volver a estudiantes</a>
     <a href="/admin/students/{{ student.id }}/print" class="secondary">Ir al carnet actual</a>
   </div>
 </body>
