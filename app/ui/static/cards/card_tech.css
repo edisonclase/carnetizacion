@@ -139,9 +139,17 @@ body {
   padding: 0.7mm;
 }
 
+.no-logo-header .brand-main {
+  display: block;
+}
+
 .brand-text-wrap {
   min-width: 0;
   flex: 1;
+}
+
+.brand-text-wrap-full {
+  width: 100%;
 }
 
 .center-name {
@@ -158,6 +166,10 @@ body {
   color: var(--text);
 }
 
+.tech-center-name-strong {
+  font-size: 3.35mm;
+}
+
 .brand-contact {
   margin: 0.65mm 0 0;
   line-height: 1.2;
@@ -169,6 +181,24 @@ body {
   color: var(--muted);
 }
 
+.center-motto {
+  margin: 0.55mm 0 0;
+  font-size: 1.75mm;
+  line-height: 1.16;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 0 1mm rgba(0,0,0,0.45);
+  font-weight: 700;
+}
+
+.center-contact {
+  margin: 0.55mm 0 0;
+  font-size: 1.45mm;
+  line-height: 1.2;
+  color: rgba(255,255,255,0.92);
+  text-shadow: 0 0 1mm rgba(0,0,0,0.45);
+  word-break: break-word;
+}
+
 .tech-photo-section {
   display: flex;
   justify-content: center;
@@ -176,7 +206,7 @@ body {
 }
 
 .tech-photo-section-v2 {
-  margin-top: 2.2mm;
+  margin-top: 2mm;
 }
 
 .photo-shell {
@@ -194,8 +224,8 @@ body {
 }
 
 .photo-shell-circle-xl {
-  width: 29.5mm;
-  height: 29.5mm;
+  width: 29.8mm;
+  height: 29.8mm;
   padding: 1.1mm;
 }
 
@@ -232,12 +262,12 @@ body {
 }
 
 .tech-identity-v2 {
-  margin-top: 2.2mm;
+  margin-top: 2mm;
 }
 
 .tech-student-name {
   margin: 0;
-  font-size: 3.7mm;
+  font-size: 4.15mm;
   line-height: 1.08;
   font-weight: 900;
   color: var(--text);
@@ -253,16 +283,22 @@ body {
 }
 
 .tech-info-panel {
-  margin-top: 1.5mm;
+  margin-top: 1.35mm;
   display: grid;
-  gap: 0.85mm;
+  gap: 0.8mm;
   text-align: left;
   background: rgba(255,255,255,0.08);
   border: 0.25mm solid rgba(255,255,255,0.12);
   border-radius: 2.5mm;
-  padding: 1.8mm 2mm;
-  font-size: 1.72mm;
+  padding: 1.75mm 1.95mm;
+  font-size: 1.7mm;
   line-height: 1.16;
+}
+
+.row-inline {
+  display: flex;
+  justify-content: space-between;
+  gap: 1.2mm;
 }
 
 .tech-footer {
@@ -272,7 +308,7 @@ body {
 }
 
 .tech-footer-v2 {
-  padding-bottom: 0.8mm;
+  padding-bottom: 2.6mm;
 }
 
 .qr-box {
@@ -324,7 +360,7 @@ body {
 }
 
 .tech-panels-v2 {
-  margin-top: 2.4mm;
+  margin-top: 2.2mm;
 }
 
 .panel {
@@ -350,10 +386,15 @@ body {
   padding: 1.9mm 1.8mm;
 }
 
+.panel-unified-text-v2-lg {
+  padding: 2.5mm 2.15mm;
+  gap: 1.4mm;
+}
+
 .panel-title {
   display: block;
   margin-bottom: 0.45mm;
-  font-size: 1.55mm;
+  font-size: 1.65mm;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.4px;
@@ -363,6 +404,8 @@ body {
 
 .panel-text-block p {
   text-align: center;
+  font-size: 1.82mm;
+  line-height: 1.2;
 }
 
 .panel-loss p {
@@ -375,13 +418,13 @@ body {
 }
 
 .panel-loss-v2 p {
-  font-size: 1.35mm;
+  font-size: 1.34mm;
   line-height: 1.12;
 }
 
 .tech-bottom-note {
   text-align: center;
-  margin-top: 1.3mm;
+  margin-top: 1.2mm;
 }
 
 .tech-bottom-note p {

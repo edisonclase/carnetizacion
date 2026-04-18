@@ -94,7 +94,7 @@ body.card-body {
     gap: 2.8mm;
     padding-top: 3mm;
     padding-bottom: 2.4mm;
-    min-height: 20mm;
+    min-height: 18mm;
 }
 
 .card-logo-badge {
@@ -167,13 +167,6 @@ body.card-body {
     line-height: 1.04;
 }
 
-.card-brand-copy-back-xl h1 {
-    font-size: 3.55mm;
-    font-weight: 900;
-    line-height: 1.02;
-    text-align: center;
-}
-
 .card-brand-meta {
     margin-top: 0.55mm;
     display: flex;
@@ -194,8 +187,15 @@ body.card-body {
     line-height: 1.12;
 }
 
+.card-brand-meta-inline {
+    flex-direction: row;
+    gap: 1.4mm;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
 .header-card-title {
-    margin: 0.8mm 0 0 !important;
+    margin: 0.35mm 0 0 !important;
     font-size: 1.95mm !important;
     line-height: 1.08 !important;
     color: var(--card-primary, #1f8f4a) !important;
@@ -213,8 +213,8 @@ body.card-body {
 }
 
 .card-content-strong {
-    padding: 2.2mm 2.9mm 1.8mm;
-    gap: 1.8mm;
+    padding: 2mm 2.9mm 2.8mm;
+    gap: 1.6mm;
 }
 
 .photo-block {
@@ -225,7 +225,7 @@ body.card-body {
 }
 
 .photo-block-strong {
-    margin-top: 0.2mm;
+    margin-top: 0.1mm;
 }
 
 .student-photo {
@@ -240,8 +240,8 @@ body.card-body {
 }
 
 .student-photo-xl {
-    width: 24mm;
-    height: 24mm;
+    width: 24.8mm;
+    height: 24.8mm;
     border-width: 1.1mm;
 }
 
@@ -259,8 +259,8 @@ body.card-body {
 }
 
 .photo-placeholder-xl {
-    width: 24mm;
-    height: 24mm;
+    width: 24.8mm;
+    height: 24.8mm;
     font-size: 2.1mm;
     border-width: 0.7mm;
 }
@@ -279,9 +279,9 @@ body.card-body {
 }
 
 .student-info-strong h2 {
-    font-size: 3.75mm;
+    font-size: 3.85mm;
     line-height: 1.05;
-    margin-bottom: 1.5mm;
+    margin-bottom: 1.35mm;
 }
 
 .info-grid {
@@ -304,9 +304,9 @@ body.card-body {
 }
 
 .info-grid-compact {
-    gap: 1mm;
-    font-size: 2.05mm;
-    padding: 1.9mm 2mm;
+    gap: 0.95mm;
+    font-size: 2.02mm;
+    padding: 1.8mm 1.95mm;
     border-radius: 2.5mm;
 }
 
@@ -320,7 +320,7 @@ body.card-body {
 }
 
 .qr-block-strong {
-    margin-bottom: 1.2mm;
+    margin-bottom: 2.6mm;
 }
 
 .qr-frame {
@@ -395,8 +395,8 @@ body.card-body {
 }
 
 .card-back-content-strong {
-    padding: 2.2mm 2.6mm 1.1mm;
-    gap: 1.2mm;
+    padding: 2.1mm 2.4mm 0.8mm;
+    gap: 0.95mm;
 }
 
 .back-section {
@@ -412,7 +412,7 @@ body.card-body {
 .back-section-strong {
     border-left-width: 1mm;
     border-radius: 1.8mm;
-    padding: 1.25mm 1.45mm 1.1mm;
+    padding: 1.3mm 1.45mm 1.15mm;
 }
 
 .back-section h3 {
@@ -424,8 +424,8 @@ body.card-body {
 }
 
 .back-section-strong h3 {
-    font-size: 2.2mm;
-    margin-bottom: 0.45mm;
+    font-size: 2.25mm;
+    margin-bottom: 0.35mm;
     text-align: center;
     font-weight: 800;
 }
@@ -441,20 +441,22 @@ body.card-body {
 }
 
 .back-section-strong p {
-    font-size: 1.7mm;
-    line-height: 1.18;
+    font-size: 1.82mm;
+    line-height: 1.16;
+    text-align: center;
 }
 
 .loss-strip {
-    padding: 0.9mm 1.8mm 0.8mm;
+    margin-top: auto;
+    padding: 0.8mm 1.8mm 0.95mm;
     text-align: center;
     color: #64748b;
 }
 
 .loss-strip p {
-    margin: 0 0 0.35mm;
-    font-size: 1.22mm;
-    line-height: 1.08;
+    margin: 0 0 0.28mm;
+    font-size: 1.18mm;
+    line-height: 1.06;
 }
 
 .loss-strip p:last-child {

@@ -23,21 +23,19 @@
     <div class="student-vertical-band">ESTUDIANTE</div>
 
     <div class="card-inner tech-front-layout tech-front-layout-v2">
-      <header class="brand-header brand-header-tech brand-header-tech-v2">
-        <div class="brand-main">
-          {% if center_logo_url %}
-            <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large tech-logo" />
+      <header class="brand-header brand-header-tech brand-header-tech-v2 no-logo-header">
+        <div class="brand-text-wrap brand-text-wrap-full">
+          <h1 class="center-name center-name-large tech-center-name tech-center-name-strong">{{ center_name }}</h1>
+          {% if motto %}
+            <p class="center-motto">{{ motto }}</p>
           {% endif %}
-          <div class="brand-text-wrap">
-            <h1 class="center-name center-name-large tech-center-name">{{ center_name }}</h1>
-            {% if phone or email %}
-              <p class="brand-contact tech-brand-contact">
-                {% if phone %}{{ phone }}{% endif %}
-                {% if phone and email %} · {% endif %}
-                {% if email %}{{ email }}{% endif %}
-              </p>
-            {% endif %}
-          </div>
+          <p class="center-contact">
+            {% if phone %}{{ phone }}{% endif %}
+            {% if phone and email %} · {% endif %}
+            {% if email %}{{ email }}{% endif %}
+            {% if (phone or email) and address %} · {% endif %}
+            {% if address %}{{ address }}{% endif %}
+          </p>
         </div>
       </header>
 
@@ -57,8 +55,10 @@
 
         <div class="tech-info-panel">
           <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
-          <div><strong>Curso:</strong> {{ grade }}</div>
-          <div><strong>Sección:</strong> {{ section }}</div>
+          <div class="row-inline">
+            <span><strong>Curso:</strong> {{ grade }}</span>
+            <span><strong>Sección:</strong> {{ section }}</span>
+          </div>
           <div><strong>Año escolar:</strong> {{ school_year_name }}</div>
           {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
             <div><strong>{{ student_technical_area_label }}:</strong> {{ student_technical_area }}</div>

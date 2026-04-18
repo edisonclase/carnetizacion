@@ -103,8 +103,8 @@ body {
 }
 
 .center-logo-large {
-  width: 11.5mm;
-  height: 11.5mm;
+  width: 13mm;
+  height: 13mm;
 }
 
 .brand-text-wrap {
@@ -163,9 +163,9 @@ body {
 }
 
 .premium-photo-circle-lg {
-  width: 30mm;
-  height: 30mm;
-  padding: 1.1mm;
+  width: 30.5mm;
+  height: 30.5mm;
+  padding: 1.15mm;
 }
 
 .student-photo,
@@ -201,7 +201,7 @@ body {
 }
 
 .identity-section-premium {
-  margin-top: 2.5mm;
+  margin-top: 2.4mm;
 }
 
 .student-name {
@@ -211,7 +211,7 @@ body {
 }
 
 .student-name-premium {
-  font-size: 4.15mm;
+  font-size: 4.25mm;
   color: var(--primary);
 }
 
@@ -307,14 +307,19 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 0.6mm;
+  margin-top: 0.5mm;
 }
 
 .back-center-logo-only {
-  width: 17mm;
-  height: 17mm;
+  width: 17.5mm;
+  height: 17.5mm;
   object-fit: contain;
   display: block;
+}
+
+.back-center-logo-only-lg {
+  width: 18.8mm;
+  height: 18.8mm;
 }
 
 .back-info-panel {
@@ -331,6 +336,11 @@ body {
   padding: 2.2mm 2.1mm;
 }
 
+.back-info-panel-centered-lg {
+  margin-top: 2.4mm;
+  padding: 2.7mm 2.35mm;
+}
+
 .back-identity-text-block {
   display: flex;
   flex-direction: column;
@@ -339,7 +349,7 @@ body {
 
 .back-single-section h3 {
   margin: 0 0 0.45mm;
-  font-size: 2.2mm;
+  font-size: 2.25mm;
   color: var(--primary);
   font-weight: 900;
   text-align: center;
@@ -347,7 +357,7 @@ body {
 
 .back-single-section p {
   margin: 0;
-  font-size: 1.62mm;
+  font-size: 1.82mm;
   line-height: 1.22;
   text-align: center;
   color: var(--text);
@@ -363,12 +373,12 @@ body {
 
 .loss-contact-box-low {
   margin-top: auto;
-  margin-bottom: 0.8mm;
+  margin-bottom: 0.35mm;
 }
 
 .loss-contact-box p {
   margin: 0 0 0.55mm;
-  font-size: 1.42mm;
+  font-size: 1.36mm;
   line-height: 1.12;
   text-align: center;
   color: var(--muted);
