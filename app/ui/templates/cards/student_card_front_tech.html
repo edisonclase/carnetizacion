@@ -20,8 +20,10 @@
     <div class="glow glow-left"></div>
     <div class="glow glow-right"></div>
 
-    <div class="card-inner tech-front-layout">
-      <header class="brand-header brand-header-tech">
+    <div class="student-vertical-band">ESTUDIANTE</div>
+
+    <div class="card-inner tech-front-layout tech-front-layout-v2">
+      <header class="brand-header brand-header-tech brand-header-tech-v2">
         <div class="brand-main">
           {% if center_logo_url %}
             <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large tech-logo" />
@@ -39,8 +41,8 @@
         </div>
       </header>
 
-      <section class="tech-photo-section">
-        <div class="photo-shell photo-shell-circle-large">
+      <section class="tech-photo-section tech-photo-section-v2">
+        <div class="photo-shell photo-shell-circle-large photo-shell-circle-xl">
           {% if student_photo_url %}
             <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-circle-top" />
           {% else %}
@@ -49,28 +51,26 @@
         </div>
       </section>
 
-      <section class="tech-identity">
+      <section class="tech-identity tech-identity-v2">
         <h2 class="student-name tech-student-name">{{ student_full_name }}</h2>
         <p class="student-role tech-student-role">{{ student_role_label }}</p>
-        <p class="student-cycle tech-student-cycle">{{ student_cycle_label }}</p>
 
-        {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-          <p class="student-area tech-student-area">
-            {{ student_technical_area_label }}: {{ student_technical_area }}
-          </p>
-        {% endif %}
+        <div class="tech-info-panel">
+          <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
+          <div><strong>Curso:</strong> {{ grade }}</div>
+          <div><strong>Sección:</strong> {{ section }}</div>
+          <div><strong>Año escolar:</strong> {{ school_year_name }}</div>
+          {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
+            <div><strong>{{ student_technical_area_label }}:</strong> {{ student_technical_area }}</div>
+          {% endif %}
+        </div>
       </section>
 
-      <footer class="tech-footer">
+      <footer class="tech-footer tech-footer-v2">
         <div class="qr-box qr-box-large">
           {% if qr_image_url %}
             <img src="{{ qr_image_url }}" alt="Código QR" class="qr-image" />
           {% endif %}
-        </div>
-
-        <div class="tech-footer-text">
-          <span>ID institucional</span>
-          <strong>{{ student_code or student_id }}</strong>
         </div>
       </footer>
     </div>

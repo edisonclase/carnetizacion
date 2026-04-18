@@ -24,7 +24,6 @@ body.card-body {
     content: "";
     position: absolute;
     inset: 0;
-
     background:
         linear-gradient(
             135deg,
@@ -37,7 +36,6 @@ body.card-body {
             rgba(11, 61, 36, 0.12) 0%,
             transparent 35%
         );
-
     pointer-events: none;
     z-index: 0;
 }
@@ -66,7 +64,7 @@ body.card-body {
 }
 
 .card-topbar {
-    height: 2.2mm;
+    height: 2.4mm;
     background: linear-gradient(
         90deg,
         var(--card-secondary, #0b3d24) 0%,
@@ -77,17 +75,26 @@ body.card-body {
 
 .card-brand-header {
     background: #ffffff;
-    padding: 2.3mm 2.6mm 1.8mm;
+    padding: 2.4mm 2.8mm 1.9mm;
     display: flex;
     align-items: flex-start;
-    gap: 2mm;
+    gap: 2.2mm;
     border-bottom: 0.25mm solid rgba(11, 61, 36, 0.10);
-    min-height: 15.5mm;
+    min-height: 16.5mm;
     box-sizing: border-box;
 }
 
 .card-brand-header-back {
     align-items: center;
+}
+
+.card-brand-header-back-strong {
+    justify-content: center;
+    text-align: center;
+    gap: 2.8mm;
+    padding-top: 3mm;
+    padding-bottom: 2.4mm;
+    min-height: 20mm;
 }
 
 .card-logo-badge {
@@ -104,12 +111,34 @@ body.card-body {
     overflow: hidden;
 }
 
+.card-logo-badge-large {
+    width: 11.8mm;
+    height: 11.8mm;
+    border-radius: 2.4mm;
+}
+
+.card-logo-badge-back-xl {
+    width: 15mm;
+    height: 15mm;
+    border-radius: 3mm;
+}
+
 .center-logo {
     width: 8.5mm;
     height: 8.5mm;
     object-fit: contain;
     display: block;
     background: #ffffff;
+}
+
+.center-logo-large {
+    width: 10.2mm;
+    height: 10.2mm;
+}
+
+.center-logo-back-xl {
+    width: 13mm;
+    height: 13mm;
 }
 
 .center-logo-placeholder {
@@ -132,8 +161,17 @@ body.card-body {
     word-break: break-word;
 }
 
-.card-brand-copy-back h1 {
-    margin-top: 0.4mm;
+.card-brand-copy-large h1 {
+    font-size: 2.95mm;
+    font-weight: 800;
+    line-height: 1.04;
+}
+
+.card-brand-copy-back-xl h1 {
+    font-size: 3.55mm;
+    font-weight: 900;
+    line-height: 1.02;
+    text-align: center;
 }
 
 .card-brand-meta {
@@ -151,9 +189,14 @@ body.card-body {
     overflow-wrap: anywhere;
 }
 
+.card-brand-meta-large span {
+    font-size: 1.55mm;
+    line-height: 1.12;
+}
+
 .header-card-title {
-    margin: 0.7mm 0 0 !important;
-    font-size: 1.85mm !important;
+    margin: 0.8mm 0 0 !important;
+    font-size: 1.95mm !important;
     line-height: 1.08 !important;
     color: var(--card-primary, #1f8f4a) !important;
     font-weight: 700;
@@ -169,6 +212,11 @@ body.card-body {
     box-sizing: border-box;
 }
 
+.card-content-strong {
+    padding: 2.2mm 2.9mm 1.8mm;
+    gap: 1.8mm;
+}
+
 .photo-block {
     width: 100%;
     display: flex;
@@ -176,14 +224,25 @@ body.card-body {
     margin-top: 0.4mm;
 }
 
+.photo-block-strong {
+    margin-top: 0.2mm;
+}
+
 .student-photo {
     width: 20mm;
     height: 20mm;
     border-radius: 50%;
     object-fit: cover;
+    object-position: center top;
     border: 1mm solid var(--card-primary);
     box-shadow: 0 2mm 4mm rgba(0,0,0,0.15);
     background: #ffffff;
+}
+
+.student-photo-xl {
+    width: 24mm;
+    height: 24mm;
+    border-width: 1.1mm;
 }
 
 .photo-placeholder {
@@ -199,6 +258,13 @@ body.card-body {
     font-size: 1.9mm;
 }
 
+.photo-placeholder-xl {
+    width: 24mm;
+    height: 24mm;
+    font-size: 2.1mm;
+    border-width: 0.7mm;
+}
+
 .student-info {
     width: 100%;
     text-align: center;
@@ -210,6 +276,12 @@ body.card-body {
     font-weight: 800;
     letter-spacing: 0.2mm;
     color: var(--card-secondary);
+}
+
+.student-info-strong h2 {
+    font-size: 3.75mm;
+    line-height: 1.05;
+    margin-bottom: 1.5mm;
 }
 
 .info-grid {
@@ -231,6 +303,13 @@ body.card-body {
     overflow-wrap: anywhere;
 }
 
+.info-grid-compact {
+    gap: 1mm;
+    font-size: 2.05mm;
+    padding: 1.9mm 2mm;
+    border-radius: 2.5mm;
+}
+
 .qr-block {
     display: flex;
     flex-direction: column;
@@ -238,6 +317,10 @@ body.card-body {
     gap: 0.9mm;
     margin-top: auto;
     margin-bottom: 1.6mm;
+}
+
+.qr-block-strong {
+    margin-bottom: 1.2mm;
 }
 
 .qr-frame {
@@ -251,6 +334,11 @@ body.card-body {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
+}
+
+.qr-frame-strong {
+    width: 17.2mm;
+    height: 17.2mm;
 }
 
 .qr-image {
@@ -274,6 +362,10 @@ body.card-body {
     font-size: 1.9mm;
 }
 
+.qr-placeholder-strong {
+    width: 17.2mm;
+    height: 17.2mm;
+}
 
 .card-footer {
     padding: 1.2mm 1.8mm;
@@ -287,7 +379,7 @@ body.card-body {
 }
 
 .card-footer-back {
-    padding: 1.05mm 1.8mm;
+    padding: 1mm 1.8mm 1.2mm;
 }
 
 .card-back-content {
@@ -302,6 +394,11 @@ body.card-body {
     background: none;
 }
 
+.card-back-content-strong {
+    padding: 2.2mm 2.6mm 1.1mm;
+    gap: 1.2mm;
+}
+
 .back-section {
     background: rgba(255, 255, 255, 0.90);
     border: 0.2mm solid rgba(11, 61, 36, 0.08);
@@ -312,12 +409,25 @@ body.card-body {
     box-shadow: none;
 }
 
+.back-section-strong {
+    border-left-width: 1mm;
+    border-radius: 1.8mm;
+    padding: 1.25mm 1.45mm 1.1mm;
+}
+
 .back-section h3 {
     margin: 0 0 0.25mm;
     font-size: 1.8mm;
     line-height: 1.05;
     color: var(--card-secondary, #0b3d24);
     font-weight: 700;
+}
+
+.back-section-strong h3 {
+    font-size: 2.2mm;
+    margin-bottom: 0.45mm;
+    text-align: center;
+    font-weight: 800;
 }
 
 .back-section p {
@@ -328,6 +438,27 @@ body.card-body {
     color: #334155;
     word-break: break-word;
     overflow-wrap: anywhere;
+}
+
+.back-section-strong p {
+    font-size: 1.7mm;
+    line-height: 1.18;
+}
+
+.loss-strip {
+    padding: 0.9mm 1.8mm 0.8mm;
+    text-align: center;
+    color: #64748b;
+}
+
+.loss-strip p {
+    margin: 0 0 0.35mm;
+    font-size: 1.22mm;
+    line-height: 1.08;
+}
+
+.loss-strip p:last-child {
+    margin-bottom: 0;
 }
 
 @media print {

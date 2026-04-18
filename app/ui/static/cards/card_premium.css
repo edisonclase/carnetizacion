@@ -73,6 +73,19 @@ body {
   transform: rotate(8deg);
 }
 
+.premium-dark-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.14) 0%,
+    rgba(0, 0, 0, 0.03) 28%,
+    transparent 55%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
 .brand-header {
   position: relative;
   z-index: 2;
@@ -90,8 +103,8 @@ body {
 }
 
 .center-logo-large {
-  width: 11mm;
-  height: 11mm;
+  width: 11.5mm;
+  height: 11.5mm;
 }
 
 .brand-text-wrap {
@@ -101,27 +114,39 @@ body {
 
 .center-name {
   margin: 0;
-  line-height: 1.05;
+  line-height: 1.04;
   font-weight: 900;
 }
 
 .center-name-large {
-  font-size: 3.2mm;
-  color: var(--primary);
+  font-size: 3.25mm;
+}
+
+.center-name-contrast {
+  color: #ffffff;
+  text-shadow: 0 0.35mm 0.8mm rgba(0, 0, 0, 0.22);
 }
 
 .brand-contact {
   margin: 0.7mm 0 0;
-  font-size: 1.75mm;
-  color: var(--muted);
+  font-size: 1.7mm;
   line-height: 1.2;
   word-break: break-word;
+}
+
+.brand-contact-contrast {
+  color: rgba(255,255,255,0.95);
+  text-shadow: 0 0.25mm 0.7mm rgba(0, 0, 0, 0.18);
 }
 
 .photo-section {
   display: flex;
   justify-content: center;
   margin-top: 2.4mm;
+}
+
+.photo-section-premium {
+  margin-top: 2.7mm;
 }
 
 .photo-frame {
@@ -135,6 +160,12 @@ body {
   height: 28mm;
   padding: 1mm;
   border-radius: 50%;
+}
+
+.premium-photo-circle-lg {
+  width: 30mm;
+  height: 30mm;
+  padding: 1.1mm;
 }
 
 .student-photo,
@@ -165,21 +196,28 @@ body {
 }
 
 .identity-section {
-  margin-top: 2.3mm;
+  margin-top: 2.2mm;
   text-align: center;
+}
+
+.identity-section-premium {
+  margin-top: 2.5mm;
 }
 
 .student-name {
   margin: 0;
-  font-size: 3.95mm;
   line-height: 1.08;
   font-weight: 900;
+}
+
+.student-name-premium {
+  font-size: 4.15mm;
   color: var(--primary);
 }
 
 .student-role {
   margin: 0.9mm 0 0;
-  font-size: 2.05mm;
+  font-size: 2.1mm;
   color: var(--secondary);
   font-weight: 800;
   text-transform: uppercase;
@@ -188,7 +226,7 @@ body {
 
 .student-cycle {
   margin: 0.8mm 0 0;
-  font-size: 2mm;
+  font-size: 2.05mm;
   color: var(--text);
   font-weight: 700;
 }
@@ -221,22 +259,22 @@ body {
 }
 
 .qr-box-large {
-  width: 15.5mm;
-  height: 15.5mm;
+  width: 15.6mm;
+  height: 15.6mm;
 }
 
 .qr-image {
-  width: 12.8mm;
-  height: 12.8mm;
+  width: 12.9mm;
+  height: 12.9mm;
   object-fit: contain;
 }
 
 .footer-badge {
   flex: 1;
-  min-height: 11mm;
+  min-height: 11.4mm;
   padding: 1.8mm 2mm;
   border-radius: 3mm;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   border: 0.25mm solid var(--line-soft);
   display: flex;
   flex-direction: column;
@@ -245,7 +283,7 @@ body {
 }
 
 .footer-badge span {
-  font-size: 1.5mm;
+  font-size: 1.55mm;
   color: var(--muted);
   letter-spacing: 0.3px;
 }
@@ -261,13 +299,22 @@ body {
   justify-content: space-between;
 }
 
-.back-identity-box {
-  margin-top: 1.8mm;
-  text-align: center;
+.back-layout-clean {
+  padding-top: 4mm;
 }
 
-.back-student-name {
-  font-size: 3.5mm;
+.back-center-logo-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.6mm;
+}
+
+.back-center-logo-only {
+  width: 17mm;
+  height: 17mm;
+  object-fit: contain;
+  display: block;
 }
 
 .back-info-panel {
@@ -279,19 +326,20 @@ body {
   box-shadow: 0 1.2mm 2.6mm rgba(0, 0, 0, 0.06);
 }
 
-.back-info-panel-compact {
-  padding: 1.8mm 2mm;
+.back-info-panel-centered {
+  margin-top: 2.2mm;
+  padding: 2.2mm 2.1mm;
 }
 
 .back-identity-text-block {
   display: flex;
   flex-direction: column;
-  gap: 1.2mm;
+  gap: 1.45mm;
 }
 
 .back-single-section h3 {
   margin: 0 0 0.45mm;
-  font-size: 2.15mm;
+  font-size: 2.2mm;
   color: var(--primary);
   font-weight: 900;
   text-align: center;
@@ -299,7 +347,7 @@ body {
 
 .back-single-section p {
   margin: 0;
-  font-size: 1.58mm;
+  font-size: 1.62mm;
   line-height: 1.22;
   text-align: center;
   color: var(--text);
@@ -307,16 +355,21 @@ body {
 
 .loss-contact-box {
   margin-top: 1.6mm;
-  padding: 1.6mm 1.8mm;
+  padding: 1.4mm 1.8mm;
   border-radius: 2.4mm;
   background: rgba(255,255,255,0.88);
   border: 0.25mm solid var(--line-soft);
 }
 
+.loss-contact-box-low {
+  margin-top: auto;
+  margin-bottom: 0.8mm;
+}
+
 .loss-contact-box p {
-  margin: 0 0 0.6mm;
-  font-size: 1.5mm;
-  line-height: 1.15;
+  margin: 0 0 0.55mm;
+  font-size: 1.42mm;
+  line-height: 1.12;
   text-align: center;
   color: var(--muted);
 }
@@ -331,7 +384,7 @@ body {
 
 .footer-sign {
   margin: 0;
-  font-size: 1.55mm;
+  font-size: 1.5mm;
   color: var(--muted);
   text-align: center;
 }

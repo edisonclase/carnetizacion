@@ -18,6 +18,7 @@
   <div class="id-card premium-card">
     <div class="premium-shape premium-shape-top"></div>
     <div class="premium-shape premium-shape-bottom"></div>
+    <div class="premium-dark-overlay"></div>
 
     <div class="card-inner premium-front-layout">
       <header class="brand-header brand-header-premium">
@@ -26,9 +27,9 @@
             <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large" />
           {% endif %}
           <div class="brand-text-wrap">
-            <h1 class="center-name center-name-large">{{ center_name }}</h1>
+            <h1 class="center-name center-name-large center-name-contrast">{{ center_name }}</h1>
             {% if phone or email %}
-              <p class="brand-contact">
+              <p class="brand-contact brand-contact-contrast">
                 {% if phone %}{{ phone }}{% endif %}
                 {% if phone and email %} · {% endif %}
                 {% if email %}{{ email }}{% endif %}
@@ -38,8 +39,8 @@
         </div>
       </header>
 
-      <section class="photo-section">
-        <div class="photo-frame premium-photo-circle">
+      <section class="photo-section photo-section-premium">
+        <div class="photo-frame premium-photo-circle premium-photo-circle-lg">
           {% if student_photo_url %}
             <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-circle-top" />
           {% else %}
@@ -48,8 +49,8 @@
         </div>
       </section>
 
-      <section class="identity-section">
-        <h2 class="student-name">{{ student_full_name }}</h2>
+      <section class="identity-section identity-section-premium">
+        <h2 class="student-name student-name-premium">{{ student_full_name }}</h2>
         <p class="student-role">{{ student_role_label }}</p>
         <p class="student-cycle">{{ student_cycle_label }}</p>
 
@@ -68,8 +69,8 @@
         </div>
 
         <div class="footer-badge">
-          <span>ID</span>
-          <strong>{{ student_code or student_id }}</strong>
+          <span>ID MINERD</span>
+          <strong>{{ minerd_id or "-" }}</strong>
         </div>
       </footer>
     </div>

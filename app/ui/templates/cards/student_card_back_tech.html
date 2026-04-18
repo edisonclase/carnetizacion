@@ -20,35 +20,15 @@
     <div class="glow glow-left"></div>
     <div class="glow glow-right"></div>
 
-    <div class="card-inner back-tech-layout">
-      <header class="brand-header brand-header-tech">
-        <div class="brand-main">
-          {% if center_logo_url %}
-            <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large tech-logo" />
-          {% endif %}
-          <div class="brand-text-wrap">
-            <h1 class="center-name center-name-large tech-center-name">{{ center_name }}</h1>
-            {% if phone or email %}
-              <p class="brand-contact tech-brand-contact">
-                {% if phone %}{{ phone }}{% endif %}
-                {% if phone and email %} · {% endif %}
-                {% if email %}{{ email }}{% endif %}
-              </p>
-            {% endif %}
-          </div>
-        </div>
+    <div class="card-inner back-tech-layout back-tech-layout-v2">
+      <header class="back-tech-logo-wrap">
+        {% if center_logo_url %}
+          <img src="{{ center_logo_url }}" alt="Logo del centro" class="back-tech-logo-only" />
+        {% endif %}
       </header>
 
-      <section class="tech-panels">
-        <div class="panel panel-identity">
-          <strong>{{ student_full_name }}</strong>
-          <p>{{ student_role_label }} · {{ student_cycle_label }}</p>
-          {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-            <p>{{ student_technical_area_label }}: {{ student_technical_area }}</p>
-          {% endif %}
-        </div>
-
-        <div class="panel panel-unified-text">
+      <section class="tech-panels tech-panels-v2">
+        <div class="panel panel-unified-text panel-unified-text-v2">
           <div class="panel-text-block">
             <span class="panel-title">Misión</span>
             <p>{{ mission or "-" }}</p>
@@ -65,7 +45,7 @@
           </div>
         </div>
 
-        <div class="panel panel-loss">
+        <div class="panel panel-loss panel-loss-v2">
           <p>{{ card_loss_notice }}</p>
           <p>{{ card_loss_contact }}</p>
         </div>

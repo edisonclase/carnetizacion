@@ -19,40 +19,45 @@
     >
         <div class="card-topbar"></div>
 
-        <header class="card-brand-header card-brand-header-back">
-            <div class="card-logo-badge">
+        <header class="card-brand-header card-brand-header-back card-brand-header-back-strong">
+            <div class="card-logo-badge card-logo-badge-back-xl">
                 {% if center_logo_url %}
                 <img
                     src="{{ center_logo_url }}"
                     alt="Logo del centro"
-                    class="center-logo"
+                    class="center-logo center-logo-back-xl"
                 />
                 {% else %}
                 <div class="center-logo center-logo-placeholder"></div>
                 {% endif %}
             </div>
 
-            <div class="card-brand-copy card-brand-copy-back">
+            <div class="card-brand-copy card-brand-copy-back card-brand-copy-back-xl">
                 <h1>{{ center_name }}</h1>
             </div>
         </header>
 
-        <div class="card-back-content">
-            <section class="back-section">
+        <div class="card-back-content card-back-content-strong">
+            <section class="back-section back-section-strong">
                 <h3>Misión</h3>
                 <p>{{ mission or "-" }}</p>
             </section>
 
-            <section class="back-section">
+            <section class="back-section back-section-strong">
                 <h3>Visión</h3>
                 <p>{{ vision or "-" }}</p>
             </section>
 
-            <section class="back-section">
+            <section class="back-section back-section-strong">
                 <h3>Valores</h3>
                 <p>{{ values or "-" }}</p>
             </section>
         </div>
+
+        <section class="loss-strip">
+            <p>{{ card_loss_notice or "Si encuentra este carnet, favor devolverlo al centro." }}</p>
+            <p>{{ card_loss_contact or phone or email or "Contacte al centro educativo." }}</p>
+        </section>
 
         <footer class="card-footer card-footer-back">
             <span>{{ card_footer_text }}</span>

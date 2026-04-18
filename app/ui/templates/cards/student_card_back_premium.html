@@ -15,40 +15,18 @@
     --bg: {{ center_background_color or '#f7f8f7' }};
   "
 >
-  <div class="id-card premium-card premium-back">
+  <div class="id-card premium-card premium-back premium-back-clean">
     <div class="premium-shape premium-shape-top"></div>
     <div class="premium-shape premium-shape-bottom"></div>
 
-    <div class="card-inner back-layout">
-      <header class="brand-header brand-header-back">
-        <div class="brand-main">
-          {% if center_logo_url %}
-            <img src="{{ center_logo_url }}" alt="Logo del centro" class="center-logo center-logo-large" />
-          {% endif %}
-          <div class="brand-text-wrap">
-            <h1 class="center-name center-name-large">{{ center_name }}</h1>
-            {% if phone or email %}
-              <p class="brand-contact">
-                {% if phone %}{{ phone }}{% endif %}
-                {% if phone and email %} · {% endif %}
-                {% if email %}{{ email }}{% endif %}
-              </p>
-            {% endif %}
-          </div>
-        </div>
+    <div class="card-inner back-layout back-layout-clean">
+      <header class="back-center-logo-wrap">
+        {% if center_logo_url %}
+          <img src="{{ center_logo_url }}" alt="Logo del centro" class="back-center-logo-only" />
+        {% endif %}
       </header>
 
-      <section class="back-identity-box">
-        <h2 class="student-name back-student-name">{{ student_full_name }}</h2>
-        <p class="student-role">{{ student_role_label }}</p>
-        <p class="student-cycle">{{ student_cycle_label }}</p>
-
-        {% if student_cycle_label == "Segundo Ciclo" and student_technical_area %}
-          <p class="student-area">{{ student_technical_area_label }}: {{ student_technical_area }}</p>
-        {% endif %}
-      </section>
-
-      <section class="back-info-panel back-info-panel-compact">
+      <section class="back-info-panel back-info-panel-centered">
         <div class="back-identity-text-block">
           <div class="back-single-section">
             <h3>Misión</h3>
@@ -67,7 +45,7 @@
         </div>
       </section>
 
-      <section class="loss-contact-box">
+      <section class="loss-contact-box loss-contact-box-low">
         <p>{{ card_loss_notice }}</p>
         <p>{{ card_loss_contact }}</p>
       </section>

@@ -20,22 +20,22 @@
         <div class="card-topbar"></div>
 
         <header class="card-brand-header">
-            <div class="card-logo-badge">
+            <div class="card-logo-badge card-logo-badge-large">
                 {% if center_logo_url %}
                 <img
                     src="{{ center_logo_url }}"
                     alt="Logo del centro"
-                    class="center-logo"
+                    class="center-logo center-logo-large"
                 />
                 {% else %}
                 <div class="center-logo center-logo-placeholder"></div>
                 {% endif %}
             </div>
 
-            <div class="card-brand-copy">
+            <div class="card-brand-copy card-brand-copy-large">
                 <h1>{{ center_name }}</h1>
 
-                <div class="card-brand-meta">
+                <div class="card-brand-meta card-brand-meta-large">
                     {% if phone %}<span>{{ phone }}</span>{% endif %}
                     {% if email %}<span>{{ email }}</span>{% endif %}
                 </div>
@@ -44,20 +44,19 @@
             </div>
         </header>
 
-        <div class="card-content">
-            <div class="photo-block">
+        <div class="card-content card-content-strong">
+            <div class="photo-block photo-block-strong">
                 {% if student_photo_url %}
-                <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo" />
+                <img src="{{ student_photo_url }}" alt="Foto del estudiante" class="student-photo student-photo-xl" />
                 {% else %}
-                <div class="photo-placeholder">Foto</div>
+                <div class="photo-placeholder photo-placeholder-xl">Foto</div>
                 {% endif %}
             </div>
 
-            <div class="student-info">
+            <div class="student-info student-info-strong">
                 <h2>{{ student_full_name }}</h2>
 
-                <div class="info-grid">
-                    <div><strong>Código:</strong> {{ student_code }}</div>
+                <div class="info-grid info-grid-compact">
                     <div><strong>ID MINERD:</strong> {{ minerd_id or "-" }}</div>
                     <div><strong>Curso:</strong> {{ grade }}</div>
                     <div><strong>Sección:</strong> {{ section }}</div>
@@ -65,20 +64,16 @@
                 </div>
             </div>
 
-            <div class="qr-block">
+            <div class="qr-block qr-block-strong">
                 {% if qr_image_url %}
-                <div class="qr-frame">
-                <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
+                <div class="qr-frame qr-frame-strong">
+                    <img src="{{ qr_image_url }}" alt="QR del carnet" class="qr-image" />
                 </div>
                 {% else %}
-                <div class="qr-placeholder">QR</div>
+                <div class="qr-placeholder qr-placeholder-strong">QR</div>
                 {% endif %}
             </div>
         </div>
-
-        <footer class="card-footer">
-            <span>{{ card_footer_text }}</span>
-        </footer>
     </article>
 </body>
 </html>
