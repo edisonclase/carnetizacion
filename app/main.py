@@ -23,6 +23,7 @@ from app.models.user import User  # noqa: F401
 from app.api.routes.billing import router as billing_router
 from app.models.billing_invoice import BillingInvoice  # noqa: F401
 from app.models.billing_payment import BillingPayment  # noqa: F401
+from app.api.routes import staff
 
 app = FastAPI(title=settings.app_name)
 
@@ -48,7 +49,7 @@ app.include_router(reports_router)
 app.include_router(ui_router)
 app.include_router(uploads_router)
 app.include_router(billing_router)
-
+app.include_router(staff.router)
 
 @app.get("/")
 def read_root():
