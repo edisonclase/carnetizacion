@@ -928,3 +928,12 @@ def reports_view(request: Request):
         name="reports.html",
         context={"request": request},
     )
+    
+@router.get("/admin/staff")
+def staff_list(request: Request):
+    return templates.TemplateResponse("staff_list.html", {"request": request})
+
+
+@router.get("/admin/staff/register")
+def staff_register(request: Request):
+    return templates.TemplateResponse("staff_register.html", {"request": request})

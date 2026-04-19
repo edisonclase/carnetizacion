@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Registro de Personal</title>
+    <link rel="stylesheet" href="/static/student_register.css" />
+</head>
+<body>
+
+<div class="register-shell">
+
+    <aside class="register-sidebar">
+        <h1>Nova ID</h1>
+        <nav class="sidebar-nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/admin/staff/register" class="active">Registrar personal</a>
+            <a href="/admin/staff">Listado</a>
+        </nav>
+    </aside>
+
+    <main class="register-main">
+        <h2>Registro de Personal</h2>
+
+        <form id="staffForm">
+
+            <div class="form-grid two-cols">
+
+                <input type="text" id="first_name" placeholder="Nombre" required />
+                <input type="text" id="last_name" placeholder="Apellido" required />
+
+                <input type="text" id="staff_code" placeholder="Código" required />
+
+                <select id="staff_group">
+                    <option value="administrativo">Administrativo</option>
+                    <option value="apoyo">Apoyo</option>
+                    <option value="docente_tecnico">Docente/Técnico</option>
+                </select>
+
+                <input type="text" id="staff_position" placeholder="Cargo" required />
+
+                <select id="is_active">
+                    <option value="true">Activo</option>
+                    <option value="false">Inactivo</option>
+                </select>
+
+            </div>
+
+            <button type="submit" class="btn btn-primary">Guardar</button>
+
+        </form>
+    </main>
+
+</div>
+
+<script src="/static/auth.js"></script>
+<script src="/static/staff_register.js"></script>
+
+</body>
+</html>

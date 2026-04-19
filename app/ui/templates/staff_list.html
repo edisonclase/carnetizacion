@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Listado de Personal - Nova ID</title>
+    <link rel="stylesheet" href="/static/student_list.css" />
+</head>
+<body>
+<div class="student-list-shell">
+
+    <aside class="student-list-sidebar">
+        <div class="brand-block">
+            <h1>Nova ID</h1>
+            <p>Administración interna</p>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/admin/staff/register">Registro de personal</a>
+            <a href="/admin/staff" class="active">Listado de personal</a>
+        </nav>
+    </aside>
+
+    <main class="student-list-main">
+        <header class="page-header">
+            <h2>Listado de Personal</h2>
+        </header>
+
+        <section class="list-card">
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th>Grupo</th>
+                            <th>Cargo</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="staffTable">
+                        <tr>
+                            <td colspan="5">Cargando...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+    </main>
+</div>
+
+<script src="/static/auth.js"></script>
+<script src="/static/staff_list.js"></script>
+</body>
+</html>

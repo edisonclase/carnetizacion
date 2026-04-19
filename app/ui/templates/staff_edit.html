@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Editar Personal - Nova ID</title>
+    <link rel="stylesheet" href="/static/student_edit.css" />
+</head>
+<body data-staff-id="{{ staff_id }}">
+    <div class="edit-shell">
+        <aside class="edit-sidebar">
+            <div class="brand-block">
+                <h1>Nova ID</h1>
+                <p>Administración interna</p>
+                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/admin/staff/register" id="navRegisterLink">Registro de personal</a>
+                <a href="/admin/staff" class="active">Listado de personal</a>
+                <a href="/docs" target="_blank" id="navDocsLink">API Docs</a>
+            </nav>
+        </aside>
+
+        <main class="edit-main">
+            <header class="page-header">
+                <div>
+                    <h2>Editar Personal</h2>
+                    <p>Actualización de datos del personal del centro educativo.</p>
+                </div>
+
+                <div class="header-user-actions">
+                    <div class="header-chip" id="staffCodeChip">Cargando...</div>
+                    <button type="button" id="logoutBtn" class="btn btn-neutral">Cerrar sesión</button>
+                </div>
+            </header>
+
+            <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
+
+            <form id="staffEditForm" class="edit-form" novalidate>
+                <section class="edit-card">
+                    <div class="card-title-row">
+                        <h3>Datos institucionales</h3>
+                        <span>Clasificación operativa del personal</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="staff_code">Código interno</label>
+                            <input type="text" id="staff_code" name="staff_code" />
+                        </div>
+
+                        <div class="field">
+                            <label for="national_id">Documento de identidad</label>
+                            <input type="text" id="national_id" name="national_id" />
+                        </div>
+
+                        <div class="field">
+                            <label for="staff_group">Grupo</label>
+                            <select id="staff_group" name="staff_group">
+                                <option value="">Seleccione</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="staff_position">Cargo</label>
+                            <select id="staff_position" name="staff_position" disabled>
+                                <option value="">Seleccione primero un grupo</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="department">Departamento</label>
+                            <input type="text" id="department" name="department" />
+                        </div>
+
+                        <div class="field">
+                            <label for="is_active">Estado</label>
+                            <select id="is_active" name="is_active">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="edit-card">
+                    <div class="card-title-row">
+                        <h3>Datos personales</h3>
+                        <span>Información para identificación y carnet futuro</span>
+                    </div>
+
+                    <div class="form-grid two-cols">
+                        <div class="field">
+                            <label for="first_name">Nombres</label>
+                            <input type="text" id="first_name" name="first_name" />
+                        </div>
+
+                        <div class="field">
+                            <label for="last_name">Apellidos</label>
+                            <input type="text" id="last_name" name="last_name" />
+                        </div>
+
+                        <div class="field field-span-2">
+                            <label for="photo_file">Foto del personal</label>
+                            <input type="file" id="photo_file" name="photo_file" accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp" />
+                            <input type="hidden" id="photo_path" name="photo_path" />
+                            <div class="upload-row">
+                                <button type="button" id="uploadPhotoBtn" class="btn btn-secondary">Subir foto</button>
+                                <span id="photoUploadStatus" class="upload-status">No se ha actualizado la foto.</span>
+                            </div>
+                            <div class="photo-preview-wrap hidden" id="photoPreviewWrap">
+                                <img id="photoPreview" class="photo-preview" alt="Vista previa de la foto del personal" />
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <a href="/admin/staff" class="btn btn-secondary btn-link">Volver al listado</a>
+                    <button type="button" id="reloadBtn" class="btn btn-neutral">Recargar</button>
+                    <button type="submit" id="saveBtn" class="btn btn-primary">Guardar cambios</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script src="/static/auth.js"></script>
+    <script src="/static/staff_edit.js"></script>
+</body>
+</html>
