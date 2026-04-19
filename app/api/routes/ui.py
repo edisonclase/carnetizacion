@@ -1,14 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from io import BytesIO
+import re
+
+import qrcode
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse, Response
 from fastapi.templating import Jinja2Templates
-from fastapi import Request
 from sqlalchemy.orm import Session
-import re
 
 from app.api.deps import get_db
 from app.models.card import Card
 from app.models.center import Center
 from app.models.school_year import SchoolYear
+from app.models.staff import Staff
 from app.models.student import Student
 from app.services.pdf_service import render_pdf_from_html
 
@@ -94,6 +97,13 @@ def _get_student_or_404(db: Session, student_id: int) -> Student:
     if not student:
         raise HTTPException(status_code=404, detail="Estudiante no encontrado.")
     return student
+
+
+def _get_staff_or_404(db: Session, staff_id: int) -> Staff:
+    staff = db.query(Staff).filter(Staff.id == staff_id).first()
+    if not staff:
+        raise HTTPException(status_code=404, detail="Personal no encontrado.")
+    return staff
 
 
 def _get_latest_card_for_student(db: Session, student_id: int) -> Card | None:
@@ -284,6 +294,8 @@ def _build_center_theme(center: Center | None) -> dict:
         ),
         "phone": center.phone if center and center.phone else None,
         "email": center.email if center and center.email else None,
+        "motto": center.motto if center and center.motto else None,
+        "address": center.address if center and center.address else None,
         "mission": mission,
         "vision": vision,
         "values": values,
@@ -481,6 +493,86 @@ def _build_student_cards_print_context(
         "request": request,
         "pages": pages,
         **_build_center_theme(center),
+    }
+
+
+def _build_staff_group_label(value: str | None) -> str:
+    mapping = {
+        "administrativo": "Personal administrativo",
+        "apoyo": "Personal de apoyo",
+        "docente_tecnico": "Personal docente / técnico",
+    }
+    return mapping.get(str(value or "").strip().lower(), "Personal institucional")
+
+
+def _build_staff_position_label(value: str | None) -> str:
+    mapping = {
+        "secretaria": "Secretaria",
+        "digitador": "Digitador",
+        "administrativo_otro": "Administrativo",
+        "conserje": "Conserje",
+        "mayordomo": "Mayordomo",
+        "jardinero": "Jardinero",
+        "portero": "Portero",
+        "sereno": "Sereno",
+        "apoyo_otro": "Personal de apoyo",
+        "docente": "Docente",
+        "director": "Director",
+        "subdirector": "Subdirector",
+        "coordinador": "Coordinador",
+        "psicologo": "Psicólogo",
+        "psicologa": "Psicóloga",
+        "orientador": "Orientador",
+        "orientadora": "Orientadora",
+        "tecnico_otro": "Técnico",
+    }
+    return mapping.get(
+        str(value or "").strip().lower(),
+        str(value or "Personal").replace("_", " ").title(),
+    )
+
+
+def _build_staff_qr_payload(db: Session, staff: Staff) -> str:
+    center = db.query(Center).filter(Center.id == staff.center_id).first()
+    school_year = None
+    if staff.school_year_id:
+        school_year = (
+            db.query(SchoolYear)
+            .filter(SchoolYear.id == staff.school_year_id)
+            .first()
+        )
+
+    payload_lines = [
+        "NOVA_ID_STAFF",
+        f"staff_id={staff.id}",
+        f"staff_code={staff.staff_code}",
+        f"full_name={staff.first_name} {staff.last_name}".strip(),
+        f"group={staff.staff_group}",
+        f"position={staff.staff_position}",
+        f"center_id={staff.center_id}",
+        f"center_name={center.name if center else ''}",
+        f"school_year={school_year.name if school_year else ''}",
+        f"is_active={staff.is_active}",
+    ]
+    return "\n".join(payload_lines)
+
+
+def _build_staff_card_context(request: Request, db: Session, staff: Staff) -> dict:
+    center = db.query(Center).filter(Center.id == staff.center_id).first()
+
+    return {
+        "request": request,
+        **_build_center_theme(center),
+        "staff_id": staff.id,
+        "staff_full_name": f"{staff.first_name} {staff.last_name}".strip(),
+        "staff_code": staff.staff_code,
+        "staff_photo_url": staff.photo_path,
+        "staff_group": staff.staff_group,
+        "staff_group_label": _build_staff_group_label(staff.staff_group),
+        "staff_position": staff.staff_position,
+        "staff_position_label": _build_staff_position_label(staff.staff_position),
+        "staff_department": staff.department,
+        "qr_image_url": str(request.url_for("staff_card_qr", staff_id=staff.id)),
     }
 
 
@@ -928,73 +1020,6 @@ def reports_view(request: Request):
         name="reports.html",
         context={"request": request},
     )
-    
-@router.get("/admin/staff")
-def staff_list(request: Request):
-    return templates.TemplateResponse("staff_list.html", {"request": request})
-
-
-@router.get("/admin/staff/register")
-def staff_register(request: Request):
-    return templates.TemplateResponse("staff_register.html", {"request": request})
-
-def _get_staff_or_404(db: Session, staff_id: int) -> Staff:
-    staff = db.query(Staff).filter(Staff.id == staff_id).first()
-    if not staff:
-        raise HTTPException(status_code=404, detail="Personal no encontrado.")
-    return staff
-
-
-def _build_staff_group_label(value: str | None) -> str:
-    mapping = {
-        "administrativo": "Personal administrativo",
-        "apoyo": "Personal de apoyo",
-        "docente_tecnico": "Personal docente / técnico",
-    }
-    return mapping.get(str(value or "").strip().lower(), "Personal institucional")
-
-
-def _build_staff_position_label(value: str | None) -> str:
-    mapping = {
-        "secretaria": "Secretaria",
-        "digitador": "Digitador",
-        "administrativo_otro": "Administrativo",
-        "conserje": "Conserje",
-        "mayordomo": "Mayordomo",
-        "jardinero": "Jardinero",
-        "portero": "Portero",
-        "sereno": "Sereno",
-        "apoyo_otro": "Personal de apoyo",
-        "docente": "Docente",
-        "director": "Director",
-        "subdirector": "Subdirector",
-        "coordinador": "Coordinador",
-        "psicologo": "Psicólogo",
-        "psicologa": "Psicóloga",
-        "orientador": "Orientador",
-        "orientadora": "Orientadora",
-        "tecnico_otro": "Técnico",
-    }
-    return mapping.get(str(value or "").strip().lower(), str(value or "Personal").replace("_", " ").title())
-
-
-def _build_staff_card_context(request: Request, db: Session, staff: Staff) -> dict:
-    center = db.query(Center).filter(Center.id == staff.center_id).first()
-
-    return {
-        "request": request,
-        **_build_center_theme(center),
-        "staff_id": staff.id,
-        "staff_full_name": f"{staff.first_name} {staff.last_name}".strip(),
-        "staff_code": staff.staff_code,
-        "staff_photo_url": staff.photo_path,
-        "staff_group": staff.staff_group,
-        "staff_group_label": _build_staff_group_label(staff.staff_group),
-        "staff_position": staff.staff_position,
-        "staff_position_label": _build_staff_position_label(staff.staff_position),
-        "staff_department": staff.department,
-        "qr_image_url": None,
-    }
 
 
 @router.get("/admin/staff", response_class=HTMLResponse)
@@ -1030,6 +1055,33 @@ def staff_single_print_page(
             "request": request,
             "staff_id": staff.id,
         },
+    )
+
+
+@router.get("/staff/{staff_id}/card/qr", name="staff_card_qr")
+def staff_card_qr(
+    staff_id: int,
+    db: Session = Depends(get_db),
+):
+    staff = _get_staff_or_404(db, staff_id)
+    payload = _build_staff_qr_payload(db=db, staff=staff)
+
+    qr = qrcode.QRCode(
+        version=2,
+        box_size=8,
+        border=2,
+    )
+    qr.add_data(payload)
+    qr.make(fit=True)
+
+    image = qr.make_image(fill_color="black", back_color="white")
+    buffer = BytesIO()
+    image.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return Response(
+        content=buffer.getvalue(),
+        media_type="image/png",
     )
 
 
