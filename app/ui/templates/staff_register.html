@@ -3,51 +3,109 @@
 <head>
     <meta charset="UTF-8" />
     <title>Registro de Personal</title>
-    <link rel="stylesheet" href="/static/student_register.css" />
+    <link rel="stylesheet" href="/static/staff_register.css" />
 </head>
 <body>
 
 <div class="register-shell">
 
+    <!-- SIDEBAR -->
     <aside class="register-sidebar">
-        <h1>Nova ID</h1>
+        <div class="brand-block">
+            <h1>Nova ID</h1>
+            <p>Gestión institucional</p>
+            <span class="brand-caption">Registro de personal del centro educativo</span>
+        </div>
+
         <nav class="sidebar-nav">
             <a href="/dashboard">Dashboard</a>
             <a href="/admin/staff/register" class="active">Registrar personal</a>
-            <a href="/admin/staff">Listado</a>
+            <a href="/admin/staff">Listado de personal</a>
         </nav>
     </aside>
 
+    <!-- MAIN -->
     <main class="register-main">
-        <h2>Registro de Personal</h2>
 
-        <form id="staffForm">
+        <!-- HEADER -->
+        <header class="page-header">
+            <div>
+                <h2>Registro de Personal</h2>
+                <p>Complete la información del personal docente, administrativo o de apoyo.</p>
+            </div>
+        </header>
 
-            <div class="form-grid two-cols">
+        <!-- FORMULARIO -->
+        <form id="staffForm" class="register-form">
 
-                <input type="text" id="first_name" placeholder="Nombre" required />
-                <input type="text" id="last_name" placeholder="Apellido" required />
+            <!-- CARD: DATOS PERSONALES -->
+            <section class="register-card">
+                <div class="card-title-row">
+                    <h3>Datos personales</h3>
+                    <span>Información básica del colaborador</span>
+                </div>
 
-                <input type="text" id="staff_code" placeholder="Código" required />
+                <div class="form-grid two-cols">
+                    <div class="field">
+                        <label>Nombre</label>
+                        <input type="text" id="first_name" required />
+                    </div>
 
-                <select id="staff_group">
-                    <option value="administrativo">Administrativo</option>
-                    <option value="apoyo">Apoyo</option>
-                    <option value="docente_tecnico">Docente/Técnico</option>
-                </select>
+                    <div class="field">
+                        <label>Apellido</label>
+                        <input type="text" id="last_name" required />
+                    </div>
+                </div>
+            </section>
 
-                <input type="text" id="staff_position" placeholder="Cargo" required />
+            <!-- CARD: DATOS LABORALES -->
+            <section class="register-card">
+                <div class="card-title-row">
+                    <h3>Datos laborales</h3>
+                    <span>Información institucional del personal</span>
+                </div>
 
-                <select id="is_active">
-                    <option value="true">Activo</option>
-                    <option value="false">Inactivo</option>
-                </select>
+                <div class="form-grid two-cols">
 
+                    <div class="field">
+                        <label>Código</label>
+                        <input type="text" id="staff_code" required />
+                    </div>
+
+                    <div class="field">
+                        <label>Grupo</label>
+                        <select id="staff_group">
+                            <option value="administrativo">Administrativo</option>
+                            <option value="apoyo">Apoyo</option>
+                            <option value="docente_tecnico">Docente/Técnico</option>
+                        </select>
+                    </div>
+
+                    <div class="field field-span-2">
+                        <label>Cargo</label>
+                        <input type="text" id="staff_position" required />
+                    </div>
+
+                    <div class="field">
+                        <label>Estado</label>
+                        <select id="is_active">
+                            <option value="true">Activo</option>
+                            <option value="false">Inactivo</option>
+                        </select>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- ACCIONES -->
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    Guardar personal
+                </button>
             </div>
 
-            <button type="submit" class="btn btn-primary">Guardar</button>
-
         </form>
+
     </main>
 
 </div>

@@ -170,12 +170,24 @@ function canAccessBilling(role) {
     return String(role || "").toLowerCase() === "super_admin";
 }
 
+function canViewStaff(role) {
+    const normalized = String(role || "").toLowerCase();
+    return ["super_admin", "admin_centro", "registro", "consulta"].includes(normalized);
+}
+
+function canManageStaff(role) {
+    const normalized = String(role || "").toLowerCase();
+    return ["super_admin", "admin_centro", "registro"].includes(normalized);
+}
+
 function configureRoleUI(user) {
     document.getElementById("currentUserName").textContent = user.full_name;
     document.getElementById("currentUserRole").textContent = roleLabel(user.role);
 
     const navStudentsLink = document.getElementById("navStudentsLink");
     const navRegisterLink = document.getElementById("navRegisterLink");
+    const navStaffListLink = document.getElementById("navStaffListLink");
+    const navStaffRegisterLink = document.getElementById("navStaffRegisterLink");
     const navCenterSettingsLink = document.getElementById("navCenterSettingsLink");
     const navAttendanceScannerLink = document.getElementById("navAttendanceScannerLink");
     const navBillingLink = document.getElementById("navBillingLink");
@@ -184,6 +196,8 @@ function configureRoleUI(user) {
     const moduleAccessCard = document.getElementById("moduleAccessCard");
     const moduleStudentsList = document.getElementById("moduleStudentsList");
     const moduleStudentRegister = document.getElementById("moduleStudentRegister");
+    const moduleStaffList = document.getElementById("moduleStaffList");
+    const moduleStaffRegister = document.getElementById("moduleStaffRegister");
     const moduleCenterSettings = document.getElementById("moduleCenterSettings");
     const moduleAttendanceScanner = document.getElementById("moduleAttendanceScanner");
     const moduleBilling = document.getElementById("moduleBilling");
@@ -200,6 +214,18 @@ function configureRoleUI(user) {
     if (canManageStudents(user.role)) {
         navRegisterLink?.classList.remove("hidden");
         moduleStudentRegister?.classList.remove("hidden");
+        hasVisibleModule = true;
+    }
+
+    if (canViewStaff(user.role)) {
+        navStaffListLink?.classList.remove("hidden");
+        moduleStaffList?.classList.remove("hidden");
+        hasVisibleModule = true;
+    }
+
+    if (canManageStaff(user.role)) {
+        navStaffRegisterLink?.classList.remove("hidden");
+        moduleStaffRegister?.classList.remove("hidden");
         hasVisibleModule = true;
     }
 
