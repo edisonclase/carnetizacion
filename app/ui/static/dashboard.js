@@ -1,5 +1,7 @@
 let statusGenderChartInstance = null;
 let enrollmentGenderChartInstance = null;
+let staffGenderChartInstance = null;
+let staffDepartmentChartInstance = null;
 let currentUser = null;
 let allSchoolYears = [];
 
@@ -138,6 +140,22 @@ function computeStaffBreakdown(staffList) {
     });
 
     return result;
+}
+
+function normalizeStaffAttendanceSummary(summary) {
+    const byGender = summary?.by_gender || {};
+    const byDepartment = summary?.by_department || {};
+
+    return {
+        totalEvents: Number(summary?.total_events || 0),
+        totalEntries: Number(summary?.total_entries || 0),
+        totalExits: Number(summary?.total_exits || 0),
+        uniqueStaffCount: Number(summary?.unique_staff_count || 0),
+        male: Number(byGender.masculino || 0),
+        female: Number(byGender.femenino || 0),
+        other: Number(byGender.otro || 0) + Number(byGender.sin_definir || 0),
+        byDepartment,
+    };
 }
 
 async function fetchJson(url) {
@@ -428,6 +446,79 @@ function renderEnrollmentGenderChart(enrollment) {
     });
 }
 
+function renderStaffGenderChart(summary) {
+    const ctx = document.getElementById("staffGenderChart");
+    if (!ctx) return;
+
+    if (staffGenderChartInstance) {
+        staffGenderChartInstance.destroy();
+    }
+
+    staffGenderChartInstance = new Chart(ctx, {
+        type: "doughnut",
+        data: {
+            labels: ["Masculino", "Femenino", "Otro / sin definir"],
+            datasets: [
+                {
+                    data: [summary.male, summary.female, summary.other],
+                    backgroundColor: ["#0f766e", "#b6924f", "#94a3b8"],
+                    borderWidth: 0,
+                    hoverOffset: 8,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: "62%",
+            plugins: {
+                legend: { position: "top" },
+            },
+        },
+    });
+}
+
+function renderStaffDepartmentChart(summary) {
+    const ctx = document.getElementById("staffDepartmentChart");
+    if (!ctx) return;
+
+    if (staffDepartmentChartInstance) {
+        staffDepartmentChartInstance.destroy();
+    }
+
+    const labels = Object.keys(summary.byDepartment || {});
+    const values = Object.values(summary.byDepartment || {});
+
+    staffDepartmentChartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels.length ? labels : ["Sin datos"],
+            datasets: [
+                {
+                    label: "Eventos",
+                    data: values.length ? values : [0],
+                    backgroundColor: "#0f766e",
+                    borderRadius: 10,
+                    maxBarThickness: 42,
+                },
+            ],
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { precision: 0 },
+                },
+            },
+        },
+    });
+}
+
 function fillAttendanceCards(breakdown) {
     setText("presentMale", breakdown.present.M);
     setText("presentFemale", breakdown.present.F);
@@ -465,6 +556,15 @@ function fillStaffCards(data) {
     setText("staffInactive", data.inactivo);
 }
 
+function fillStaffAttendanceCards(summary) {
+    setText("staffAttendanceTotalEvents", summary.totalEvents);
+    setText("staffAttendanceEntries", summary.totalEntries);
+    setText("staffAttendanceExits", summary.totalExits);
+    setText("staffAttendanceUnique", summary.uniqueStaffCount);
+    setText("staffAttendanceMale", summary.male);
+    setText("staffAttendanceFemale", summary.female);
+}
+
 function resetStaffCards() {
     fillStaffCards({
         total: 0,
@@ -473,6 +573,19 @@ function resetStaffCards() {
         docente: 0,
         activo: 0,
         inactivo: 0,
+    });
+}
+
+function resetStaffAttendanceCards() {
+    fillStaffAttendanceCards({
+        totalEvents: 0,
+        totalEntries: 0,
+        totalExits: 0,
+        uniqueStaffCount: 0,
+        male: 0,
+        female: 0,
+        other: 0,
+        byDepartment: {},
     });
 }
 
@@ -487,6 +600,7 @@ function resetDashboardVisuals() {
 
     fillEnrollmentCards({ M: 0, F: 0, T: 0 });
     resetStaffCards();
+    resetStaffAttendanceCards();
 
     setText("metricEntries", 0);
     setText("metricExits", 0);
@@ -499,6 +613,8 @@ function resetDashboardVisuals() {
     });
 
     renderEnrollmentGenderChart({ M: 0, F: 0, T: 0 });
+    renderStaffGenderChart({ male: 0, female: 0, other: 0, byDepartment: {} });
+    renderStaffDepartmentChart({ byDepartment: {} });
 
     fillFlag("flagWorkday", false);
     fillFlag("flagActivity", false);
@@ -662,20 +778,24 @@ async function loadDashboard() {
         const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
         const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
         const staffUrl = `/staff/?center_id=${centerId}`;
+        const staffAttendanceUrl = `/staff-attendance-events/summary?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
 
-        const [dailyReport, studentSummary, staffList] = await Promise.all([
+        const [dailyReport, studentSummary, staffList, staffAttendanceSummaryRaw] = await Promise.all([
             fetchJson(dailyUrl),
             fetchJson(summaryUrl),
             fetchJson(staffUrl),
+            fetchJson(staffAttendanceUrl),
         ]);
 
         const attendanceBreakdown = computeAttendanceBreakdown(dailyReport);
         const enrollmentBreakdown = computeEnrollmentBreakdown(studentSummary);
         const staffBreakdown = computeStaffBreakdown(staffList);
+        const staffAttendanceSummary = normalizeStaffAttendanceSummary(staffAttendanceSummaryRaw);
 
         fillAttendanceCards(attendanceBreakdown);
         fillEnrollmentCards(enrollmentBreakdown);
         fillStaffCards(staffBreakdown);
+        fillStaffAttendanceCards(staffAttendanceSummary);
 
         setText("metricEntries", dailyReport.total_entries);
         setText("metricExits", dailyReport.total_exits);
@@ -686,10 +806,12 @@ async function loadDashboard() {
         fillFlag("flagEarlyDismissal", dailyReport.possible_early_dismissal);
 
         generalMessage.textContent =
-            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}. Personal registrado: ${staffBreakdown.total}.`;
+            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}. Personal registrado: ${staffBreakdown.total}. Personal con marcaje: ${staffAttendanceSummary.uniqueStaffCount}.`;
 
         renderStatusGenderChart(attendanceBreakdown);
         renderEnrollmentGenderChart(enrollmentBreakdown);
+        renderStaffGenderChart(staffAttendanceSummary);
+        renderStaffDepartmentChart(staffAttendanceSummary);
     } catch (error) {
         generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
         resetDashboardVisuals();

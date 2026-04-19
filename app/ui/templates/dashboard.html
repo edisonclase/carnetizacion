@@ -224,6 +224,69 @@
                 </article>
             </section>
 
+            <section class="filters-card staff-attendance-panel">
+                <div class="section-heading">
+                    <div>
+                        <h3>Asistencia del personal</h3>
+                            <p>Resumen operativo por sexo, departamento y total global del centro educativo.</p>
+                    </div>
+                </div>
+
+            <section class="metrics-grid metrics-grid-staff-attendance">
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Eventos del día</span>
+                        <strong id="staffAttendanceTotalEvents">0</strong>
+                </article>
+
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Entradas del personal</span>
+                        <strong id="staffAttendanceEntries">0</strong>
+                </article>
+
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Salidas del personal</span>
+                    <strong id="staffAttendanceExits">0</strong>
+                </article>
+
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Personal con marcaje</span>
+                    <strong id="staffAttendanceUnique">0</strong>
+                </article>
+
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Masculino</span>
+                    <strong id="staffAttendanceMale">0</strong>
+                </article>
+
+                <article class="metric-card metric-card-simple">
+                    <span class="metric-label">Femenino</span>
+                    <strong id="staffAttendanceFemale">0</strong>
+                </article>
+            </section>
+
+    <section class="charts-section charts-section-staff">
+        <div class="chart-card">
+            <div class="section-heading compact">
+                <div>
+                    <h3>Asistencia del personal por sexo</h3>
+                    <p>Distribución del personal con eventos registrados en la fecha seleccionada.</p>
+                </div>
+            </div>
+            <canvas id="staffGenderChart"></canvas>
+        </div>
+
+        <div class="chart-card">
+            <div class="section-heading compact">
+                <div>
+                    <h3>Asistencia del personal por departamento</h3>
+                    <p>Comparativo de marcajes del personal según el departamento registrado.</p>
+                </div>
+            </div>
+            <canvas id="staffDepartmentChart"></canvas>
+        </div>
+    </section>
+</section>
+
             <section class="charts-section">
                 <div class="chart-card">
                     <div class="section-heading compact">

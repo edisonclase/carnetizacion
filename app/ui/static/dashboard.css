@@ -755,3 +755,15 @@ tbody tr:hover {
         min-width: 860px;
     }
 }
+
+.staff-attendance-panel {
+    margin-bottom: 20px;
+}
+
+.metrics-grid-staff-attendance .metric-card::before {
+    background: linear-gradient(90deg, #115e59, #b6924f);
+}
+
+.charts-section-staff {
+    margin-top: 8px;
+}
