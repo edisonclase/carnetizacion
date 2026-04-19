@@ -21,6 +21,8 @@
     --danger-soft: rgba(220, 38, 38, 0.12);
     --female: #ec4899;
     --male: #2563eb;
+    --staff-accent: #0f766e;
+    --staff-accent-soft: #14b8a6;
     --shadow-sm: 0 8px 18px rgba(15, 23, 42, 0.05);
     --shadow-md: 0 18px 45px rgba(15, 23, 42, 0.08);
     --shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.10);
@@ -657,6 +659,10 @@ tbody tr:hover {
 
 .table-wrapper::-webkit-scrollbar-thumb:hover {
     background: #9eb1cc;
+}
+
+.metrics-grid-staff .metric-card::before {
+    background: linear-gradient(90deg, var(--staff-accent), var(--staff-accent-soft));
 }
 
 @media (max-width: 1480px) {

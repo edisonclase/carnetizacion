@@ -111,6 +111,35 @@ function computeEnrollmentBreakdown(summary) {
     };
 }
 
+function computeStaffBreakdown(staffList) {
+    const result = {
+        total: 0,
+        administrativo: 0,
+        apoyo: 0,
+        docente: 0,
+        activo: 0,
+        inactivo: 0,
+    };
+
+    (staffList || []).forEach((item) => {
+        result.total += 1;
+
+        const group = String(item.staff_group || "").trim().toLowerCase();
+
+        if (group === "administrativo") result.administrativo += 1;
+        if (group === "apoyo") result.apoyo += 1;
+        if (group === "docente_tecnico") result.docente += 1;
+
+        if (item.is_active) {
+            result.activo += 1;
+        } else {
+            result.inactivo += 1;
+        }
+    });
+
+    return result;
+}
+
 async function fetchJson(url) {
     const response = await apiFetch(url);
 
@@ -401,6 +430,26 @@ function fillEnrollmentCards(enrollment) {
     setText("enrollmentTotal", enrollment.T);
 }
 
+function fillStaffCards(data) {
+    setText("staffTotal", data.total);
+    setText("staffAdmin", data.administrativo);
+    setText("staffSupport", data.apoyo);
+    setText("staffAcademic", data.docente);
+    setText("staffActive", data.activo);
+    setText("staffInactive", data.inactivo);
+}
+
+function resetStaffCards() {
+    fillStaffCards({
+        total: 0,
+        administrativo: 0,
+        apoyo: 0,
+        docente: 0,
+        activo: 0,
+        inactivo: 0,
+    });
+}
+
 function resetDashboardVisuals() {
     fillAttendanceCards({
         present: { M: 0, F: 0, T: 0 },
@@ -411,6 +460,8 @@ function resetDashboardVisuals() {
     });
 
     fillEnrollmentCards({ M: 0, F: 0, T: 0 });
+    resetStaffCards();
+
     setText("metricEntries", 0);
     setText("metricExits", 0);
 
@@ -584,17 +635,21 @@ async function loadDashboard() {
     try {
         const dailyUrl = `/reports/daily-institutional?center_id=${centerId}&school_year_id=${schoolYearId}&date=${reportDate}`;
         const summaryUrl = `/reports/students/summary?center_id=${centerId}&school_year_id=${schoolYearId}`;
+        const staffUrl = `/staff/?center_id=${centerId}`;
 
-        const [dailyReport, studentSummary] = await Promise.all([
+        const [dailyReport, studentSummary, staffList] = await Promise.all([
             fetchJson(dailyUrl),
             fetchJson(summaryUrl),
+            fetchJson(staffUrl),
         ]);
 
         const attendanceBreakdown = computeAttendanceBreakdown(dailyReport);
         const enrollmentBreakdown = computeEnrollmentBreakdown(studentSummary);
+        const staffBreakdown = computeStaffBreakdown(staffList);
 
         fillAttendanceCards(attendanceBreakdown);
         fillEnrollmentCards(enrollmentBreakdown);
+        fillStaffCards(staffBreakdown);
 
         setText("metricEntries", dailyReport.total_entries);
         setText("metricExits", dailyReport.total_exits);
@@ -605,7 +660,7 @@ async function loadDashboard() {
         fillFlag("flagEarlyDismissal", dailyReport.possible_early_dismissal);
 
         generalMessage.textContent =
-            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}.`;
+            `Reporte cargado para ${dailyReport.date}. Total general: ${attendanceBreakdown.general.T}. Matrícula actual: ${enrollmentBreakdown.T}. Personal registrado: ${staffBreakdown.total}.`;
 
         renderStatusGenderChart(attendanceBreakdown);
         renderEnrollmentGenderChart(enrollmentBreakdown);

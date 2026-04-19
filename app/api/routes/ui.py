@@ -12,6 +12,7 @@ from app.models.card import Card
 from app.models.center import Center
 from app.models.school_year import SchoolYear
 from app.models.staff import Staff
+from app.models.staff_card import StaffCard
 from app.models.student import Student
 from app.services.pdf_service import render_pdf_from_html
 
@@ -121,6 +122,25 @@ def _get_latest_card_for_student(db: Session, student_id: int) -> Card | None:
         db.query(Card)
         .filter(Card.student_id == student_id)
         .order_by(Card.id.desc())
+        .first()
+    )
+
+
+def _get_latest_card_for_staff(db: Session, staff_id: int) -> StaffCard | None:
+    card = (
+        db.query(StaffCard)
+        .filter(StaffCard.staff_id == staff_id, StaffCard.is_active == True)
+        .order_by(StaffCard.id.desc())
+        .first()
+    )
+
+    if card:
+        return card
+
+    return (
+        db.query(StaffCard)
+        .filter(StaffCard.staff_id == staff_id)
+        .order_by(StaffCard.id.desc())
         .first()
     )
 
@@ -532,33 +552,25 @@ def _build_staff_position_label(value: str | None) -> str:
     )
 
 
-def _build_staff_qr_payload(db: Session, staff: Staff) -> str:
-    center = db.query(Center).filter(Center.id == staff.center_id).first()
-    school_year = None
-    if staff.school_year_id:
-        school_year = (
-            db.query(SchoolYear)
-            .filter(SchoolYear.id == staff.school_year_id)
-            .first()
-        )
-
+def _build_staff_qr_payload(card: StaffCard, staff: Staff) -> str:
     payload_lines = [
-        "NOVA_ID_STAFF",
+        "NOVA_ID_STAFF_CARD",
+        f"card_id={card.id}",
         f"staff_id={staff.id}",
         f"staff_code={staff.staff_code}",
+        f"card_code={card.card_code}",
+        f"qr_token={card.qr_token}",
         f"full_name={staff.first_name} {staff.last_name}".strip(),
         f"group={staff.staff_group}",
         f"position={staff.staff_position}",
-        f"center_id={staff.center_id}",
-        f"center_name={center.name if center else ''}",
-        f"school_year={school_year.name if school_year else ''}",
-        f"is_active={staff.is_active}",
+        f"is_active={card.is_active}",
     ]
     return "\n".join(payload_lines)
 
 
 def _build_staff_card_context(request: Request, db: Session, staff: Staff) -> dict:
     center = db.query(Center).filter(Center.id == staff.center_id).first()
+    card = _get_latest_card_for_staff(db, staff.id)
 
     return {
         "request": request,
@@ -566,13 +578,14 @@ def _build_staff_card_context(request: Request, db: Session, staff: Staff) -> di
         "staff_id": staff.id,
         "staff_full_name": f"{staff.first_name} {staff.last_name}".strip(),
         "staff_code": staff.staff_code,
+        "staff_card_code": card.card_code if card else None,
         "staff_photo_url": staff.photo_path,
         "staff_group": staff.staff_group,
         "staff_group_label": _build_staff_group_label(staff.staff_group),
         "staff_position": staff.staff_position,
         "staff_position_label": _build_staff_position_label(staff.staff_position),
         "staff_department": staff.department,
-        "qr_image_url": str(request.url_for("staff_card_qr", staff_id=staff.id)),
+        "qr_image_url": str(request.url_for("staff_card_qr", staff_id=staff.id)) if card else None,
     }
 
 
@@ -1064,7 +1077,15 @@ def staff_card_qr(
     db: Session = Depends(get_db),
 ):
     staff = _get_staff_or_404(db, staff_id)
-    payload = _build_staff_qr_payload(db=db, staff=staff)
+    card = _get_latest_card_for_staff(db, staff_id)
+
+    if not card:
+        raise HTTPException(
+            status_code=404,
+            detail="Este miembro del personal no tiene un carnet emitido.",
+        )
+
+    payload = _build_staff_qr_payload(card=card, staff=staff)
 
     qr = qrcode.QRCode(
         version=2,
