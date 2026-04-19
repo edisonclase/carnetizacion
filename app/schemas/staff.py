@@ -14,14 +14,12 @@ ALLOWED_STAFF_POSITIONS = {
     "secretaria",
     "digitador",
     "administrativo_otro",
-
     "conserje",
     "mayordomo",
     "jardinero",
     "portero",
     "sereno",
     "apoyo_otro",
-
     "docente",
     "director",
     "subdirector",
@@ -31,6 +29,12 @@ ALLOWED_STAFF_POSITIONS = {
     "orientador",
     "orientadora",
     "tecnico_otro",
+}
+
+ALLOWED_GENDERS = {
+    "masculino",
+    "femenino",
+    "otro",
 }
 
 NATIONAL_ID_RE = re.compile(r"^[0-9A-Za-z\- ]+$")
@@ -53,6 +57,8 @@ class StaffBase(BaseModel):
     national_id: str | None = None
     photo_path: str | None = None
 
+    gender: str | None = None
+
     staff_group: str
     staff_position: str
     department: str | None = None
@@ -69,7 +75,7 @@ class StaffBase(BaseModel):
             raise ValueError("Este campo no puede estar vacío.")
         return value
 
-    @field_validator("national_id", "photo_path", "department", mode="before")
+    @field_validator("national_id", "photo_path", "department", "gender", mode="before")
     @classmethod
     def normalize_optional_fields(cls, value: str | None) -> str | None:
         return _normalize_optional_string(value)
@@ -93,6 +99,16 @@ class StaffBase(BaseModel):
         normalized = value.strip().lower()
         if normalized not in ALLOWED_STAFF_POSITIONS:
             raise ValueError("Cargo de personal no válido.")
+        return normalized
+
+    @field_validator("gender")
+    @classmethod
+    def validate_gender(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in ALLOWED_GENDERS:
+            raise ValueError("Sexo no válido.")
         return normalized
 
     @field_validator("national_id")
@@ -119,6 +135,8 @@ class StaffUpdate(BaseModel):
     national_id: str | None = None
     photo_path: str | None = None
 
+    gender: str | None = None
+
     staff_group: str | None = None
     staff_position: str | None = None
     department: str | None = None
@@ -135,7 +153,7 @@ class StaffUpdate(BaseModel):
             raise ValueError("Este campo no puede estar vacío.")
         return value
 
-    @field_validator("national_id", "photo_path", "department", mode="before")
+    @field_validator("national_id", "photo_path", "department", "gender", mode="before")
     @classmethod
     def normalize_optional_fields(cls, value: str | None) -> str | None:
         return _normalize_optional_string(value)
@@ -165,6 +183,16 @@ class StaffUpdate(BaseModel):
         normalized = value.strip().lower()
         if normalized not in ALLOWED_STAFF_POSITIONS:
             raise ValueError("Cargo de personal no válido.")
+        return normalized
+
+    @field_validator("gender")
+    @classmethod
+    def validate_gender(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        normalized = value.strip().lower()
+        if normalized not in ALLOWED_GENDERS:
+            raise ValueError("Sexo no válido.")
         return normalized
 
     @field_validator("national_id")

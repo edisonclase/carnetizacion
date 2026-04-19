@@ -27,6 +27,8 @@ class Staff(Base):
     national_id: Mapped[str | None] = mapped_column(String(50), nullable=True)
     photo_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    gender: Mapped[str | None] = mapped_column(String(20), nullable=True, index=True)
+
     staff_group: Mapped[str] = mapped_column(String(50), nullable=False, index=True)
     staff_position: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     department: Mapped[str | None] = mapped_column(String(150), nullable=True)
