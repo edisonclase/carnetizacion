@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carnet de Personal - Frente</title>
+    <link rel="stylesheet" href="/static/staff_card.css" />
+</head>
+<body class="card-body">
+    <article
+        class="card staff-card-front"
+        style="
+            --card-bg: {{ center_background_color or '#ffffff' }};
+            --card-text: {{ center_text_color or '#1e293b' }};
+            --card-primary: {{ center_primary_color or '#1f8f4a' }};
+            --card-secondary: {{ center_secondary_color or '#0b3d24' }};
+            --card-accent: {{ center_accent_color or '#f4c95d' }};
+        "
+    >
+        <div class="card-topbar"></div>
+
+        <header class="staff-brand-header">
+            <div class="staff-logo-badge">
+                {% if center_logo_url %}
+                <img
+                    src="{{ center_logo_url }}"
+                    alt="Logo del centro"
+                    class="center-logo"
+                />
+                {% else %}
+                <div class="center-logo center-logo-placeholder"></div>
+                {% endif %}
+            </div>
+
+            <div class="staff-brand-copy">
+                <h1>{{ center_name }}</h1>
+
+                <div class="staff-brand-meta">
+                    {% if phone %}<span>{{ phone }}</span>{% endif %}
+                    {% if email %}<span>{{ email }}</span>{% endif %}
+                </div>
+
+                <p class="staff-card-title">Carnet institucional del personal</p>
+            </div>
+        </header>
+
+        <section class="staff-photo-section">
+            {% if staff_photo_url %}
+            <img src="{{ staff_photo_url }}" alt="Foto del personal" class="staff-photo" />
+            {% else %}
+            <div class="staff-photo-placeholder">Foto</div>
+            {% endif %}
+        </section>
+
+        <section class="staff-identity-section">
+            <h2>{{ staff_full_name }}</h2>
+            <p class="staff-position">{{ staff_position_label }}</p>
+            <p class="staff-group">{{ staff_group_label }}</p>
+            {% if staff_department %}
+            <p class="staff-department">{{ staff_department }}</p>
+            {% endif %}
+        </section>
+
+        <footer class="staff-footer">
+            <div class="staff-credential-box">
+                <span>Código</span>
+                <strong>{{ staff_code or staff_id }}</strong>
+            </div>
+
+            <div class="staff-qr-box">
+                {% if qr_image_url %}
+                <img src="{{ qr_image_url }}" alt="QR del personal" class="staff-qr-image" />
+                {% else %}
+                <div class="staff-qr-placeholder">QR</div>
+                {% endif %}
+            </div>
+        </footer>
+    </article>
+</body>
+</html>

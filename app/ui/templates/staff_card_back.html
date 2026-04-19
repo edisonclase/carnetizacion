@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Carnet de Personal - Reverso</title>
+    <link rel="stylesheet" href="/static/staff_card.css" />
+</head>
+<body class="card-body">
+    <article
+        class="card staff-card-back"
+        style="
+            --card-bg: {{ center_background_color or '#ffffff' }};
+            --card-text: {{ center_text_color or '#1e293b' }};
+            --card-primary: {{ center_primary_color or '#1f8f4a' }};
+            --card-secondary: {{ center_secondary_color or '#0b3d24' }};
+            --card-accent: {{ center_accent_color or '#f4c95d' }};
+        "
+    >
+        <div class="card-topbar"></div>
+
+        <header class="staff-back-header">
+            <div class="staff-back-logo-wrap">
+                {% if center_logo_url %}
+                <img
+                    src="{{ center_logo_url }}"
+                    alt="Logo del centro"
+                    class="staff-back-logo"
+                />
+                {% else %}
+                <div class="staff-back-logo center-logo-placeholder"></div>
+                {% endif %}
+            </div>
+        </header>
+
+        <section class="staff-back-panel">
+            <div class="staff-back-block">
+                <h3>Misión</h3>
+                <p>{{ mission or "-" }}</p>
+            </div>
+
+            <div class="staff-back-block">
+                <h3>Visión</h3>
+                <p>{{ vision or "-" }}</p>
+            </div>
+
+            <div class="staff-back-block">
+                <h3>Valores</h3>
+                <p>{{ values or "-" }}</p>
+            </div>
+        </section>
+
+        <section class="staff-loss-strip">
+            <p>{{ card_loss_notice or "Si encuentra este carnet, favor devolverlo al centro." }}</p>
+            <p>{{ card_loss_contact or phone or email or "Contacte al centro educativo." }}</p>
+        </section>
+
+        <footer class="staff-back-footer">
+            <span>{{ card_footer_text or "by Aula Nova" }}</span>
+        </footer>
+    </article>
+</body>
+</html>

@@ -937,3 +937,127 @@ def staff_list(request: Request):
 @router.get("/admin/staff/register")
 def staff_register(request: Request):
     return templates.TemplateResponse("staff_register.html", {"request": request})
+
+def _get_staff_or_404(db: Session, staff_id: int) -> Staff:
+    staff = db.query(Staff).filter(Staff.id == staff_id).first()
+    if not staff:
+        raise HTTPException(status_code=404, detail="Personal no encontrado.")
+    return staff
+
+
+def _build_staff_group_label(value: str | None) -> str:
+    mapping = {
+        "administrativo": "Personal administrativo",
+        "apoyo": "Personal de apoyo",
+        "docente_tecnico": "Personal docente / técnico",
+    }
+    return mapping.get(str(value or "").strip().lower(), "Personal institucional")
+
+
+def _build_staff_position_label(value: str | None) -> str:
+    mapping = {
+        "secretaria": "Secretaria",
+        "digitador": "Digitador",
+        "administrativo_otro": "Administrativo",
+        "conserje": "Conserje",
+        "mayordomo": "Mayordomo",
+        "jardinero": "Jardinero",
+        "portero": "Portero",
+        "sereno": "Sereno",
+        "apoyo_otro": "Personal de apoyo",
+        "docente": "Docente",
+        "director": "Director",
+        "subdirector": "Subdirector",
+        "coordinador": "Coordinador",
+        "psicologo": "Psicólogo",
+        "psicologa": "Psicóloga",
+        "orientador": "Orientador",
+        "orientadora": "Orientadora",
+        "tecnico_otro": "Técnico",
+    }
+    return mapping.get(str(value or "").strip().lower(), str(value or "Personal").replace("_", " ").title())
+
+
+def _build_staff_card_context(request: Request, db: Session, staff: Staff) -> dict:
+    center = db.query(Center).filter(Center.id == staff.center_id).first()
+
+    return {
+        "request": request,
+        **_build_center_theme(center),
+        "staff_id": staff.id,
+        "staff_full_name": f"{staff.first_name} {staff.last_name}".strip(),
+        "staff_code": staff.staff_code,
+        "staff_photo_url": staff.photo_path,
+        "staff_group": staff.staff_group,
+        "staff_group_label": _build_staff_group_label(staff.staff_group),
+        "staff_position": staff.staff_position,
+        "staff_position_label": _build_staff_position_label(staff.staff_position),
+        "staff_department": staff.department,
+        "qr_image_url": None,
+    }
+
+
+@router.get("/admin/staff", response_class=HTMLResponse)
+def staff_list_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_list.html",
+        context={"request": request},
+    )
+
+
+@router.get("/admin/staff/register", response_class=HTMLResponse)
+def staff_register_page(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_register.html",
+        context={"request": request},
+    )
+
+
+@router.get("/admin/staff/{staff_id}/print", response_class=HTMLResponse)
+def staff_single_print_page(
+    request: Request,
+    staff_id: int,
+    db: Session = Depends(get_db),
+):
+    staff = _get_staff_or_404(db, staff_id)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_card_single_print.html",
+        context={
+            "request": request,
+            "staff_id": staff.id,
+        },
+    )
+
+
+@router.get("/staff/{staff_id}/card/front", response_class=HTMLResponse)
+def staff_card_front(
+    request: Request,
+    staff_id: int,
+    db: Session = Depends(get_db),
+):
+    staff = _get_staff_or_404(db, staff_id)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_card_front.html",
+        context=_build_staff_card_context(request=request, db=db, staff=staff),
+    )
+
+
+@router.get("/staff/{staff_id}/card/back", response_class=HTMLResponse)
+def staff_card_back(
+    request: Request,
+    staff_id: int,
+    db: Session = Depends(get_db),
+):
+    staff = _get_staff_or_404(db, staff_id)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_card_back.html",
+        context=_build_staff_card_context(request=request, db=db, staff=staff),
+    )
