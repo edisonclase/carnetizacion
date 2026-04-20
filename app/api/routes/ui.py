@@ -1148,3 +1148,17 @@ def staff_card_back(
         name="staff_card_back.html",
         context=_build_staff_card_context(request=request, db=db, staff=staff),
     )
+
+@router.get("/admin/staff/{staff_id}/edit", response_class=HTMLResponse)
+def edit_staff_view(
+    request: Request,
+    staff_id: int,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_edit.html",
+        context={
+            "request": request,
+            "staff_id": staff_id,
+        },
+    )    
