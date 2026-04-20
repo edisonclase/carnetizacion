@@ -408,3 +408,34 @@ input[type="checkbox"] {
     gap: 12px;
     flex-wrap: wrap;
 }
+
+/* ACCIONES */
+td button {
+    margin: 2px;
+    padding: 6px 10px;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+td button:nth-child(1) {
+    background-color: #0b3d24;
+    color: white;
+}
+
+td button:nth-child(2) {
+    background-color: #1f8f4a;
+    color: white;
+}
+
+td button:nth-child(3) {
+    background-color: #f4c95d;
+    color: #0e1b14;
+}
+
+td button:hover {
+    opacity: 0.85;
+    transform: translateY(-1px);
+}

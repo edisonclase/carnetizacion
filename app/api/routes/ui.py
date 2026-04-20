@@ -1051,6 +1051,20 @@ def staff_register_page(request: Request):
         name="staff_register.html",
         context={"request": request},
     )
+    
+@router.get("/admin/staff/{staff_id}/edit", response_class=HTMLResponse)
+def edit_staff_view(
+    request: Request,
+    staff_id: int,
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_edit.html",
+        context={
+            "request": request,
+            "staff_id": staff_id,
+        },
+    )
 
 
 @router.get("/admin/staff/{staff_id}/print", response_class=HTMLResponse)

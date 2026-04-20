@@ -77,6 +77,7 @@ def create_staff(payload: StaffCreate, db: Session = Depends(get_db)):
         staff_code=payload.staff_code,
         national_id=payload.national_id,
         photo_path=payload.photo_path,
+        gender=payload.gender,
         staff_group=payload.staff_group,
         staff_position=payload.staff_position,
         department=payload.department,

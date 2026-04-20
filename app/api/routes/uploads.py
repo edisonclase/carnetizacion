@@ -77,3 +77,11 @@ def upload_student_photo(file: UploadFile = File(...)):
         "message": "Foto subida correctamente.",
         "file_url": file_url,
     }
+    
+@router.post("/staff/photo")
+def upload_staff_photo(file: UploadFile = File(...)):
+    file_url = _save_upload(file, BASE_STATIC_DIR / "staff" / "photos", "staff_photo")
+    return {
+        "message": "Foto de personal subida correctamente.",
+        "file_url": file_url,
+    }

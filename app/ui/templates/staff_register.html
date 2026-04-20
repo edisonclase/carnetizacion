@@ -9,7 +9,6 @@
 
 <div class="register-shell">
 
-    <!-- SIDEBAR -->
     <aside class="register-sidebar">
         <div class="brand-block">
             <h1>Nova ID</h1>
@@ -24,10 +23,7 @@
         </nav>
     </aside>
 
-    <!-- MAIN -->
     <main class="register-main">
-
-        <!-- HEADER -->
         <header class="page-header">
             <div>
                 <h2>Registro de Personal</h2>
@@ -35,10 +31,8 @@
             </div>
         </header>
 
-        <!-- FORMULARIO -->
         <form id="staffForm" class="register-form">
 
-            <!-- CARD: DATOS PERSONALES -->
             <section class="register-card">
                 <div class="card-title-row">
                     <h3>Datos personales</h3>
@@ -47,65 +41,74 @@
 
                 <div class="form-grid two-cols">
                     <div class="field">
-                        <label>Nombre</label>
+                        <label for="first_name">Nombre</label>
                         <input type="text" id="first_name" required />
                     </div>
 
                     <div class="field">
-                        <label>Apellido</label>
+                        <label for="last_name">Apellido</label>
                         <input type="text" id="last_name" required />
                     </div>
-                </div>
-            </section>
-
-            <!-- CARD: DATOS LABORALES -->
-            <section class="register-card">
-                <div class="card-title-row">
-                    <h3>Datos laborales</h3>
-                    <span>Información institucional del personal</span>
-                </div>
-
-                <div class="form-grid two-cols">
 
                     <div class="field">
-                        <label>Código</label>
+                        <label for="staff_code">Código</label>
                         <input type="text" id="staff_code" required />
                     </div>
 
                     <div class="field">
-                        <label>Grupo</label>
-                        <select id="staff_group">
-                            <option value="administrativo">Administrativo</option>
-                            <option value="apoyo">Apoyo</option>
-                            <option value="docente_tecnico">Docente/Técnico</option>
+                        <label for="national_id">Cédula</label>
+                        <input type="text" id="national_id" />
+                    </div>
+
+                    <div class="field">
+                        <label for="gender">Sexo</label>
+                        <select id="gender" required>
+                            <option value="">Seleccione</option>
+                            <option value="masculino">Masculino</option>
+                            <option value="femenino">Femenino</option>
+                            <option value="otro">Otro</option>
                         </select>
                     </div>
 
-                    <div class="field field-span-2">
-                        <label>Cargo</label>
+                    <div class="field">
+                        <label for="staff_group">Grupo</label>
+                        <select id="staff_group">
+                            <option value="administrativo">Administrativo</option>
+                            <option value="apoyo">Apoyo</option>
+                            <option value="docente_tecnico">Docente / Técnico</option>
+                        </select>
+                    </div>
+
+                    <div class="field">
+                        <label for="staff_position">Cargo</label>
                         <input type="text" id="staff_position" required />
                     </div>
 
                     <div class="field">
-                        <label>Estado</label>
+                        <label for="department">Departamento</label>
+                        <input type="text" id="department" />
+                    </div>
+
+                    <div class="field">
+                        <label for="is_active">Estado</label>
                         <select id="is_active">
                             <option value="true">Activo</option>
                             <option value="false">Inactivo</option>
                         </select>
                     </div>
 
+                    <div class="field field-span-2">
+                        <label for="photo">Foto del personal</label>
+                        <input type="file" id="photo" accept="image/*" />
+                    </div>
                 </div>
             </section>
 
-            <!-- ACCIONES -->
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">
-                    Guardar personal
-                </button>
+                <button type="submit" class="btn btn-primary">Guardar personal</button>
             </div>
 
         </form>
-
     </main>
 
 </div>
