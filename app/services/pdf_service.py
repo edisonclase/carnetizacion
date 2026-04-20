@@ -1,4 +1,7 @@
-from weasyprint import HTML
+try:
+    from weasyprint import HTML
+except Exception:
+    HTML = None
 
 
 def render_pdf_from_html(html_content: str, base_url: str) -> bytes:
