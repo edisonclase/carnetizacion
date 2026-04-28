@@ -28,6 +28,43 @@
         </header>
 
         <section class="list-card">
+    <div class="card-title-row">
+        <h3>Filtros</h3>
+    </div>
+
+    <div class="filters-grid">
+        <div class="field">
+            <label>Grupo</label>
+            <select id="groupFilter">
+                <option value="">Todos</option>
+                <option value="administrativo">Administrativo</option>
+                <option value="apoyo">Apoyo</option>
+                <option value="docente_tecnico">Docente/Técnico</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label>Departamento</label>
+            <input type="text" id="deptFilter" />
+        </div>
+
+        <div class="field">
+            <label>Estado</label>
+            <select id="activeFilter">
+                <option value="">Todos</option>
+                <option value="true">Activo</option>
+                <option value="false">Inactivo</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="filter-actions">
+        <button class="btn btn-primary" onclick="applyFilters()">Filtrar</button>
+        <button class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
+    </div>
+</section>
+
+        <section class="list-card">
             <div class="table-wrapper">
                 <table>
                     <thead>

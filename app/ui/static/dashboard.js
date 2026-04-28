@@ -792,9 +792,35 @@ async function loadDashboard() {
         const staffBreakdown = computeStaffBreakdown(staffList);
         const staffAttendanceSummary = normalizeStaffAttendanceSummary(staffAttendanceSummaryRaw);
 
+        // 🔥 NUEVO BLOQUE PROFESIONAL
+        let staffSummaryData = null;
+
+        try {
+            const summaryRes = await apiFetch(`/staff/stats/summary?center_id=${centerId}&school_year_id=${schoolYearId}`);
+            if (summaryRes.ok) {
+                staffSummaryData = await summaryRes.json();
+            }
+        } catch (e) {
+            console.warn("No se pudo cargar resumen de personal");
+        }
+
         fillAttendanceCards(attendanceBreakdown);
         fillEnrollmentCards(enrollmentBreakdown);
-        fillStaffCards(staffBreakdown);
+
+        // 🔥 AQUÍ ESTÁ LA MEJORA
+        if (staffSummaryData) {
+            fillStaffCards({
+                total: staffSummaryData.total,
+                administrativo: staffSummaryData.por_grupo.administrativo || 0,
+                apoyo: staffSummaryData.por_grupo.apoyo || 0,
+                docente: staffSummaryData.por_grupo.docente_tecnico || 0,
+                activo: staffSummaryData.activos,
+                inactivo: staffSummaryData.inactivos,
+            });
+        } else {
+            fillStaffCards(staffBreakdown);
+        }
+
         fillStaffAttendanceCards(staffAttendanceSummary);
 
         setText("metricEntries", dailyReport.total_entries);
@@ -812,6 +838,7 @@ async function loadDashboard() {
         renderEnrollmentGenderChart(enrollmentBreakdown);
         renderStaffGenderChart(staffAttendanceSummary);
         renderStaffDepartmentChart(staffAttendanceSummary);
+
     } catch (error) {
         generalMessage.textContent = error.message || "Ocurrió un error cargando el dashboard.";
         resetDashboardVisuals();
@@ -823,40 +850,40 @@ async function loadDashboard() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", async () => {
-    try {
-        currentUser = await requireAuth([
-            "super_admin",
-            "admin_centro",
-            "registro",
-            "consulta",
-            "digitador",
-        ]);
+async function loadStaffStats() {
+    const res = await apiFetch("/staff/stats/summary");
 
-        configureRoleUI(currentUser);
-        setDefaultDate();
+    if (!res.ok) return;
 
-        await loadCenters();
-        await loadSchoolYears();
+    const data = await res.json();
 
-        const centerSelect = document.getElementById("centerId");
-        if (centerSelect) {
-            centerSelect.addEventListener("change", () => {
-                filterSchoolYearsByCenter(centerSelect.value);
-                updateCenterSettingsLinks();
-            });
-        }
+    document.getElementById("staffTotal").textContent = data.total;
+    document.getElementById("staffActivos").textContent = data.activos;
+    document.getElementById("staffInactivos").textContent = data.inactivos;
 
-        document.getElementById("loadDashboardBtn")?.addEventListener("click", loadDashboard);
-        document.getElementById("logoutBtn")?.addEventListener("click", logout);
+    // Render grupos
+    const groupContainer = document.getElementById("staffByGroup");
+    groupContainer.innerHTML = "";
 
-        document.getElementById("btnViewCourseSummary")?.addEventListener("click", handleViewCourseSummary);
-        document.getElementById("btnViewDailyDetail")?.addEventListener("click", handleViewDailyDetail);
-        document.getElementById("btnPrintGlobal")?.addEventListener("click", handlePrintGlobal);
-        document.getElementById("btnPrintByCourse")?.addEventListener("click", handlePrintByCourse);
-        document.getElementById("btnPrintMultiCourse")?.addEventListener("click", handlePrintMultiCourse);
-        document.getElementById("btnPrintExcuses")?.addEventListener("click", handlePrintExcuses);
-    } catch (error) {
-        console.error(error);
+    for (const key in data.por_grupo) {
+        groupContainer.innerHTML += `
+            <div class="mini-stat">
+                <span>${key}</span>
+                <strong>${data.por_grupo[key]}</strong>
+            </div>
+        `;
     }
-});
+
+    // Render departamentos
+    const deptContainer = document.getElementById("staffByDept");
+    deptContainer.innerHTML = "";
+
+    for (const key in data.por_departamento) {
+        deptContainer.innerHTML += `
+            <div class="mini-stat">
+                <span>${key}</span>
+                <strong>${data.por_departamento[key]}</strong>
+            </div>
+        `;
+    }
+}

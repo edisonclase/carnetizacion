@@ -163,3 +163,40 @@ def delete_staff(staff_id: int, db: Session = Depends(get_db)):
     db.delete(staff)
     db.commit()
     return None
+
+@router.get("/stats/summary")
+def staff_summary(
+    center_id: int | None = None,
+    school_year_id: int | None = None,
+    db: Session = Depends(get_db),
+):
+    query = db.query(Staff)
+
+    if center_id:
+        query = query.filter(Staff.center_id == center_id)
+
+    if school_year_id:
+        query = query.filter(Staff.school_year_id == school_year_id)
+
+    staff_list = query.all()
+
+    total = len(staff_list)
+    activos = len([s for s in staff_list if s.is_active])
+    inactivos = total - activos
+
+    grupos = {}
+    departamentos = {}
+
+    for s in staff_list:
+        grupos[s.staff_group] = grupos.get(s.staff_group, 0) + 1
+
+        dept = s.department or "Sin departamento"
+        departamentos[dept] = departamentos.get(dept, 0) + 1
+
+    return {
+        "total": total,
+        "activos": activos,
+        "inactivos": inactivos,
+        "por_grupo": grupos,
+        "por_departamento": departamentos,
+    }

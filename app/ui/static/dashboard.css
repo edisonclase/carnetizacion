@@ -767,3 +767,17 @@ tbody tr:hover {
 .charts-section-staff {
     margin-top: 8px;
 }
+
+.mini-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mini-stat {
+    background: #f1f5f9;
+    padding: 8px 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
