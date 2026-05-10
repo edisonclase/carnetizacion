@@ -1109,7 +1109,16 @@ def staff_cards_print_selected(
             detail="No se encontró personal para imprimir.",
         )
 
-    pages = _chunk_list(staff_members, 4)
+    staff_cards = [
+        _build_staff_card_context(
+            request=request,
+            db=db,
+            staff=staff,
+        )
+        for staff in staff_members
+    ]
+
+    pages = _chunk_list(staff_cards, 4)
 
     return templates.TemplateResponse(
         request=request,

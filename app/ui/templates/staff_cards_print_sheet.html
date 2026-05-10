@@ -3,86 +3,226 @@
 <head>
     <meta charset="UTF-8" />
     <title>Impresión múltiple de carnets de personal</title>
-    <link rel="stylesheet" href="/static/student_card_single_print.css" />
+    <link rel="stylesheet" href="/static/staff_card.css" />
+
     <style>
-        body {
-            background: #eef3f9;
+        @page {
+            size: A4 portrait;
+            margin: 8mm;
         }
 
-        .print-sheet-page {
-            width: 216mm;
-            min-height: 279mm;
-            margin: 0 auto 24px;
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            background: #eef3f9;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #ffffff;
+            border-bottom: 1px solid #d9e2f0;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .toolbar button {
+            height: 44px;
+            border: none;
+            border-radius: 12px;
+            padding: 0 18px;
+            background: #2563eb;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .print-page {
+            width: 210mm;
+            min-height: 297mm;
+            margin: 20px auto;
             padding: 10mm;
-            background: white;
-            box-sizing: border-box;
+            background: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10mm;
+            grid-template-columns: repeat(2, 112mm);
+            grid-auto-rows: 90mm;
+            gap: 14mm 8mm;
+            justify-content: center;
+            align-content: start;
+            box-sizing: border-box;
             page-break-after: always;
         }
 
-        .staff-print-pair {
+        .staff-card-pair {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 53.98mm 53.98mm;
             gap: 4mm;
             align-items: start;
-            justify-items: center;
+            justify-content: center;
         }
 
-        .staff-print-pair iframe {
-            width: 58mm;
-            height: 91mm;
-            border: none;
-            background: white;
-            overflow: hidden;
+        .staff-card-pair .card {
+            box-shadow: none;
         }
 
         @media print {
-            .print-toolbar {
+            html,
+            body {
+                background: #ffffff;
+            }
+
+            .toolbar {
                 display: none;
             }
 
-            body {
-                background: white;
-            }
-
-            .print-sheet-page {
+            .print-page {
                 margin: 0;
+                padding: 8mm;
                 box-shadow: none;
                 page-break-after: always;
-            }
-
-            .staff-print-pair iframe {
-                width: 58mm;
-                height: 91mm;
             }
         }
     </style>
 </head>
 <body>
-    <div class="print-toolbar">
-        <button type="button" onclick="window.print()">Imprimir carnets seleccionados</button>
+
+<div class="toolbar">
+    <button type="button" onclick="window.print()">
+        Imprimir carnets seleccionados
+    </button>
+</div>
+
+{% for page in pages %}
+<section class="print-page">
+
+    {% for card in page %}
+    <div class="staff-card-pair">
+
+        <article
+            class="card staff-card-front"
+            style="
+                --card-bg: {{ card.center_background_color or '#ffffff' }};
+                --card-text: {{ card.center_text_color or '#1e293b' }};
+                --card-primary: {{ card.center_primary_color or '#1f8f4a' }};
+                --card-secondary: {{ card.center_secondary_color or '#0b3d24' }};
+                --card-accent: {{ card.center_accent_color or '#f4c95d' }};
+            "
+        >
+            <div class="card-topbar"></div>
+
+            <header class="staff-brand-header">
+                <div class="staff-logo-badge">
+                    {% if card.center_logo_url %}
+                    <img src="{{ card.center_logo_url }}" alt="Logo del centro" class="center-logo" />
+                    {% else %}
+                    <div class="center-logo center-logo-placeholder"></div>
+                    {% endif %}
+                </div>
+
+                <div class="staff-brand-copy">
+                    <h1>{{ card.center_name }}</h1>
+
+                    <div class="staff-brand-meta">
+                        {% if card.phone %}<span>{{ card.phone }}</span>{% endif %}
+                        {% if card.email %}<span>{{ card.email }}</span>{% endif %}
+                    </div>
+
+                    <p class="staff-card-title">Carnet institucional del personal</p>
+                </div>
+            </header>
+
+            <section class="staff-photo-section">
+                {% if card.staff_photo_url %}
+                <img src="{{ card.staff_photo_url }}" alt="Foto del personal" class="staff-photo" />
+                {% else %}
+                <div class="staff-photo-placeholder">Foto</div>
+                {% endif %}
+            </section>
+
+            <section class="staff-identity-section">
+                <h2>{{ card.staff_full_name }}</h2>
+                <p class="staff-position">{{ card.staff_position_label }}</p>
+                <p class="staff-group">{{ card.staff_group_label }}</p>
+                {% if card.staff_department %}
+                <p class="staff-department">{{ card.staff_department }}</p>
+                {% endif %}
+            </section>
+
+            <footer class="staff-footer">
+                <div class="staff-credential-box">
+                    <span>Código</span>
+                    <strong>{{ card.staff_code or card.staff_id }}</strong>
+                </div>
+
+                <div class="staff-qr-box">
+                    {% if card.qr_image_url %}
+                    <img src="{{ card.qr_image_url }}" alt="QR del personal" class="staff-qr-image" />
+                    {% else %}
+                    <div class="staff-qr-placeholder">QR</div>
+                    {% endif %}
+                </div>
+            </footer>
+        </article>
+
+        <article
+            class="card staff-card-back"
+            style="
+                --card-bg: {{ card.center_background_color or '#ffffff' }};
+                --card-text: {{ card.center_text_color or '#1e293b' }};
+                --card-primary: {{ card.center_primary_color or '#1f8f4a' }};
+                --card-secondary: {{ card.center_secondary_color or '#0b3d24' }};
+                --card-accent: {{ card.center_accent_color or '#f4c95d' }};
+            "
+        >
+            <div class="card-topbar"></div>
+
+            <header class="staff-back-header">
+                <div class="staff-back-logo-wrap">
+                    {% if card.center_logo_url %}
+                    <img src="{{ card.center_logo_url }}" alt="Logo del centro" class="staff-back-logo" />
+                    {% else %}
+                    <div class="staff-back-logo center-logo-placeholder"></div>
+                    {% endif %}
+                </div>
+            </header>
+
+            <section class="staff-back-panel">
+                <div class="staff-back-block">
+                    <h3>Misión</h3>
+                    <p>{{ card.mission or "-" }}</p>
+                </div>
+
+                <div class="staff-back-block">
+                    <h3>Visión</h3>
+                    <p>{{ card.vision or "-" }}</p>
+                </div>
+
+                <div class="staff-back-block">
+                    <h3>Valores</h3>
+                    <p>{{ card.values or "-" }}</p>
+                </div>
+            </section>
+
+            <section class="staff-loss-strip">
+                <p>{{ card.card_loss_notice or "Si encuentra este carnet, favor devolverlo al centro." }}</p>
+                <p>{{ card.card_loss_contact or card.phone or card.email or "Contacte al centro educativo." }}</p>
+            </section>
+
+            <footer class="staff-back-footer">
+                <span>{{ card.card_footer_text or "by Aula Nova" }}</span>
+            </footer>
+        </article>
+
     </div>
-
-    {% for page in pages %}
-    <main class="print-sheet-page">
-        {% for staff in page %}
-        <section class="staff-print-pair">
-            <iframe
-                src="/staff/{{ staff.id }}/card/front?v={{ staff.id }}"
-                title="Frente carnet personal {{ staff.id }}"
-                loading="eager"
-            ></iframe>
-
-            <iframe
-                src="/staff/{{ staff.id }}/card/back?v={{ staff.id }}"
-                title="Reverso carnet personal {{ staff.id }}"
-                loading="eager"
-            ></iframe>
-        </section>
-        {% endfor %}
-    </main>
     {% endfor %}
+
+</section>
+{% endfor %}
+
 </body>
 </html>
