@@ -41,18 +41,13 @@ function novaHide(id) {
 function novaActivateCurrentLink() {
     const currentPath = window.location.pathname;
 
-    document.querySelectorAll(".sidebar-nav a").forEach((link) => {
+    document.querySelectorAll(".nova-sidebar .sidebar-nav a").forEach((link) => {
         link.classList.remove("active");
 
         const navPath = link.getAttribute("data-nav-path");
-
         if (!navPath) return;
 
-        if (currentPath === navPath) {
-            link.classList.add("active");
-        }
-
-        if (navPath !== "/dashboard" && currentPath.startsWith(navPath + "/")) {
+        if (currentPath === navPath || (navPath !== "/dashboard" && currentPath.startsWith(navPath + "/"))) {
             link.classList.add("active");
         }
     });
@@ -70,33 +65,13 @@ async function initializeNovaSidebar() {
         const user = await response.json();
         const role = user.role;
 
-        if (novaCanViewStudents(role)) {
-            novaShow("navStudentsLink");
-        }
-
-        if (novaCanManageStudents(role)) {
-            novaShow("navRegisterLink");
-        }
-
-        if (novaCanViewStaff(role)) {
-            novaShow("navStaffListLink");
-        }
-
-        if (novaCanManageStaff(role)) {
-            novaShow("navStaffRegisterLink");
-        }
-
-        if (novaCanManageCenterSettings(role)) {
-            novaShow("navCenterSettingsLink");
-        }
-
-        if (novaCanAccessScanner(role)) {
-            novaShow("navAttendanceScannerLink");
-        }
-
-        if (novaCanAccessBilling(role)) {
-            novaShow("navBillingLink");
-        }
+        if (novaCanViewStudents(role)) novaShow("navStudentsLink");
+        if (novaCanManageStudents(role)) novaShow("navRegisterLink");
+        if (novaCanViewStaff(role)) novaShow("navStaffListLink");
+        if (novaCanManageStaff(role)) novaShow("navStaffRegisterLink");
+        if (novaCanManageCenterSettings(role)) novaShow("navCenterSettingsLink");
+        if (novaCanAccessScanner(role)) novaShow("navAttendanceScannerLink");
+        if (novaCanAccessBilling(role)) novaShow("navBillingLink");
 
         if (novaRole(role) !== "super_admin") {
             novaHide("navDocsLink");

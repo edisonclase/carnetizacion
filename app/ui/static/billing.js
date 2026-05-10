@@ -1,10 +1,13 @@
 document.addEventListener("DOMContentLoaded", async () => {
-
-    // 🔐 SOLO SUPER ADMIN
     const user = await requireAuth(["super_admin"]);
 
-    document.getElementById("userInfo").textContent =
-        `${user.full_name} (${roleLabel(user.role)})`;
+    const userInfo = document.getElementById("userInfo");
+    if (userInfo) {
+        userInfo.innerHTML = `
+            <strong>${user.full_name}</strong>
+            <span>${roleLabel(user.role)}</span>
+        `;
+    }
 
     const tableBody = document.getElementById("billingTableBody");
 
@@ -15,8 +18,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             let url = "/billing/invoices?";
 
-            if (centerId) url += `center_id=${centerId}&`;
-            if (status) url += `status=${status}&`;
+            if (centerId) url += `center_id=${encodeURIComponent(centerId)}&`;
+            if (status) url += `status=${encodeURIComponent(status)}&`;
 
             const response = await apiFetch(url);
 
@@ -27,15 +30,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
 
             renderTable(data);
-
         } catch (error) {
             console.error(error);
-            alert(error.message);
+            alert(error.message || "No se pudieron cargar las facturas.");
         }
     }
 
     function renderTable(invoices) {
         tableBody.innerHTML = "";
+
+        if (!invoices.length) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="8" class="empty-row">No hay facturas registradas.</td>
+                </tr>
+            `;
+            return;
+        }
 
         invoices.forEach(inv => {
             const tr = document.createElement("tr");
@@ -58,47 +69,40 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
-    // 📌 EVENTOS
+    document.getElementById("btnFiltrar")?.addEventListener("click", loadInvoices);
+    document.getElementById("btnRefrescar")?.addEventListener("click", loadInvoices);
 
-    document.getElementById("btnFiltrar").addEventListener("click", loadInvoices);
-
-    document.getElementById("btnRefrescar").addEventListener("click", loadInvoices);
-
-    document.getElementById("btnNuevaFactura").addEventListener("click", () => {
-        alert("Formulario de creación (próxima fase)");
+    document.getElementById("btnNuevaFactura")?.addEventListener("click", () => {
+        alert("Formulario de creación en próxima fase.");
     });
 
-    // 💳 REGISTRAR PAGO
     tableBody.addEventListener("click", async (e) => {
-        if (e.target.classList.contains("btnPagar")) {
-            const invoiceId = e.target.dataset.id;
+        if (!e.target.classList.contains("btnPagar")) return;
 
-            const amount = prompt("Monto a pagar:");
+        const invoiceId = e.target.dataset.id;
+        const amount = prompt("Monto a pagar:");
 
-            if (!amount) return;
+        if (!amount) return;
 
-            try {
-                const response = await apiFetch("/billing/payments", {
-                    method: "POST",
-                    body: JSON.stringify({
-                        invoice_id: Number(invoiceId),
-                        amount: Number(amount)
-                    })
-                });
+        try {
+            const response = await apiFetch("/billing/payments", {
+                method: "POST",
+                body: JSON.stringify({
+                    invoice_id: Number(invoiceId),
+                    amount: Number(amount),
+                }),
+            });
 
-                if (!response.ok) {
-                    throw new Error("Error registrando pago");
-                }
-
-                alert("Pago registrado correctamente");
-                loadInvoices();
-
-            } catch (error) {
-                alert(error.message);
+            if (!response.ok) {
+                throw new Error("Error registrando pago");
             }
+
+            alert("Pago registrado correctamente");
+            loadInvoices();
+        } catch (error) {
+            alert(error.message || "No se pudo registrar el pago.");
         }
     });
 
-    // 🚀 INIT
     loadInvoices();
 });

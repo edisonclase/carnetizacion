@@ -11,6 +11,10 @@ function setAccessToken(token) {
 
 function clearAccessToken() {
     localStorage.removeItem(AUTH_STORAGE_KEY);
+
+    // Limpieza de llaves antiguas usadas en pruebas anteriores
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("token");
 }
 
 function getStoredUser() {
@@ -96,11 +100,11 @@ function roleLabel(role) {
 }
 
 function canManageStudents(role) {
-    return ["super_admin", "admin_centro", "registro"].includes(role);
+    return ["super_admin", "admin_centro", "registro", "digitador"].includes(role);
 }
 
 function canViewStudents(role) {
-    return ["super_admin", "admin_centro", "registro", "consulta"].includes(role);
+    return ["super_admin", "admin_centro", "registro", "consulta", "digitador"].includes(role);
 }
 
 function canPrint(role) {

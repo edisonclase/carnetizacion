@@ -9,6 +9,12 @@ const activeFilter = document.getElementById("activeFilter");
 
 async function loadStaff() {
     const res = await apiFetch(`/staff/?t=${Date.now()}`);
+
+    if (!res.ok) {
+        table.innerHTML = `<tr><td colspan="7">No se pudo cargar el personal.</td></tr>`;
+        return;
+    }
+
     staff = await res.json();
     filteredStaff = [...staff];
 
@@ -27,10 +33,10 @@ function render(data) {
         const row = document.createElement("tr");
 
         row.innerHTML = `
-            <td>${item.staff_code}</td>
-            <td>${item.first_name} ${item.last_name}</td>
-            <td>${item.staff_group}</td>
-            <td>${item.staff_position}</td>
+            <td>${item.staff_code || "-"}</td>
+            <td>${item.first_name || ""} ${item.last_name || ""}</td>
+            <td>${item.staff_group || "-"}</td>
+            <td>${item.staff_position || "-"}</td>
             <td>${item.department || "-"}</td>
             <td>
                 <span class="status-badge ${item.is_active ? "status-active" : "status-inactive"}">
@@ -50,7 +56,6 @@ function render(data) {
     });
 }
 
-// 🔍 FILTROS
 function applyFilters() {
     const group = groupFilter.value;
     const dept = deptFilter.value.toLowerCase();
@@ -76,7 +81,6 @@ function clearFilters() {
     render(filteredStaff);
 }
 
-// 🔥 ACCIONES
 function viewCard(id) {
     window.open(`/staff/${id}/card/front`, "_blank");
 }
@@ -89,10 +93,14 @@ function editStaff(id) {
     window.location.href = `/admin/staff/${id}/edit`;
 }
 
-// 🔄 INIT
 async function init() {
-    await requireAuth(["super_admin", "registro", "consulta"]);
-    await loadStaff();
+    try {
+        await requireAuth(["super_admin", "admin_centro", "registro", "consulta"]);
+        await loadStaff();
+    } catch (error) {
+        console.error(error);
+        table.innerHTML = `<tr><td colspan="7">No autorizado o sesión expirada.</td></tr>`;
+    }
 }
 
 init();
