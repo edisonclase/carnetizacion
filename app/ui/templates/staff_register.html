@@ -3,25 +3,14 @@
 <head>
     <meta charset="UTF-8" />
     <title>Registro de Personal</title>
+    <link rel="stylesheet" href="/static/sidebar.css" />
     <link rel="stylesheet" href="/static/staff_register.css" />
 </head>
 <body>
 
 <div class="register-shell">
 
-    <aside class="register-sidebar">
-        <div class="brand-block">
-            <h1>Nova ID</h1>
-            <p>Gestión institucional</p>
-            <span class="brand-caption">Registro de personal del centro educativo</span>
-        </div>
-
-        <nav class="sidebar-nav">
-            <a href="/dashboard">Dashboard</a>
-            <a href="/admin/staff/register" class="active">Registrar personal</a>
-            <a href="/admin/staff">Listado de personal</a>
-        </nav>
-    </aside>
+    {% include "partials/sidebar.html" %}
 
     <main class="register-main">
         <header class="page-header">
@@ -114,6 +103,7 @@
 </div>
 
 <script src="/static/auth.js"></script>
+<script src="/static/sidebar.js"></script>
 <script src="/static/staff_register.js"></script>
 
 </body>

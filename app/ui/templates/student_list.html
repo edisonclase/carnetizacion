@@ -4,24 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Listado Interno de Estudiantes - Nova ID</title>
+    <link rel="stylesheet" href="/static/sidebar.css" />
     <link rel="stylesheet" href="/static/student_list.css" />
 </head>
 <body>
     <div class="student-list-shell">
-        <aside class="student-list-sidebar">
-            <div class="brand-block">
-                <h1>Nova ID</h1>
-                <p>Administración interna</p>
-                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin/students/register" id="navRegisterStudentLink">Registro de estudiantes</a>
-                <a href="/admin/students" class="active">Listado de estudiantes</a>
-                <a href="/docs" target="_blank" id="navDocsStudentLink">API Docs</a>
-            </nav>
-        </aside>
+        {% include "partials/sidebar.html" %}
 
         <main class="student-list-main">
             <header class="page-header">
@@ -136,6 +124,7 @@
     </div>
 
     <script src="/static/auth.js"></script>
+    <script src="/static/sidebar.js"></script>
     <script src="/static/student_list.js"></script>
 </body>
 </html>

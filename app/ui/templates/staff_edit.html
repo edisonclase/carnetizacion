@@ -4,24 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Editar Personal - Nova ID</title>
+    <link rel="stylesheet" href="/static/sidebar.css" />
     <link rel="stylesheet" href="/static/staff_edit.css" />
 </head>
 <body data-staff-id="{{ staff_id }}">
     <div class="edit-shell">
-        <aside class="edit-sidebar">
-            <div class="brand-block">
-                <h1>Nova ID</h1>
-                <p>Administración interna</p>
-                <small class="brand-caption">Uso exclusivo del equipo Nova ID</small>
-            </div>
-
-            <nav class="sidebar-nav">
-                <a href="/dashboard">Dashboard</a>
-                <a href="/admin/staff/register" id="navRegisterLink">Registro de personal</a>
-                <a href="/admin/staff" class="active">Listado de personal</a>
-                <a href="/docs" target="_blank" id="navDocsLink">API Docs</a>
-            </nav>
-        </aside>
+        {% include "partials/sidebar.html" %}
 
         <main class="edit-main">
             <header class="page-header">
@@ -127,6 +115,7 @@
     </div>
 
     <script src="/static/auth.js"></script>
+    <script src="/static/sidebar.js"></script>
     <script src="/static/staff_edit.js"></script>
 </body>
 </html>

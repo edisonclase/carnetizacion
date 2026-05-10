@@ -3,60 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <title>Facturación - Nova ID</title>
+    <link rel="stylesheet" href="/static/sidebar.css">
     <link rel="stylesheet" href="/static/dashboard.css">
     <link rel="stylesheet" href="/static/billing.css">
 </head>
 <body>
 
-<div class="dashboard-container">
+<div class="app-shell">
 
-    <!-- HEADER -->
-    <header class="dashboard-header">
-        <h1>💰 Módulo de Facturación</h1>
-        <div id="userInfo"></div>
-    </header>
+    {% include "partials/sidebar.html" %}
 
-    <!-- ACCIONES -->
-    <section class="billing-actions">
-        <button id="btnNuevaFactura">+ Nueva Factura</button>
-        <button id="btnRefrescar">Actualizar</button>
-    </section>
+    <main class="main-content">
+        <header class="topbar">
+            <div>
+                <span class="page-eyebrow">Panel financiero</span>
+                <h2>Módulo de Facturación</h2>
+                <p>Control de pedidos, cobros, balances pendientes y estado financiero por centro.</p>
+            </div>
 
-    <!-- FILTROS -->
-    <section class="billing-filters">
-        <input type="number" id="filterCenterId" placeholder="ID Centro">
-        <select id="filterStatus">
-            <option value="">Todos</option>
-            <option value="pending">Pendiente</option>
-            <option value="partial">Parcial</option>
-            <option value="paid">Pagado</option>
-        </select>
-        <button id="btnFiltrar">Filtrar</button>
-    </section>
+            <div class="topbar-right">
+                <div class="user-chip" id="userInfo">
+                    <strong>Cargando...</strong>
+                    <span>Usuario autenticado</span>
+                </div>
+            </div>
+        </header>
 
-    <!-- TABLA -->
-    <section class="billing-table">
-        <table>
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Factura</th>
-                    <th>Centro</th>
-                    <th>Total</th>
-                    <th>Pagado</th>
-                    <th>Pendiente</th>
-                    <th>Estado</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody id="billingTableBody">
-            </tbody>
-        </table>
-    </section>
+        <section class="filters-card billing-actions">
+            <button id="btnNuevaFactura" type="button" class="action-btn">+ Nueva Factura</button>
+            <button id="btnRefrescar" type="button" class="action-btn action-btn-secondary">Actualizar</button>
+        </section>
+
+        <section class="filters-card billing-filters">
+            <div class="filters-grid">
+                <div class="field">
+                    <label for="filterCenterId">ID Centro</label>
+                    <input type="number" id="filterCenterId" placeholder="ID Centro">
+                </div>
+
+                <div class="field">
+                    <label for="filterStatus">Estado</label>
+                    <select id="filterStatus">
+                        <option value="">Todos</option>
+                        <option value="pending">Pendiente</option>
+                        <option value="partial">Parcial</option>
+                        <option value="paid">Pagado</option>
+                    </select>
+                </div>
+
+                <div class="field field-actions">
+                    <button id="btnFiltrar" type="button">Filtrar</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-card billing-table">
+            <div class="table-card-header">
+                <div>
+                    <h3>Facturas registradas</h3>
+                    <p>Listado operativo de facturación empresarial Nova ID.</p>
+                </div>
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Factura</th>
+                            <th>Centro</th>
+                            <th>Total</th>
+                            <th>Pagado</th>
+                            <th>Pendiente</th>
+                            <th>Estado</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billingTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
 
 </div>
 
 <script src="/static/auth.js"></script>
+<script src="/static/sidebar.js"></script>
 <script src="/static/billing.js"></script>
 </body>
 </html>
