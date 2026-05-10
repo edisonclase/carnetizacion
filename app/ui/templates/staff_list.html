@@ -14,17 +14,23 @@
 
     <main class="student-list-main">
         <header class="page-header">
-            <h2>Listado de Personal</h2>
+            <div>
+                <h2>Listado de Personal</h2>
+                <p>Consulta, filtro, selección múltiple e impresión de carnets del personal.</p>
+            </div>
         </header>
+
+        <div id="alertBox" class="alert-box hidden" role="alert" aria-live="polite"></div>
 
         <section class="list-card">
             <div class="card-title-row">
                 <h3>Filtros</h3>
+                <span>Filtra el personal por grupo, departamento y estado.</span>
             </div>
 
             <div class="filters-grid">
                 <div class="field">
-                    <label>Grupo</label>
+                    <label for="groupFilter">Grupo</label>
                     <select id="groupFilter">
                         <option value="">Todos</option>
                         <option value="administrativo">Administrativo</option>
@@ -34,12 +40,12 @@
                 </div>
 
                 <div class="field">
-                    <label>Departamento</label>
-                    <input type="text" id="deptFilter" />
+                    <label for="deptFilter">Departamento</label>
+                    <input type="text" id="deptFilter" placeholder="Ej.: Registro, Coordinación..." />
                 </div>
 
                 <div class="field">
-                    <label>Estado</label>
+                    <label for="activeFilter">Estado</label>
                     <select id="activeFilter">
                         <option value="">Todos</option>
                         <option value="true">Activo</option>
@@ -49,16 +55,49 @@
             </div>
 
             <div class="filter-actions">
-                <button class="btn btn-primary" onclick="applyFilters()">Filtrar</button>
-                <button class="btn btn-secondary" onclick="clearFilters()">Limpiar</button>
+                <button class="btn btn-primary" type="button" id="applyFiltersBtn">Filtrar</button>
+                <button class="btn btn-secondary" type="button" id="clearFiltersBtn">Limpiar</button>
             </div>
         </section>
 
         <section class="list-card">
+            <div class="card-title-row">
+                <h3>Acciones masivas</h3>
+                <span id="resultCount">Cargando personal...</span>
+            </div>
+
+            <div class="bulk-actions">
+                <label class="select-all-label">
+                    <input type="checkbox" id="selectAllStaff" />
+                    <span>Seleccionar todos los visibles</span>
+                </label>
+
+                <div class="bulk-actions-right">
+                    <span id="selectedCount" class="selected-count">0 seleccionados</span>
+                    <button type="button" id="clearSelectedBtn" class="btn btn-neutral" disabled>
+                        Limpiar selección
+                    </button>
+                    <button type="button" id="printSelectedBtn" class="btn btn-success" disabled>
+                        Imprimir seleccionados
+                    </button>
+                    <button type="button" id="printVisibleBtn" class="btn btn-primary" disabled>
+                        Imprimir todos los visibles
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="list-card">
+            <div class="card-title-row">
+                <h3>Personal registrado</h3>
+                <span>Listado operativo con acciones rápidas.</span>
+            </div>
+
             <div class="table-wrapper">
                 <table>
                     <thead>
                         <tr>
+                            <th class="th-check"></th>
                             <th>Código</th>
                             <th>Nombre</th>
                             <th>Grupo</th>
@@ -70,7 +109,7 @@
                     </thead>
                     <tbody id="staffTable">
                         <tr>
-                            <td colspan="7">Cargando...</td>
+                            <td colspan="8" class="empty-row">Cargando...</td>
                         </tr>
                     </tbody>
                 </table>
