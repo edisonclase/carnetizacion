@@ -19,8 +19,6 @@ const thCheck = document.getElementById("thCheck");
 const thActions = document.getElementById("thActions");
 const logoutBtn = document.getElementById("logoutBtn");
 const headerUserChip = document.getElementById("headerUserChip");
-const navRegisterStudentLink = document.getElementById("navRegisterStudentLink");
-const navDocsStudentLink = document.getElementById("navDocsStudentLink");
 const pageSubtitle = document.getElementById("pageSubtitle");
 const tableModeLabel = document.getElementById("tableModeLabel");
 
@@ -58,7 +56,7 @@ function hideAlert() {
 }
 
 function escapeHtml(value) {
-    return String(value)
+    return String(value ?? "")
         .replaceAll("&", "&amp;")
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;")
@@ -104,14 +102,8 @@ function getStudentsUrl() {
 }
 
 function configureRoleUI(user) {
-    headerUserChip.textContent = `Nova ID · ${roleLabel(user.role)} · ${user.full_name}`;
-
-    if (!canManageStudents(user.role)) {
-        navRegisterStudentLink.style.display = "none";
-    }
-
-    if (user.role !== "super_admin") {
-        navDocsStudentLink.style.display = "none";
+    if (headerUserChip) {
+        headerUserChip.textContent = `Nova ID · ${roleLabel(user.role)} · ${user.full_name}`;
     }
 
     if (isConsultaRole(user.role)) {
@@ -119,6 +111,7 @@ function configureRoleUI(user) {
         tableModeLabel.textContent = "Listado de solo lectura";
         bulkActionsCard.style.display = "none";
         thCheck.style.display = "none";
+
         if (thActions) {
             thActions.textContent = "Acceso";
         }
@@ -241,17 +234,8 @@ function buildDynamicFiltersFromCurrentData() {
         sectionFilter.innerHTML += `<option value="${escapeHtml(section)}">${escapeHtml(section)}</option>`;
     });
 
-    if (grades.includes(selectedGrade)) {
-        gradeFilter.value = selectedGrade;
-    } else {
-        gradeFilter.value = "";
-    }
-
-    if (sections.includes(selectedSection)) {
-        sectionFilter.value = selectedSection;
-    } else {
-        sectionFilter.value = "";
-    }
+    gradeFilter.value = grades.includes(selectedGrade) ? selectedGrade : "";
+    sectionFilter.value = sections.includes(selectedSection) ? selectedSection : "";
 }
 
 function renderTable(data) {
@@ -263,10 +247,12 @@ function renderTable(data) {
                 <td colspan="8" class="empty-row">No se encontraron estudiantes con esos filtros.</td>
             </tr>
         `;
+
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.indeterminate = false;
         }
+
         return;
     }
 
@@ -400,6 +386,7 @@ function updateSelectedState() {
             selectAllCheckbox.checked = false;
             selectAllCheckbox.indeterminate = false;
         }
+
         return;
     }
 
@@ -581,16 +568,12 @@ gradeFilter.addEventListener("change", () => {
     );
 
     sectionFilter.innerHTML = `<option value="">Todas las secciones</option>`;
+
     sections.forEach((section) => {
         sectionFilter.innerHTML += `<option value="${escapeHtml(section)}">${escapeHtml(section)}</option>`;
     });
 
-    if (sections.includes(selectedSection)) {
-        sectionFilter.value = selectedSection;
-    } else {
-        sectionFilter.value = "";
-    }
-
+    sectionFilter.value = sections.includes(selectedSection) ? selectedSection : "";
     clearAllSelection();
 });
 
@@ -602,12 +585,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     try {
         hideAlert();
         selectedStudents = new Set();
-        currentUser = await requireAuth(["super_admin", "registro", "consulta"]);
+
+        currentUser = await requireAuth(["super_admin", "admin_centro", "registro", "consulta"]);
         configureRoleUI(currentUser);
+
         await loadFilters();
         await loadStudents();
+
         clearAllSelection();
     } catch (error) {
         console.error(error);
+        showAlert(error.message || "No se pudo cargar el listado de estudiantes.", "error");
     }
 });
