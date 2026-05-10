@@ -213,8 +213,8 @@ body.card-body {
 }
 
 .card-content-strong {
-    padding: 1.9mm 2.9mm 6.6mm;
-    gap: 1.35mm;
+    padding: 1.6mm 2.9mm 3.2mm;
+    gap: 1mm;
 }
 
 .photo-block {
@@ -314,15 +314,15 @@ body.card-body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.8mm;
+    gap: 0.5mm;
     margin-top: auto;
     margin-bottom: 0;
-    padding-bottom: 1.8mm;
+    padding-bottom: 0;
 }
 
 .qr-block-strong {
     margin-bottom: 0;
-    padding-bottom: 2.1mm;
+    padding-bottom: 0;
 }
 
 .qr-frame {
@@ -339,8 +339,9 @@ body.card-body {
 }
 
 .qr-frame-strong {
-    width: 14.4mm;
-    height: 14.4mm;
+    width: 13.2mm;
+    height: 13.2mm;
+    padding: 0.6mm;
 }
 
 .qr-image {

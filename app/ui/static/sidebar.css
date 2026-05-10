@@ -1,10 +1,15 @@
 .nova-sidebar {
     position: sticky;
     top: 0;
+    width: 260px;
+    min-width: 260px;
+    max-width: 260px;
     height: 100vh;
     padding: 28px 22px;
     background: #0b1220;
     border-right: 1px solid rgba(255, 255, 255, 0.06);
+    overflow-y: auto;
+    overflow-x: hidden;
 }
 
 .nova-sidebar .brand-block {
@@ -64,6 +69,38 @@
     box-shadow: 0 10px 26px rgba(2, 6, 23, 0.26);
 }
 
+.student-list-shell,
+.register-shell,
+.edit-shell,
+.settings-shell,
+.app-shell {
+    display: grid;
+    grid-template-columns: 260px minmax(0, 1fr);
+    min-height: 100vh;
+}
+
+.student-list-main,
+.register-main,
+.edit-main,
+.settings-main,
+.main-content {
+    min-width: 0;
+}
+
 .hidden {
     display: none !important;
+}
+
+@media (max-width: 860px) {
+    .student-list-shell,
+    .register-shell,
+    .edit-shell,
+    .settings-shell,
+    .app-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .nova-sidebar {
+        display: none;
+    }
 }
