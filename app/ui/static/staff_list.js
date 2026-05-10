@@ -215,9 +215,10 @@ function printStaffIds(ids) {
         return;
     }
 
-    ids.forEach((id) => {
-        window.open(`/admin/staff/${id}/print`, "_blank");
-    });
+    const params = new URLSearchParams();
+    ids.forEach((id) => params.append("ids", id));
+
+    window.open(`/admin/staff/cards/print-selected?${params.toString()}`, "_blank");
 }
 
 selectAllStaff.addEventListener("change", () => {

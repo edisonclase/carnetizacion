@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <title>Impresión múltiple de carnets de personal</title>
+    <link rel="stylesheet" href="/static/student_card_single_print.css" />
+    <style>
+        body {
+            background: #eef3f9;
+        }
+
+        .print-sheet-page {
+            width: 216mm;
+            min-height: 279mm;
+            margin: 0 auto 24px;
+            padding: 10mm;
+            background: white;
+            box-sizing: border-box;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10mm;
+            page-break-after: always;
+        }
+
+        .staff-print-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4mm;
+            align-items: start;
+            justify-items: center;
+        }
+
+        .staff-print-pair iframe {
+            width: 58mm;
+            height: 91mm;
+            border: none;
+            background: white;
+            overflow: hidden;
+        }
+
+        @media print {
+            .print-toolbar {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .print-sheet-page {
+                margin: 0;
+                box-shadow: none;
+                page-break-after: always;
+            }
+
+            .staff-print-pair iframe {
+                width: 58mm;
+                height: 91mm;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="print-toolbar">
+        <button type="button" onclick="window.print()">Imprimir carnets seleccionados</button>
+    </div>
+
+    {% for page in pages %}
+    <main class="print-sheet-page">
+        {% for staff in page %}
+        <section class="staff-print-pair">
+            <iframe
+                src="/staff/{{ staff.id }}/card/front?v={{ staff.id }}"
+                title="Frente carnet personal {{ staff.id }}"
+                loading="eager"
+            ></iframe>
+
+            <iframe
+                src="/staff/{{ staff.id }}/card/back?v={{ staff.id }}"
+                title="Reverso carnet personal {{ staff.id }}"
+                loading="eager"
+            ></iframe>
+        </section>
+        {% endfor %}
+    </main>
+    {% endfor %}
+</body>
+</html>

@@ -1083,7 +1083,42 @@ def staff_single_print_page(
             "staff_id": staff.id,
         },
     )
+    
+@router.get("/admin/staff/cards/print-selected", response_class=HTMLResponse)
+def staff_cards_print_selected(
+    request: Request,
+    ids: list[int] = Query(...),
+    db: Session = Depends(get_db),
+):
+    if not ids:
+        raise HTTPException(
+            status_code=400,
+            detail="Debes indicar al menos un miembro del personal.",
+        )
 
+    staff_members = (
+        db.query(Staff)
+        .filter(Staff.id.in_(ids))
+        .order_by(Staff.last_name.asc(), Staff.first_name.asc())
+        .all()
+    )
+
+    if not staff_members:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontró personal para imprimir.",
+        )
+
+    pages = _chunk_list(staff_members, 4)
+
+    return templates.TemplateResponse(
+        request=request,
+        name="staff_cards_print_sheet.html",
+        context={
+            "request": request,
+            "pages": pages,
+        },
+    )
 
 @router.get("/staff/{staff_id}/card/qr", name="staff_card_qr")
 def staff_card_qr(
@@ -1148,17 +1183,3 @@ def staff_card_back(
         name="staff_card_back.html",
         context=_build_staff_card_context(request=request, db=db, staff=staff),
     )
-
-@router.get("/admin/staff/{staff_id}/edit", response_class=HTMLResponse)
-def edit_staff_view(
-    request: Request,
-    staff_id: int,
-):
-    return templates.TemplateResponse(
-        request=request,
-        name="staff_edit.html",
-        context={
-            "request": request,
-            "staff_id": staff_id,
-        },
-    )    
