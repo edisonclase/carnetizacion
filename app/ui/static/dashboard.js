@@ -887,3 +887,58 @@ async function loadStaffStats() {
         `;
     }
 }
+
+async function initializeDashboard() {
+    try {
+        const userResponse = await apiFetch("/auth/me");
+
+        if (!userResponse.ok) {
+            window.location.href = "/login";
+            return;
+        }
+
+        currentUser = await userResponse.json();
+
+        configureRoleUI(currentUser);
+        setDefaultDate();
+
+        await loadCenters();
+        await loadSchoolYears();
+
+        const centerSelect = document.getElementById("centerId");
+        if (centerSelect) {
+            centerSelect.addEventListener("change", () => {
+                filterSchoolYearsByCenter(centerSelect.value);
+                updateCenterSettingsLinks();
+            });
+        }
+
+        const loadDashboardBtn = document.getElementById("loadDashboardBtn");
+        if (loadDashboardBtn) {
+            loadDashboardBtn.addEventListener("click", loadDashboard);
+        }
+
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+            logoutBtn.addEventListener("click", () => {
+                localStorage.removeItem("access_token");
+                localStorage.removeItem("token");
+                window.location.href = "/login";
+            });
+        }
+
+        document.getElementById("btnViewCourseSummary")?.addEventListener("click", handleViewCourseSummary);
+        document.getElementById("btnViewDailyDetail")?.addEventListener("click", handleViewDailyDetail);
+        document.getElementById("btnPrintGlobal")?.addEventListener("click", handlePrintGlobal);
+        document.getElementById("btnPrintByCourse")?.addEventListener("click", handlePrintByCourse);
+        document.getElementById("btnPrintMultiCourse")?.addEventListener("click", handlePrintMultiCourse);
+        document.getElementById("btnPrintExcuses")?.addEventListener("click", handlePrintExcuses);
+
+        resetDashboardVisuals();
+    } catch (error) {
+        console.error("Error inicializando dashboard:", error);
+        window.location.href = "/login";
+    }
+}
+
+document.addEventListener("DOMContentLoaded", initializeDashboard);
