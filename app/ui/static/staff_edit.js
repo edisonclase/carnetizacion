@@ -14,6 +14,7 @@ const firstNameInput = document.getElementById("first_name");
 const lastNameInput = document.getElementById("last_name");
 const staffCodeInput = document.getElementById("staff_code");
 const nationalIdInput = document.getElementById("national_id");
+const genderInput = document.getElementById("gender");
 const departmentInput = document.getElementById("department");
 const isActiveInput = document.getElementById("is_active");
 
@@ -29,6 +30,33 @@ const photoPreview = document.getElementById("photoPreview");
 let currentUser = null;
 let currentStaff = null;
 
+const STAFF_POSITIONS_BY_GROUP = {
+    administrativo: [
+        { value: "secretaria", label: "Secretaria" },
+        { value: "digitador", label: "Digitador" },
+        { value: "administrativo_otro", label: "Administrativo / Otro" },
+    ],
+    apoyo: [
+        { value: "conserje", label: "Conserje" },
+        { value: "mayordomo", label: "Mayordomo" },
+        { value: "jardinero", label: "Jardinero" },
+        { value: "portero", label: "Portero" },
+        { value: "sereno", label: "Sereno" },
+        { value: "apoyo_otro", label: "Apoyo / Otro" },
+    ],
+    docente_tecnico: [
+        { value: "docente", label: "Docente" },
+        { value: "director", label: "Director" },
+        { value: "subdirector", label: "Subdirector" },
+        { value: "coordinador", label: "Coordinador" },
+        { value: "psicologo", label: "Psicólogo" },
+        { value: "psicologa", label: "Psicóloga" },
+        { value: "orientador", label: "Orientador" },
+        { value: "orientadora", label: "Orientadora" },
+        { value: "tecnico_otro", label: "Técnico / Otro" },
+    ],
+};
+
 function showAlert(message, type = "success") {
     alertBox.textContent = message;
     alertBox.className = `alert-box ${type}`;
@@ -42,18 +70,7 @@ function hideAlert() {
 function setLoading(isLoading) {
     saveBtn.disabled = isLoading;
     reloadBtn.disabled = isLoading;
-    if (uploadPhotoBtn) uploadPhotoBtn.disabled = isLoading;
-}
-
-function setPhotoPreview(path) {
-    if (path) {
-        photoPreview.src = path;
-        photoPreviewWrap.classList.remove("hidden");
-        photoUploadStatus.textContent = "Foto lista.";
-    } else {
-        photoPreviewWrap.classList.add("hidden");
-        photoUploadStatus.textContent = "Sin foto.";
-    }
+    uploadPhotoBtn.disabled = isLoading;
 }
 
 function normalizeNullableText(value) {
@@ -61,7 +78,54 @@ function normalizeNullableText(value) {
     return text ? text : null;
 }
 
+function populatePositions(groupValue, selectedValue = "") {
+    const positions = STAFF_POSITIONS_BY_GROUP[groupValue] || [];
+
+    staffPositionSelect.innerHTML = `<option value="">Seleccione</option>`;
+
+    positions.forEach((position) => {
+        const option = document.createElement("option");
+        option.value = position.value;
+        option.textContent = position.label;
+        staffPositionSelect.appendChild(option);
+    });
+
+    staffPositionSelect.disabled = positions.length === 0;
+
+    if (selectedValue) {
+        staffPositionSelect.value = selectedValue;
+    }
+}
+
+function setPhotoPreview(path, statusText = "Foto lista.") {
+    if (path) {
+        photoPreview.src = path;
+        photoPreviewWrap.classList.remove("hidden");
+        photoUploadStatus.textContent = statusText;
+    } else {
+        photoPreview.removeAttribute("src");
+        photoPreviewWrap.classList.add("hidden");
+        photoUploadStatus.textContent = "Sin foto.";
+    }
+}
+
+function previewSelectedPhoto() {
+    const file = photoFileInput.files?.[0];
+
+    if (!file) {
+        setPhotoPreview(photoPathInput.value || null);
+        return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+    photoPreview.src = previewUrl;
+    photoPreviewWrap.classList.remove("hidden");
+    photoUploadStatus.textContent = "Vista previa lista. Falta guardar para subirla.";
+}
+
 async function loadStaff() {
+    hideAlert();
+
     const res = await apiFetch(`/staff/${staffId}`);
 
     if (!res.ok) {
@@ -74,11 +138,12 @@ async function loadStaff() {
     lastNameInput.value = currentStaff.last_name || "";
     staffCodeInput.value = currentStaff.staff_code || "";
     nationalIdInput.value = currentStaff.national_id || "";
+    genderInput.value = currentStaff.gender || "";
     departmentInput.value = currentStaff.department || "";
     isActiveInput.value = String(Boolean(currentStaff.is_active));
 
     staffGroupSelect.value = currentStaff.staff_group || "";
-    staffPositionSelect.value = currentStaff.staff_position || "";
+    populatePositions(currentStaff.staff_group || "", currentStaff.staff_position || "");
 
     photoPathInput.value = currentStaff.photo_path || "";
     setPhotoPreview(currentStaff.photo_path);
@@ -87,41 +152,57 @@ async function loadStaff() {
 }
 
 async function uploadPhoto() {
-    if (!photoFileInput.files.length) {
+    const file = photoFileInput.files?.[0];
+
+    if (!file) {
         showAlert("Selecciona una imagen.", "error");
-        return;
+        return null;
     }
 
     const formData = new FormData();
-    formData.append("file", photoFileInput.files[0]);
+    formData.append("file", file);
 
-    try {
-        const res = await apiFetch("/uploads/staff/photo", {
-            method: "POST",
-            body: formData,
-        });
+    const res = await apiFetch("/uploads/staff/photo", {
+        method: "POST",
+        body: formData,
+    });
 
-        const data = await res.json();
+    const data = await res.json().catch(() => ({}));
 
-        if (!res.ok) throw new Error(data.detail);
-
-        photoPathInput.value = data.file_url;
-        setPhotoPreview(data.file_url);
-
-        showAlert("Foto actualizada.", "success");
-    } catch (err) {
-        showAlert(err.message, "error");
+    if (!res.ok) {
+        throw new Error(data.detail || "No se pudo subir la foto del personal.");
     }
+
+    photoPathInput.value = data.file_url;
+    setPhotoPreview(data.file_url, "Foto subida correctamente.");
+
+    return data.file_url;
 }
 
-async function saveStaff(e) {
-    e.preventDefault();
+async function saveStaff(event) {
+    event.preventDefault();
     hideAlert();
     setLoading(true);
 
     try {
-        if (!firstNameInput.value || !lastNameInput.value) {
+        if (!firstNameInput.value.trim() || !lastNameInput.value.trim()) {
             throw new Error("Nombre y apellido son obligatorios.");
+        }
+
+        if (!staffCodeInput.value.trim()) {
+            throw new Error("El código interno es obligatorio.");
+        }
+
+        if (!staffGroupSelect.value) {
+            throw new Error("Selecciona el grupo del personal.");
+        }
+
+        if (!staffPositionSelect.value) {
+            throw new Error("Selecciona el cargo del personal.");
+        }
+
+        if (photoFileInput.files?.length) {
+            await uploadPhoto();
         }
 
         const payload = {
@@ -129,7 +210,7 @@ async function saveStaff(e) {
             last_name: lastNameInput.value.trim(),
             staff_code: staffCodeInput.value.trim(),
             national_id: normalizeNullableText(nationalIdInput.value),
-            gender: document.getElementById("gender")?.value || null,
+            gender: normalizeNullableText(genderInput.value),
             staff_group: staffGroupSelect.value,
             staff_position: staffPositionSelect.value,
             department: normalizeNullableText(departmentInput.value),
@@ -139,21 +220,26 @@ async function saveStaff(e) {
 
         const res = await apiFetch(`/staff/${staffId}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload),
         });
 
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
 
-        if (!res.ok) throw new Error(data.detail);
+        if (!res.ok) {
+            const detail = Array.isArray(data.detail)
+                ? data.detail.map((item) => item.msg).join(" | ")
+                : data.detail;
 
-        // 🔥 REGENERAR CARNET AUTOMÁTICAMENTE
-        await apiFetch(`/staff-cards/auto/${staffId}`, { method: "POST" });
+            throw new Error(detail || "No se pudo actualizar el personal.");
+        }
 
-        showAlert("Personal actualizado y carnet renovado.", "success");
+        currentStaff = data;
+        photoFileInput.value = "";
+        staffCodeChip.textContent = `Código: ${data.staff_code || "-"}`;
 
+        showAlert("Personal actualizado correctamente.", "success");
     } catch (err) {
-        showAlert(err.message, "error");
+        showAlert(err.message || "Ocurrió un error al guardar.", "error");
     } finally {
         setLoading(false);
     }
@@ -164,11 +250,30 @@ async function init() {
         currentUser = await requireAuth(["super_admin", "registro", "admin_centro"]);
         await loadStaff();
     } catch (err) {
-        showAlert("Error cargando datos.", "error");
+        console.error(err);
+        showAlert(err.message || "Error cargando datos.", "error");
     }
 }
 
-uploadPhotoBtn.addEventListener("click", uploadPhoto);
+staffGroupSelect.addEventListener("change", () => {
+    populatePositions(staffGroupSelect.value);
+});
+
+photoFileInput.addEventListener("change", previewSelectedPhoto);
+
+uploadPhotoBtn.addEventListener("click", async () => {
+    try {
+        hideAlert();
+        setLoading(true);
+        await uploadPhoto();
+        showAlert("Foto subida correctamente. Recuerda guardar los cambios.", "success");
+    } catch (err) {
+        showAlert(err.message || "No se pudo subir la foto.", "error");
+    } finally {
+        setLoading(false);
+    }
+});
+
 reloadBtn.addEventListener("click", loadStaff);
 logoutBtn.addEventListener("click", logout);
 form.addEventListener("submit", saveStaff);
